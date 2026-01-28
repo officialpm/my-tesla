@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 — 2026-01-28
+- Add `default-car` command and local defaults file (`~/.my_tesla.json`) so you can set a default vehicle.
+- Reduce sensitive output: stop printing VINs in `auth`/`list` by default.
+
 ## 0.1.1 — 2026-01-28
 - Add `summary` command for a one-line, chat-friendly status output.
 

@@ -23,7 +23,11 @@ This uses a browser-based login flow and stores tokens locally in `~/.tesla_cach
 ## Usage
 
 ```bash
+# List vehicles (shows which one is default)
 python3 scripts/tesla.py list
+
+# Set default car (used when you don't pass --car)
+python3 scripts/tesla.py default-car "PM’s M3 LR"
 
 # One-line summary (best for chat)
 python3 scripts/tesla.py summary

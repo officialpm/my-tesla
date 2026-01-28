@@ -32,6 +32,9 @@ This opens a Tesla login URL. Log in, then paste the callback URL back into the 
 # List vehicles
 python3 {baseDir}/scripts/tesla.py list
 
+# Set a default car (used when --car is not passed)
+python3 {baseDir}/scripts/tesla.py default-car "PM’s M3 LR"
+
 # One-line summary (best for chat)
 python3 {baseDir}/scripts/tesla.py summary
 

@@ -3,9 +3,12 @@
 # Local tokens / caches
 *.token
 
-# Do not commit any json outputs, but allow the skill/profile files
+# Do not commit any json outputs, but allow ClawdHub metadata
 *.json
 !.clawdhub/**
+
+# Local defaults file for selecting a default car (created in your home dir)
+# ~/.my_tesla.json
 
 # Python
 __pycache__/

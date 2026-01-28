@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 CACHE_FILE = Path.home() / ".tesla_cache.json"
+DEFAULTS_FILE = Path.home() / ".my_tesla.json"
 
 
 def get_tesla(email: str):
@@ -38,20 +39,50 @@ def get_tesla(email: str):
     return tesla
 
 
+def load_defaults():
+    """Load optional user defaults from ~/.my_tesla.json (local only)."""
+    try:
+        if DEFAULTS_FILE.exists():
+            return json.loads(DEFAULTS_FILE.read_text())
+    except Exception:
+        pass
+    return {}
+
+
+def save_defaults(obj: dict):
+    DEFAULTS_FILE.write_text(json.dumps(obj, indent=2) + "\n")
+
+
+def resolve_default_car_name():
+    # Highest priority: env var
+    env_name = os.environ.get("MY_TESLA_DEFAULT_CAR")
+    if env_name:
+        return env_name.strip()
+
+    defaults = load_defaults()
+    name = defaults.get("default_car")
+    return name.strip() if isinstance(name, str) and name.strip() else None
+
+
 def get_vehicle(tesla, name: str = None):
-    """Get vehicle by name or first vehicle."""
+    """Get vehicle by name, else default car, else first vehicle."""
     vehicles = tesla.vehicle_list()
     if not vehicles:
         print("❌ No vehicles found on this account", file=sys.stderr)
         sys.exit(1)
-    
-    if name:
+
+    target_name = name or resolve_default_car_name()
+
+    if target_name:
         for v in vehicles:
-            if v['display_name'].lower() == name.lower():
+            if v['display_name'].lower() == target_name.lower():
                 return v
-        print(f"❌ Vehicle '{name}' not found. Available: {', '.join(v['display_name'] for v in vehicles)}", file=sys.stderr)
+        print(
+            f"❌ Vehicle '{target_name}' not found. Available: {', '.join(v['display_name'] for v in vehicles)}",
+            file=sys.stderr,
+        )
         sys.exit(1)
-    
+
     return vehicles[0]
 
 
@@ -67,26 +98,35 @@ def cmd_auth(args):
     email = args.email or os.environ.get("TESLA_EMAIL")
     if not email:
         email = input("Tesla email: ").strip()
-    
+
     tesla = get_tesla(email)
     vehicles = tesla.vehicle_list()
     print(f"\n✅ Authentication cached at {CACHE_FILE}")
     print(f"\n🚗 Found {len(vehicles)} vehicle(s):")
     for v in vehicles:
-        print(f"   - {v['display_name']} ({v['vin']})")
+        # Avoid printing VINs by default.
+        print(f"   - {v['display_name']} ({v['state']})")
 
 
 def cmd_list(args):
     """List all vehicles."""
     tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
     vehicles = tesla.vehicle_list()
-    
+
+    default_name = resolve_default_car_name()
+
     print(f"Found {len(vehicles)} vehicle(s):\n")
     for i, v in enumerate(vehicles):
-        print(f"{i+1}. {v['display_name']}")
-        print(f"   VIN: {v['vin']}")
+        star = " (default)" if default_name and v['display_name'].lower() == default_name.lower() else ""
+        print(f"{i+1}. {v['display_name']}{star}")
+        # Avoid printing VIN in normal output (privacy). Use --json if you really need full data.
         print(f"   State: {v['state']}")
         print()
+
+    if default_name:
+        print(f"Default car: {default_name}")
+    else:
+        print("Default car: (none) — set with: python3 scripts/tesla.py default-car \"Name\"")
 
 
 def _c_to_f(c):
@@ -280,6 +320,23 @@ def cmd_summary(args):
     return cmd_status(args)
 
 
+def cmd_default_car(args):
+    """Set or show the default car used when --car is not provided."""
+    if not args.name:
+        name = resolve_default_car_name()
+        if name:
+            print(f"Default car: {name}")
+        else:
+            print("Default car: (none)")
+        return
+
+    defaults = load_defaults()
+    defaults["default_car"] = args.name
+    save_defaults(defaults)
+    print(f"✅ Default car set to: {args.name}")
+    print(f"Saved to: {DEFAULTS_FILE}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Tesla vehicle control")
     parser.add_argument("--email", "-e", help="Tesla account email")
@@ -301,6 +358,10 @@ def main():
 
     # Summary (alias)
     subparsers.add_parser("summary", help="One-line status summary")
+
+    # Default car
+    default_parser = subparsers.add_parser("default-car", help="Set/show default vehicle name")
+    default_parser.add_argument("name", nargs="?", help="Vehicle display name to set as default")
     
     # Lock/unlock
     subparsers.add_parser("lock", help="Lock the vehicle")
@@ -342,6 +403,7 @@ def main():
         "honk": cmd_honk,
         "flash": cmd_flash,
         "wake": cmd_wake,
+        "default-car": cmd_default_car,
     }
     
     try:
