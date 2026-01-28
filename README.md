@@ -42,9 +42,16 @@ python3 scripts/tesla.py --car "My Model 3" lock
 python3 scripts/tesla.py climate temp 72      # default: °F
 python3 scripts/tesla.py climate temp 22 --celsius
 python3 scripts/tesla.py charge limit 80
+
+# Trunk / frunk (safety gated)
+python3 scripts/tesla.py trunk trunk --yes
+python3 scripts/tesla.py trunk frunk --yes
+
+# Location (sensitive)
+python3 scripts/tesla.py location --yes
 ```
 
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (honk/flash) require `--yes`.
+- Some commands (location/trunk/honk/flash) require `--yes`.

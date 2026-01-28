@@ -376,17 +376,31 @@ def cmd_charge(args):
 
 
 def cmd_location(args):
-    """Get vehicle location."""
+    """Get vehicle location (sensitive)."""
+    require_yes(args, 'location')
     tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
-    
+
     data = vehicle.get_vehicle_data()
     drive = data['drive_state']
-    
+
     lat, lon = drive['latitude'], drive['longitude']
     print(f"📍 {vehicle['display_name']} Location: {lat}, {lon}")
     print(f"   https://www.google.com/maps?q={lat},{lon}")
+
+
+def cmd_trunk(args):
+    """Toggle frunk/trunk (requires --yes)."""
+    require_yes(args, 'trunk')
+    tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
+    vehicle = get_vehicle(tesla, args.car)
+    wake_vehicle(vehicle)
+
+    which = 'front' if args.which == 'frunk' else 'rear'
+    vehicle.command('ACTUATE_TRUNK', which_trunk=which)
+    label = 'Frunk' if which == 'front' else 'Trunk'
+    print(f"🧳 {vehicle['display_name']} {label} toggled")
 
 
 def cmd_honk(args):
@@ -494,8 +508,12 @@ def main():
     charge_parser.add_argument("value", nargs="?", help="Charge limit percent for 'limit' (e.g., 80)")
     
     # Location
-    subparsers.add_parser("location", help="Get vehicle location")
-    
+    subparsers.add_parser("location", help="Get vehicle location (requires --yes)")
+
+    # Trunk / frunk
+    trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")
+    trunk_parser.add_argument("which", choices=["trunk", "frunk"], help="Which to actuate")
+
     # Honk/flash
     subparsers.add_parser("honk", help="Honk the horn")
     subparsers.add_parser("flash", help="Flash the lights")
@@ -516,6 +534,7 @@ def main():
         "climate": cmd_climate,
         "charge": cmd_charge,
         "location": cmd_location,
+        "trunk": cmd_trunk,
         "honk": cmd_honk,
         "flash": cmd_flash,
         "wake": cmd_wake,

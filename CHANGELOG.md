@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 — 2026-01-28
+- Add `trunk` command (trunk/frunk) with safety gate (`--yes`).
+- Make `location` safety gated (`--yes`) to reduce accidental sensitive output.
+
 ## 0.1.3 — 2026-01-28
 - Add `report` command: a one-screen, chat-friendly status report.
 - Fix `climate temp` units: default is °F, with `--celsius` for °C.

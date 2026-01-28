@@ -61,8 +61,12 @@ python3 {baseDir}/scripts/tesla.py charge start
 python3 {baseDir}/scripts/tesla.py charge stop
 python3 {baseDir}/scripts/tesla.py charge limit 80
 
-# Location
-python3 {baseDir}/scripts/tesla.py location
+# Location (sensitive)
+python3 {baseDir}/scripts/tesla.py location --yes
+
+# Trunk / frunk (safety gated)
+python3 {baseDir}/scripts/tesla.py trunk trunk --yes
+python3 {baseDir}/scripts/tesla.py trunk frunk --yes
 
 # Fun / attention-grabbing
 python3 {baseDir}/scripts/tesla.py honk   --yes
@@ -72,7 +76,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `honk`, `flash` require `--yes`
+- `location`, `trunk`, `honk`, `flash` require `--yes`
 
 ## Privacy
 
