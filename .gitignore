@@ -1,0 +1,20 @@
+.DS_Store
+
+# Local tokens / caches
+*.token
+
+# Do not commit any json outputs, but allow the skill/profile files
+*.json
+!.clawdhub/**
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+package-lock.json
+
+# Local output artifacts
+*.log
+*.png
