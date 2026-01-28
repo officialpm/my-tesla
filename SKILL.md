@@ -38,6 +38,9 @@ python3 {baseDir}/scripts/tesla.py default-car "PM’s M3 LR"
 # One-line summary (best for chat)
 python3 {baseDir}/scripts/tesla.py summary
 
+# One-screen report (chat friendly, more detail)
+python3 {baseDir}/scripts/tesla.py report
+
 # Detailed status
 python3 {baseDir}/scripts/tesla.py status
 python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
@@ -49,7 +52,8 @@ python3 {baseDir}/scripts/tesla.py unlock
 # Climate
 python3 {baseDir}/scripts/tesla.py climate on
 python3 {baseDir}/scripts/tesla.py climate off
-python3 {baseDir}/scripts/tesla.py climate temp 72
+python3 {baseDir}/scripts/tesla.py climate temp 72      # default: °F
+python3 {baseDir}/scripts/tesla.py climate temp 22 --celsius
 
 # Charging
 python3 {baseDir}/scripts/tesla.py charge status

@@ -32,11 +32,15 @@ python3 scripts/tesla.py default-car "PM’s M3 LR"
 # One-line summary (best for chat)
 python3 scripts/tesla.py summary
 
+# One-screen report (chat friendly, more detail)
+python3 scripts/tesla.py report
+
 # Detailed status
 python3 scripts/tesla.py status
 
 python3 scripts/tesla.py --car "My Model 3" lock
-python3 scripts/tesla.py climate temp 72
+python3 scripts/tesla.py climate temp 72      # default: °F
+python3 scripts/tesla.py climate temp 22 --celsius
 python3 scripts/tesla.py charge limit 80
 ```
 

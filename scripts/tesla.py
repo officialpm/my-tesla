@@ -171,6 +171,84 @@ def _short_status(vehicle, data):
     return " • ".join(parts)
 
 
+def _fmt_temp_pair(c):
+    if c is None:
+        return None
+    f = _c_to_f(c)
+    if f is None:
+        return None
+    return f"{c}°C ({f:.0f}°F)"
+
+
+def _report(vehicle, data):
+    """One-screen status report (safe for chat)."""
+    charge = data.get('charge_state', {})
+    climate = data.get('climate_state', {})
+    vs = data.get('vehicle_state', {})
+
+    lines = []
+    lines.append(f"🚗 {vehicle['display_name']}")
+    lines.append(f"State: {vehicle.get('state')}")
+
+    locked = vs.get('locked')
+    if locked is not None:
+        lines.append(f"Locked: {_fmt_bool(locked, 'Yes', 'No')}")
+
+    batt = charge.get('battery_level')
+    rng = charge.get('battery_range')
+    if batt is not None and rng is not None:
+        lines.append(f"Battery: {batt}% ({rng:.0f} mi)")
+    elif batt is not None:
+        lines.append(f"Battery: {batt}%")
+
+    charging_state = charge.get('charging_state')
+    if charging_state is not None:
+        extra = []
+        limit = charge.get('charge_limit_soc')
+        if limit is not None:
+            extra.append(f"limit {limit}%")
+        if charging_state == 'Charging':
+            ttf = charge.get('time_to_full_charge')
+            if ttf is not None:
+                extra.append(f"{ttf:.1f}h to full")
+            rate = charge.get('charge_rate')
+            if rate is not None:
+                extra.append(f"{rate} mph")
+        suffix = f" ({', '.join(extra)})" if extra else ""
+        lines.append(f"Charging: {charging_state}{suffix}")
+
+    inside = _fmt_temp_pair(climate.get('inside_temp'))
+    outside = _fmt_temp_pair(climate.get('outside_temp'))
+    if inside:
+        lines.append(f"Inside: {inside}")
+    if outside:
+        lines.append(f"Outside: {outside}")
+
+    climate_on = climate.get('is_climate_on')
+    if climate_on is not None:
+        lines.append(f"Climate: {_fmt_bool(climate_on, 'On', 'Off')}")
+
+    odo = vs.get('odometer')
+    if odo is not None:
+        lines.append(f"Odometer: {odo:.0f} mi")
+
+    return "\n".join(lines)
+
+
+def cmd_report(args):
+    """One-screen status report."""
+    tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
+    vehicle = get_vehicle(tesla, args.car)
+    wake_vehicle(vehicle)
+    data = vehicle.get_vehicle_data()
+
+    if args.json:
+        print(json.dumps(data, indent=2))
+        return
+
+    print(_report(vehicle, data))
+
+
 def cmd_status(args):
     """Get vehicle status."""
     tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
@@ -179,9 +257,9 @@ def cmd_status(args):
     wake_vehicle(vehicle)
     data = vehicle.get_vehicle_data()
 
-    charge = data['charge_state']
-    climate = data['climate_state']
-    vehicle_state = data['vehicle_state']
+    charge = data.get('charge_state', {})
+    climate = data.get('climate_state', {})
+    vehicle_state = data.get('vehicle_state', {})
 
     if getattr(args, 'summary', False):
         print(_short_status(vehicle, data))
@@ -189,14 +267,41 @@ def cmd_status(args):
 
     # Human-friendly detailed view
     print(f"🚗 {vehicle['display_name']}")
-    print(f"   State: {vehicle['state']}")
-    print(f"   Battery: {charge['battery_level']}% ({charge['battery_range']:.0f} mi)")
-    print(f"   Charging: {charge['charging_state']}")
-    print(f"   Inside temp: {climate['inside_temp']}°C ({climate['inside_temp'] * 9/5 + 32:.0f}°F)")
-    print(f"   Outside temp: {climate['outside_temp']}°C ({climate['outside_temp'] * 9/5 + 32:.0f}°F)")
-    print(f"   Climate on: {climate['is_climate_on']}")
-    print(f"   Locked: {vehicle_state['locked']}")
-    print(f"   Odometer: {vehicle_state['odometer']:.0f} mi")
+    print(f"   State: {vehicle.get('state')}")
+
+    batt = charge.get('battery_level')
+    rng = charge.get('battery_range')
+    if batt is not None and rng is not None:
+        print(f"   Battery: {batt}% ({rng:.0f} mi)")
+    elif batt is not None:
+        print(f"   Battery: {batt}%")
+
+    charging_state = charge.get('charging_state')
+    if charging_state is not None:
+        print(f"   Charging: {charging_state}")
+
+    inside_c = climate.get('inside_temp')
+    outside_c = climate.get('outside_temp')
+    if inside_c is not None:
+        inside_f = _c_to_f(inside_c)
+        if inside_f is not None:
+            print(f"   Inside temp: {inside_c}°C ({inside_f:.0f}°F)")
+    if outside_c is not None:
+        outside_f = _c_to_f(outside_c)
+        if outside_f is not None:
+            print(f"   Outside temp: {outside_c}°C ({outside_f:.0f}°F)")
+
+    climate_on = climate.get('is_climate_on')
+    if climate_on is not None:
+        print(f"   Climate on: {climate_on}")
+
+    locked = vehicle_state.get('locked')
+    if locked is not None:
+        print(f"   Locked: {locked}")
+
+    odo = vehicle_state.get('odometer')
+    if odo is not None:
+        print(f"   Odometer: {odo:.0f} mi")
 
     if args.json:
         print(json.dumps(data, indent=2))
@@ -233,9 +338,14 @@ def cmd_climate(args):
         vehicle.command('CLIMATE_OFF')
         print(f"🌡️ {vehicle['display_name']} climate turned off")
     elif args.action == 'temp':
-        temp_c = (float(args.value) - 32) * 5/9 if args.fahrenheit else float(args.value)
+        if args.value is None:
+            raise ValueError("Missing temperature value")
+
+        value = float(args.value)
+        in_f = not getattr(args, "celsius", False)  # default: Fahrenheit unless --celsius
+        temp_c = (value - 32) * 5 / 9 if in_f else value
         vehicle.command('CHANGE_CLIMATE_TEMPERATURE_SETTING', driver_temp=temp_c, passenger_temp=temp_c)
-        print(f"🌡️ {vehicle['display_name']} temperature set to {args.value}°{'F' if args.fahrenheit else 'C'}")
+        print(f"🌡️ {vehicle['display_name']} temperature set to {value:g}°{'F' if in_f else 'C'}")
 
 
 def cmd_charge(args):
@@ -359,6 +469,9 @@ def main():
     # Summary (alias)
     subparsers.add_parser("summary", help="One-line status summary")
 
+    # Report (one-screen)
+    subparsers.add_parser("report", help="One-screen status report")
+
     # Default car
     default_parser = subparsers.add_parser("default-car", help="Set/show default vehicle name")
     default_parser.add_argument("name", nargs="?", help="Vehicle display name to set as default")
@@ -371,7 +484,9 @@ def main():
     climate_parser = subparsers.add_parser("climate", help="Climate control")
     climate_parser.add_argument("action", choices=["on", "off", "temp"])
     climate_parser.add_argument("value", nargs="?", help="Temperature value")
-    climate_parser.add_argument("--fahrenheit", "-f", action="store_true", default=True)
+    temp_units = climate_parser.add_mutually_exclusive_group()
+    temp_units.add_argument("--fahrenheit", "-f", action="store_true", help="Temperature value is in °F (default)")
+    temp_units.add_argument("--celsius", action="store_true", help="Temperature value is in °C")
     
     # Charge
     charge_parser = subparsers.add_parser("charge", help="Charging control")
@@ -395,6 +510,7 @@ def main():
         "list": cmd_list,
         "status": cmd_status,
         "summary": cmd_summary,
+        "report": cmd_report,
         "lock": cmd_lock,
         "unlock": cmd_unlock,
         "climate": cmd_climate,
