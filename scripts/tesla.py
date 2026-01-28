@@ -89,18 +89,65 @@ def cmd_list(args):
         print()
 
 
+def _c_to_f(c):
+    try:
+        return c * 9 / 5 + 32
+    except Exception:
+        return None
+
+
+def _fmt_bool(b, yes="Yes", no="No"):
+    return yes if b else no
+
+
+def _short_status(vehicle, data):
+    charge = data.get('charge_state', {})
+    climate = data.get('climate_state', {})
+    vs = data.get('vehicle_state', {})
+
+    batt = charge.get('battery_level')
+    rng = charge.get('battery_range')
+    charging = charge.get('charging_state')
+    locked = vs.get('locked')
+    inside_c = climate.get('inside_temp')
+    inside_f = _c_to_f(inside_c) if inside_c is not None else None
+    climate_on = climate.get('is_climate_on')
+
+    parts = [f"🚗 {vehicle['display_name']}"]
+    if locked is not None:
+        parts.append(f"🔒 {_fmt_bool(locked, 'Locked', 'Unlocked')}")
+    if batt is not None:
+        if rng is not None:
+            parts.append(f"🔋 {batt}% ({rng:.0f} mi)")
+        else:
+            parts.append(f"🔋 {batt}%")
+    if charging:
+        parts.append(f"⚡ {charging}")
+    if inside_c is not None and inside_f is not None:
+        parts.append(f"🌡️ {inside_f:.0f}°F")
+    if climate_on is not None:
+        parts.append(f"❄️ {_fmt_bool(climate_on, 'On', 'Off')}")
+
+    return " • ".join(parts)
+
+
 def cmd_status(args):
     """Get vehicle status."""
     tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
     vehicle = get_vehicle(tesla, args.car)
-    
+
     wake_vehicle(vehicle)
     data = vehicle.get_vehicle_data()
-    
+
     charge = data['charge_state']
     climate = data['climate_state']
     vehicle_state = data['vehicle_state']
-    
+
+    if getattr(args, 'summary', False):
+        print(_short_status(vehicle, data))
+        return
+
+    # Human-friendly detailed view
     print(f"🚗 {vehicle['display_name']}")
     print(f"   State: {vehicle['state']}")
     print(f"   Battery: {charge['battery_level']}% ({charge['battery_range']:.0f} mi)")
@@ -110,7 +157,7 @@ def cmd_status(args):
     print(f"   Climate on: {climate['is_climate_on']}")
     print(f"   Locked: {vehicle_state['locked']}")
     print(f"   Odometer: {vehicle_state['odometer']:.0f} mi")
-    
+
     if args.json:
         print(json.dumps(data, indent=2))
 
@@ -227,6 +274,12 @@ def cmd_wake(args):
     print(f"✅ {vehicle['display_name']} is awake")
 
 
+def cmd_summary(args):
+    """One-line status summary."""
+    args.summary = True
+    return cmd_status(args)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Tesla vehicle control")
     parser.add_argument("--email", "-e", help="Tesla account email")
@@ -243,7 +296,11 @@ def main():
     subparsers.add_parser("list", help="List all vehicles")
     
     # Status
-    subparsers.add_parser("status", help="Get vehicle status")
+    status_parser = subparsers.add_parser("status", help="Get vehicle status")
+    status_parser.add_argument("--summary", action="store_true", help="Also print a one-line summary")
+
+    # Summary (alias)
+    subparsers.add_parser("summary", help="One-line status summary")
     
     # Lock/unlock
     subparsers.add_parser("lock", help="Lock the vehicle")
@@ -276,6 +333,7 @@ def main():
         "auth": cmd_auth,
         "list": cmd_list,
         "status": cmd_status,
+        "summary": cmd_summary,
         "lock": cmd_lock,
         "unlock": cmd_unlock,
         "climate": cmd_climate,

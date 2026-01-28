@@ -3,7 +3,7 @@ name: my-tesla
 description: Control Tesla vehicles from macOS via the Tesla Owner API using teslapy (auth, list cars, status, lock/unlock, climate, charging, location, and extras). Use when you want to check your car state or run safe remote commands. Designed for Parth Maniar (@officialpm) with local-only auth caching, confirmation gates for disruptive actions, and chat-friendly status output.
 ---
 
-# my-tesla
+# My Tesla
 
 **Author:** Parth Maniar — [@officialpm](https://github.com/officialpm)
 
@@ -32,7 +32,10 @@ This opens a Tesla login URL. Log in, then paste the callback URL back into the 
 # List vehicles
 python3 {baseDir}/scripts/tesla.py list
 
-# Status (chat-friendly)
+# One-line summary (best for chat)
+python3 {baseDir}/scripts/tesla.py summary
+
+# Detailed status
 python3 {baseDir}/scripts/tesla.py status
 python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 

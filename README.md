@@ -1,4 +1,4 @@
-# my-tesla
+# My Tesla
 
 Tesla control skill for Clawdbot.
 
@@ -24,7 +24,13 @@ This uses a browser-based login flow and stores tokens locally in `~/.tesla_cach
 
 ```bash
 python3 scripts/tesla.py list
+
+# One-line summary (best for chat)
+python3 scripts/tesla.py summary
+
+# Detailed status
 python3 scripts/tesla.py status
+
 python3 scripts/tesla.py --car "My Model 3" lock
 python3 scripts/tesla.py climate temp 72
 python3 scripts/tesla.py charge limit 80
