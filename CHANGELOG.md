@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.5 — 2026-01-28
+- Include `VERSION.txt` in published skill artifacts (ClawdHub ignores extensionless files like `VERSION`).
+
 ## 0.1.4 — 2026-01-28
 - Add `trunk` command (trunk/frunk) with safety gate (`--yes`).
 - Make `location` safety gated (`--yes`) to reduce accidental sensitive output.
