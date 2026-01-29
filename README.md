@@ -51,6 +51,12 @@ python3 scripts/tesla.py trunk frunk --yes
 python3 scripts/tesla.py location --yes
 ```
 
+## Tests
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.

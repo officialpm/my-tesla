@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 — 2026-01-28
+- Add unit tests for status/report formatting helpers.
+- Clarify `--yes` help text to cover all safety-gated commands.
+
 ## 0.1.5 — 2026-01-28
 - Include `VERSION.txt` in published skill artifacts (ClawdHub ignores extensionless files like `VERSION`).
 

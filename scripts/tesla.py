@@ -466,7 +466,11 @@ def main():
     parser.add_argument("--email", "-e", help="Tesla account email")
     parser.add_argument("--car", "-c", help="Vehicle name (default: first vehicle)")
     parser.add_argument("--json", "-j", action="store_true", help="Output JSON")
-    parser.add_argument("--yes", action="store_true", help="Confirm disruptive actions (honk/flash)")
+    parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Safety confirmation for sensitive/disruptive actions (location/trunk/honk/flash)",
+    )
     
     subparsers = parser.add_subparsers(dest="command", required=True)
     
