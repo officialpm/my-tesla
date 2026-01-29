@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.28 — 2026-01-29
+- Reliability/privacy: add unit test to ensure `report` output never echoes location fields from raw vehicle_data.
+
 ## 0.1.27 — 2026-01-29
 - UX/privacy: `report --json` now outputs a sanitized report object by default (no location). Use `--raw-json` to get full vehicle_data.
 
