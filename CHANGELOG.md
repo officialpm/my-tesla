@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.31 — 2026-01-29
+- UX: fix `status --summary` to actually include the one-line summary *and* the detailed status output.
+
 ## 0.1.30 — 2026-01-29
 - New capability (safe): add `openings` command to show which doors/trunks/windows are open (supports `--no-wake` + `--json`).
 

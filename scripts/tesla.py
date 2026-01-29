@@ -525,8 +525,10 @@ def cmd_status(args):
     vehicle_state = data.get('vehicle_state', {})
 
     if getattr(args, 'summary', False):
+        # Print a one-line summary *in addition* to the detailed view.
+        # (If you only want the one-liner, use the `summary` command.)
         print(_short_status(vehicle, data))
-        return
+        print()
 
     # Human-friendly detailed view
     print(f"🚗 {vehicle['display_name']}")

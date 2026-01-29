@@ -46,6 +46,7 @@ python3 scripts/tesla.py report --no-wake
 # Detailed status
 python3 scripts/tesla.py status
 python3 scripts/tesla.py status --no-wake
+python3 scripts/tesla.py status --summary   # include one-line summary + detailed output
 
 # JSON output (prints ONLY JSON; good for piping/parsing)
 python3 scripts/tesla.py status --json            # raw vehicle_data

@@ -52,6 +52,7 @@ python3 {baseDir}/scripts/tesla.py report --no-wake
 # Detailed status
 python3 {baseDir}/scripts/tesla.py status
 python3 {baseDir}/scripts/tesla.py status --no-wake
+python3 {baseDir}/scripts/tesla.py status --summary   # include one-line summary + detailed output
 python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 
 # JSON output (prints ONLY JSON; good for piping/parsing)
