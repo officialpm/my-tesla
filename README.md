@@ -101,7 +101,11 @@ python3 scripts/tesla.py openings --json
 ## Tests
 
 ```bash
-python3 -m unittest discover -s tests -v
+# (Recommended) avoid writing __pycache__/ bytecode files into the repo
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+
+# or
+./scripts/run_tests.sh
 ```
 
 ## Privacy / safety
