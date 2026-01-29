@@ -35,6 +35,11 @@ python3 scripts/tesla.py list --json   # machine-readable, privacy-safe
 python3 scripts/tesla.py version
 python3 scripts/tesla.py --version
 
+# Debugging
+# If something fails unexpectedly, add --debug for a full traceback
+# (or set MY_TESLA_DEBUG=1)
+python3 scripts/tesla.py --debug status --no-wake
+
 # Pick a car (optional)
 # --car accepts: exact name, partial name (substring match), or a 1-based index from `list`
 python3 scripts/tesla.py --car "Model" report

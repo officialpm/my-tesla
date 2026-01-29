@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.60 — 2026-01-29
+- Better UX: add global `--debug` (or `MY_TESLA_DEBUG=1`) to print full tracebacks on errors.
+
 ## 0.1.59 — 2026-01-29
 - Better UX / safety: `location` now supports `--digits N` (0–6) to control rounding precision for approximate coordinates.
 - Reliability: add unit tests for coordinate rounding helper.

@@ -16,6 +16,7 @@ import os
 import sys
 import sqlite3
 import time
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -1939,7 +1940,13 @@ def main():
             "scheduled-charging set|off/sentry on|off/location precise)"
         ),
     )
-    
+
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Print a full Python traceback on errors (also enabled by MY_TESLA_DEBUG=1)",
+    )
+
     parser.add_argument(
         "--version",
         action="store_true",
@@ -2119,8 +2126,18 @@ def main():
 
     try:
         commands[args.command](args)
+    except KeyboardInterrupt:
+        print("\n⛔ Interrupted", file=sys.stderr)
+        sys.exit(130)
     except Exception as e:
-        print(f"❌ Error: {e}", file=sys.stderr)
+        debug = bool(getattr(args, "debug", False)) or os.environ.get("MY_TESLA_DEBUG") == "1"
+        if debug:
+            # Print both a friendly line and a full traceback.
+            print(f"❌ Error: {e}", file=sys.stderr)
+            traceback.print_exc()
+        else:
+            print(f"❌ Error: {e}", file=sys.stderr)
+            print("   Tip: re-run with --debug for a full traceback", file=sys.stderr)
         sys.exit(1)
 
 
