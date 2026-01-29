@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.39 — 2026-01-29
+- UX: add `version` / `--version` so you can quickly confirm the installed skill version.
+
 ## 0.1.38 — 2026-01-29
 - UX: `list --json` now outputs a privacy-safe, machine-readable vehicle list (no VINs).
 

@@ -18,6 +18,25 @@ from pathlib import Path
 
 CACHE_FILE = Path.home() / ".tesla_cache.json"
 DEFAULTS_FILE = Path.home() / ".my_tesla.json"
+SKILL_DIR = Path(__file__).resolve().parent.parent
+
+
+def read_skill_version() -> str:
+    """Read the skill version from VERSION.txt/VERSION in the repo.
+
+    ClawdHub ignores extensionless files like `VERSION`, so published artifacts
+    also include `VERSION.txt`. Prefer VERSION.txt when present.
+    """
+    for name in ("VERSION.txt", "VERSION"):
+        p = SKILL_DIR / name
+        try:
+            if p.exists():
+                v = p.read_text().strip()
+                if v:
+                    return v
+        except Exception:
+            continue
+    return "(unknown)"
 
 
 def resolve_email(args, prompt: bool = True) -> str:
@@ -1120,6 +1139,12 @@ def cmd_summary(args):
     return cmd_status(args)
 
 
+def cmd_version(args):
+    """Print the installed skill version."""
+    # Keep output simple for scripts.
+    print(read_skill_version())
+
+
 def cmd_default_car(args):
     """Set or show the default car used when --car is not provided."""
     if not args.name:
@@ -1160,13 +1185,22 @@ def main():
         ),
     )
     
-    subparsers = parser.add_subparsers(dest="command", required=True)
-    
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print skill version and exit",
+    )
+
+    subparsers = parser.add_subparsers(dest="command")
+
     # Auth
     subparsers.add_parser("auth", help="Authenticate with Tesla")
-    
+
     # List
     subparsers.add_parser("list", help="List all vehicles")
+
+    # Version
+    subparsers.add_parser("version", help="Print skill version")
     
     # Status
     status_parser = subparsers.add_parser("status", help="Get vehicle status")
@@ -1251,10 +1285,19 @@ def main():
     subparsers.add_parser("wake", help="Wake up the vehicle")
     
     args = parser.parse_args()
-    
+
+    if getattr(args, "version", False):
+        cmd_version(args)
+        return
+
+    if not getattr(args, "command", None):
+        parser.print_help(sys.stderr)
+        sys.exit(2)
+
     commands = {
         "auth": cmd_auth,
         "list": cmd_list,
+        "version": cmd_version,
         "status": cmd_status,
         "summary": cmd_summary,
         "report": cmd_report,
@@ -1275,7 +1318,7 @@ def main():
         "wake": cmd_wake,
         "default-car": cmd_default_car,
     }
-    
+
     try:
         commands[args.command](args)
     except Exception as e:

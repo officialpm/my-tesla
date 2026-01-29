@@ -35,6 +35,10 @@ This opens a Tesla login URL. Log in, then paste the callback URL back into the 
 python3 {baseDir}/scripts/tesla.py list
 python3 {baseDir}/scripts/tesla.py list --json   # machine-readable, privacy-safe
 
+# Version
+python3 {baseDir}/scripts/tesla.py version
+python3 {baseDir}/scripts/tesla.py --version
+
 # Pick a car (optional)
 # --car accepts: exact name, partial name (substring match), or a 1-based index from `list`
 python3 {baseDir}/scripts/tesla.py --car "Model" status
