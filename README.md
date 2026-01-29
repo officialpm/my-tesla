@@ -29,6 +29,7 @@ Optional defaults:
 ```bash
 # List vehicles (shows which one is default)
 python3 scripts/tesla.py list
+python3 scripts/tesla.py list --json   # machine-readable, privacy-safe
 
 # Pick a car (optional)
 # --car accepts: exact name, partial name (substring match), or a 1-based index from `list`

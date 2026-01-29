@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.38 — 2026-01-29
+- UX: `list --json` now outputs a privacy-safe, machine-readable vehicle list (no VINs).
+
 ## 0.1.37 — 2026-01-29
 - Packaging: keep `VERSION.txt` in sync with `VERSION` so installed skills report the correct version.
 

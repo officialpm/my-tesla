@@ -225,11 +225,25 @@ def cmd_list(args):
 
     default_name = resolve_default_car_name()
 
+    if getattr(args, "json", False):
+        # Keep JSON output small + privacy-safe (no VINs).
+        out = []
+        for i, v in enumerate(vehicles):
+            name = v.get('display_name')
+            out.append({
+                'index': i + 1,
+                'display_name': name,
+                'state': v.get('state'),
+                'is_default': bool(default_name and isinstance(name, str) and name.lower() == default_name.lower()),
+            })
+        print(json.dumps({'vehicles': out, 'default_car': default_name}, indent=2))
+        return
+
     print(f"Found {len(vehicles)} vehicle(s):\n")
     for i, v in enumerate(vehicles):
         star = " (default)" if default_name and v['display_name'].lower() == default_name.lower() else ""
         print(f"{i+1}. {v['display_name']}{star}")
-        # Avoid printing VIN in normal output (privacy). Use --json if you really need full data.
+        # Avoid printing VIN in normal output (privacy).
         print(f"   State: {v['state']}")
         print()
 
