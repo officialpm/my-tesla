@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.50 — 2026-01-29
+- Reliability: make `windows` command handler defensive (explicitly errors on unknown actions) and add unit tests.
+
 ## 0.1.49 — 2026-01-29
 - Fix: repair an indentation bug in `report` output formatting that could break `python3 -m py_compile` / CLI execution.
 

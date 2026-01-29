@@ -1097,9 +1097,13 @@ def cmd_windows(args):
     if args.action == 'vent':
         vehicle.command('WINDOW_CONTROL', command='vent', lat=0, lon=0)
         print(f"🪟 {vehicle['display_name']} windows vented")
-    elif args.action == 'close':
+        return
+    if args.action == 'close':
         vehicle.command('WINDOW_CONTROL', command='close', lat=0, lon=0)
         print(f"🪟 {vehicle['display_name']} windows closed")
+        return
+
+    raise ValueError(f"Unknown action: {args.action}")
 
 
 def cmd_sentry(args):
