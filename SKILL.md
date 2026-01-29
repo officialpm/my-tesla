@@ -68,6 +68,10 @@ python3 {baseDir}/scripts/tesla.py location --yes
 python3 {baseDir}/scripts/tesla.py trunk trunk --yes
 python3 {baseDir}/scripts/tesla.py trunk frunk --yes
 
+# Windows (safety gated)
+python3 {baseDir}/scripts/tesla.py windows vent  --yes
+python3 {baseDir}/scripts/tesla.py windows close --yes
+
 # Fun / attention-grabbing
 python3 {baseDir}/scripts/tesla.py honk   --yes
 python3 {baseDir}/scripts/tesla.py flash  --yes
@@ -76,7 +80,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `location`, `trunk`, `honk`, `flash` require `--yes`
+- `location`, `trunk`, `windows`, `honk`, `flash` require `--yes`
 
 ## Privacy
 

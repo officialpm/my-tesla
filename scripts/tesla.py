@@ -403,6 +403,22 @@ def cmd_trunk(args):
     print(f"🧳 {vehicle['display_name']} {label} toggled")
 
 
+def cmd_windows(args):
+    """Vent or close windows (requires --yes)."""
+    require_yes(args, 'windows')
+    tesla = get_tesla(args.email or os.environ.get("TESLA_EMAIL"))
+    vehicle = get_vehicle(tesla, args.car)
+    wake_vehicle(vehicle)
+
+    # Tesla API requires lat/lon parameters; 0/0 works for this endpoint.
+    if args.action == 'vent':
+        vehicle.command('WINDOW_CONTROL', command='vent', lat=0, lon=0)
+        print(f"🪟 {vehicle['display_name']} windows vented")
+    elif args.action == 'close':
+        vehicle.command('WINDOW_CONTROL', command='close', lat=0, lon=0)
+        print(f"🪟 {vehicle['display_name']} windows closed")
+
+
 def cmd_honk(args):
     """Honk the horn."""
     require_yes(args, 'honk')
@@ -469,7 +485,7 @@ def main():
     parser.add_argument(
         "--yes",
         action="store_true",
-        help="Safety confirmation for sensitive/disruptive actions (location/trunk/honk/flash)",
+        help="Safety confirmation for sensitive/disruptive actions (location/trunk/windows/honk/flash)",
     )
     
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -518,6 +534,10 @@ def main():
     trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")
     trunk_parser.add_argument("which", choices=["trunk", "frunk"], help="Which to actuate")
 
+    # Windows
+    windows_parser = subparsers.add_parser("windows", help="Vent/close windows (requires --yes)")
+    windows_parser.add_argument("action", choices=["vent", "close"], help="Action to perform")
+
     # Honk/flash
     subparsers.add_parser("honk", help="Honk the horn")
     subparsers.add_parser("flash", help="Flash the lights")
@@ -539,6 +559,7 @@ def main():
         "charge": cmd_charge,
         "location": cmd_location,
         "trunk": cmd_trunk,
+        "windows": cmd_windows,
         "honk": cmd_honk,
         "flash": cmd_flash,
         "wake": cmd_wake,

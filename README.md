@@ -47,6 +47,10 @@ python3 scripts/tesla.py charge limit 80
 python3 scripts/tesla.py trunk trunk --yes
 python3 scripts/tesla.py trunk frunk --yes
 
+# Windows (safety gated)
+python3 scripts/tesla.py windows vent  --yes
+python3 scripts/tesla.py windows close --yes
+
 # Location (sensitive)
 python3 scripts/tesla.py location --yes
 ```
@@ -60,4 +64,4 @@ python3 -m unittest discover -s tests -v
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (location/trunk/honk/flash) require `--yes`.
+- Some commands (location/trunk/windows/honk/flash) require `--yes`.

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.7 — 2026-01-28
+- Add `windows` command to vent/close windows (safety gated with `--yes`).
+
 ## 0.1.6 — 2026-01-28
 - Add unit tests for status/report formatting helpers.
 - Clarify `--yes` help text to cover all safety-gated commands.
