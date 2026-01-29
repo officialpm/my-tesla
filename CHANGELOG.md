@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.42 — 2026-01-29
+- UX: `report` now includes charging power details (kW / V / A) when the car is actively charging.
+- Reliability: add unit test coverage for the new report output.
+
 ## 0.1.41 — 2026-01-29
 - UX: improve error/help messages by printing a copy/pastable invocation that works outside the repo (uses the script’s absolute path).
 

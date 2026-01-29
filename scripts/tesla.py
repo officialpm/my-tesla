@@ -415,6 +415,22 @@ def _report(vehicle, data):
         suffix = f" ({', '.join(extra)})" if extra else ""
         lines.append(f"Charging: {charging_state}{suffix}")
 
+        # When actively charging, show power details if available.
+        # This is useful to sanity-check a slow/fast charge session at a glance.
+        if charging_state == 'Charging':
+            p = charge.get('charger_power')
+            v = charge.get('charger_voltage')
+            a = charge.get('charger_actual_current')
+            bits = []
+            if p is not None:
+                bits.append(f"{p} kW")
+            if v is not None:
+                bits.append(f"{v}V")
+            if a is not None:
+                bits.append(f"{a}A")
+            if bits:
+                lines.append(f"Charging power: {' '.join(bits)}")
+
     # Charge port / cable state
     cpd = charge.get('charge_port_door_open')
     if cpd is not None:
