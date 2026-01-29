@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.53 — 2026-01-29
+- Better UX: `report` now includes a one-line openings summary (doors/trunk/frunk/windows) when the vehicle reports it.
+
 ## 0.1.52 — 2026-01-29
 - New capability (safe): add `windows status` (read-only) with `--no-wake` + `--json`.
 

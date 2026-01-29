@@ -414,6 +414,10 @@ def _report(vehicle, data):
     if sentry is not None:
         lines.append(f"Sentry: {_fmt_bool(sentry, 'On', 'Off')}")
 
+    openings = _openings_one_line(vs)
+    if openings:
+        lines.append(f"Openings: {openings}")
+
     batt = charge.get('battery_level')
     rng = charge.get('battery_range')
     if batt is not None and rng is not None:
@@ -553,6 +557,7 @@ def _report_json(vehicle, data: dict) -> dict:
             "locked": vs.get('locked'),
             "sentry_mode": vs.get('sentry_mode'),
         },
+        "openings": _openings_json(vs),
         "tpms": {
             "pressure_fl": vs.get('tpms_pressure_fl'),
             "pressure_fr": vs.get('tpms_pressure_fr'),
@@ -1014,6 +1019,75 @@ def _fmt_open(v):
         return 'Open' if i else 'Closed'
     except Exception:
         return None
+
+
+def _openings_one_line(vs: dict) -> str:
+    """Return a one-line openings summary from vehicle_state.
+
+    Returns None if no openings fields are present.
+    """
+    out = _openings_json(vs)
+    if out is None:
+        return None
+    if out.get("all_closed"):
+        return "All closed"
+    if out.get("open"):
+        # This is a human-facing string; keep it readable.
+        title = {
+            "driver_front_door": "Driver front door",
+            "driver_rear_door": "Driver rear door",
+            "passenger_front_door": "Passenger front door",
+            "passenger_rear_door": "Passenger rear door",
+            "frunk": "Frunk",
+            "trunk": "Trunk",
+            "front_driver_window": "Front driver window",
+            "front_passenger_window": "Front passenger window",
+            "rear_driver_window": "Rear driver window",
+            "rear_passenger_window": "Rear passenger window",
+        }
+        labels = [title.get(x, x) for x in out["open"]]
+        return "Open: " + ", ".join(labels)
+    return None
+
+
+def _openings_json(vs: dict) -> dict:
+    """Sanitized openings JSON from vehicle_state.
+
+    Returns None if no openings fields are present.
+    """
+    if not isinstance(vs, dict):
+        return None
+
+    fields = [
+        ("df", "driver_front_door"),
+        ("dr", "driver_rear_door"),
+        ("pf", "passenger_front_door"),
+        ("pr", "passenger_rear_door"),
+        ("ft", "frunk"),
+        ("rt", "trunk"),
+        ("fd_window", "front_driver_window"),
+        ("fp_window", "front_passenger_window"),
+        ("rd_window", "rear_driver_window"),
+        ("rp_window", "rear_passenger_window"),
+    ]
+
+    any_known = False
+    open_items = []
+    for key, label in fields:
+        raw = vs.get(key)
+        if raw is None:
+            continue
+        any_known = True
+        if _fmt_open(raw) == 'Open':
+            open_items.append(label)
+
+    if not any_known:
+        return None
+
+    return {
+        "open": open_items,
+        "all_closed": len(open_items) == 0,
+    }
 
 
 def cmd_openings(args):
