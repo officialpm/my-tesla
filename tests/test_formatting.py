@@ -79,7 +79,15 @@ class FormattingTests(unittest.TestCase):
                 "scheduled_charging_pending": True,
             },
             "climate_state": {"inside_temp": 21, "outside_temp": 10, "is_climate_on": True},
-            "vehicle_state": {"locked": False, "sentry_mode": True, "odometer": 12345.6},
+            "vehicle_state": {
+                "locked": False,
+                "sentry_mode": True,
+                "odometer": 12345.6,
+                "tpms_pressure_fl": 2.9,
+                "tpms_pressure_fr": 2.9,
+                "tpms_pressure_rl": 2.8,
+                "tpms_pressure_rr": 2.8,
+            },
         }
 
         out = tesla._report(vehicle, data)
@@ -94,6 +102,9 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("02:00", out)
         self.assertIn("Inside:", out)
         self.assertIn("Outside:", out)
+        self.assertIn("Tires (TPMS):", out)
+        self.assertIn("FL 2.90 bar (42 psi)", out)
+        self.assertIn("RL 2.80 bar (41 psi)", out)
         self.assertIn("Odometer: 12346 mi", out)
 
     def test_round_coord(self):

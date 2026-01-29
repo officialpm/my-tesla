@@ -374,6 +374,17 @@ def _report(vehicle, data):
     if climate_on is not None:
         lines.append(f"Climate: {_fmt_bool(climate_on, 'On', 'Off')}")
 
+    # Tire pressures (TPMS) if available
+    fl = _fmt_tire_pressure(vs.get('tpms_pressure_fl'))
+    fr = _fmt_tire_pressure(vs.get('tpms_pressure_fr'))
+    rl = _fmt_tire_pressure(vs.get('tpms_pressure_rl'))
+    rr = _fmt_tire_pressure(vs.get('tpms_pressure_rr'))
+    if any([fl, fr, rl, rr]):
+        lines.append(
+            "Tires (TPMS): "
+            f"FL {fl or '(?)'} | FR {fr or '(?)'} | RL {rl or '(?)'} | RR {rr or '(?)'}"
+        )
+
     odo = vs.get('odometer')
     if odo is not None:
         lines.append(f"Odometer: {odo:.0f} mi")

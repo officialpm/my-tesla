@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.22 — 2026-01-28
+- UX: include TPMS tire pressures in `report` output when available.
+- Docs/privacy: remove personal default-car example from README/SKILL.
+
 ## 0.1.21 — 2026-01-28
 - Reliability/privacy: remove accidentally committed Python bytecode (`__pycache__`) and sanitize unit test fixtures.
 

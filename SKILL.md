@@ -38,13 +38,14 @@ python3 {baseDir}/scripts/tesla.py --car "Model" status
 python3 {baseDir}/scripts/tesla.py --car 1 report
 
 # Set a default car (used when --car is not passed)
-python3 {baseDir}/scripts/tesla.py default-car "PM’s M3 LR"
+python3 {baseDir}/scripts/tesla.py default-car "My Model 3"
 
 # One-line summary (best for chat)
 python3 {baseDir}/scripts/tesla.py summary
 python3 {baseDir}/scripts/tesla.py summary --no-wake   # don't wake a sleeping car
 
 # One-screen report (chat friendly, more detail)
+# Includes battery/charging/climate + (when available) TPMS tire pressures.
 python3 {baseDir}/scripts/tesla.py report
 python3 {baseDir}/scripts/tesla.py report --no-wake
 
