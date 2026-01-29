@@ -87,6 +87,11 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("Outside:", out)
         self.assertIn("Odometer: 12346 mi", out)
 
+    def test_round_coord(self):
+        self.assertEqual(tesla._round_coord(37.123456, 2), 37.12)
+        self.assertEqual(tesla._round_coord("-122.123456", 2), -122.12)
+        self.assertIsNone(tesla._round_coord("nope", 2))
+
 
 if __name__ == "__main__":
     unittest.main()

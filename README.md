@@ -56,8 +56,9 @@ python3 scripts/tesla.py trunk frunk --yes
 python3 scripts/tesla.py windows vent  --yes
 python3 scripts/tesla.py windows close --yes
 
-# Location (sensitive)
+# Location (approx by default; use --yes for precise coordinates)
 python3 scripts/tesla.py location
+python3 scripts/tesla.py location --yes
 ```
 
 ## Tests
@@ -70,3 +71,4 @@ python3 -m unittest discover -s tests -v
 
 - Never commit tokens, VINs, or location outputs.
 - Some commands (trunk/windows/honk/flash/scheduled-charging set|off) require `--yes`.
+- `location` shows *approximate* coords by default; add `--yes` for precise coordinates.

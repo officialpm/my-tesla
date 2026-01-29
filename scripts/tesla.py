@@ -492,8 +492,24 @@ def cmd_scheduled_charging(args):
     raise ValueError(f"Unknown action: {args.action}")
 
 
+def _round_coord(x, digits: int = 2):
+    """Round a coordinate for safer display.
+
+    digits=2 is roughly ~1km precision (varies with latitude) and is
+    intended as a non-sensitive default.
+    """
+    try:
+        return round(float(x), digits)
+    except Exception:
+        return None
+
+
 def cmd_location(args):
-    """Get vehicle location (sensitive)."""
+    """Get vehicle location.
+
+    Default output is *approximate* (rounded) to reduce accidental leakage.
+    Use --yes for precise coordinates.
+    """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
@@ -502,8 +518,20 @@ def cmd_location(args):
     drive = data['drive_state']
 
     lat, lon = drive['latitude'], drive['longitude']
-    print(f"📍 {vehicle['display_name']} Location: {lat}, {lon}")
-    print(f"   https://www.google.com/maps?q={lat},{lon}")
+
+    if getattr(args, "yes", False):
+        print(f"📍 {vehicle['display_name']} Location (precise): {lat}, {lon}")
+        print(f"   https://www.google.com/maps?q={lat},{lon}")
+        return
+
+    lat_r = _round_coord(lat, 2)
+    lon_r = _round_coord(lon, 2)
+    if lat_r is None or lon_r is None:
+        raise ValueError("Missing location coordinates")
+
+    print(f"📍 {vehicle['display_name']} Location (approx): {lat_r}, {lon_r}")
+    print(f"   https://www.google.com/maps?q={lat_r},{lon_r}")
+    print("   (Use --yes for precise coordinates)")
 
 
 def cmd_trunk(args):
@@ -603,7 +631,7 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(trunk/windows/honk/flash/scheduled-charging set|off)"
+            "(trunk/windows/honk/flash/scheduled-charging set|off/location precise)"
         ),
     )
     
@@ -652,7 +680,7 @@ def main():
     sched_parser.add_argument("time", nargs="?", help="Start time for 'set' as HH:MM (24-hour)")
 
     # Location
-    subparsers.add_parser("location", help="Get vehicle location")
+    subparsers.add_parser("location", help="Get vehicle location (approx by default; use --yes for precise)")
 
     # Trunk / frunk
     trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")

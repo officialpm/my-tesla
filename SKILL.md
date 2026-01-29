@@ -66,8 +66,9 @@ python3 {baseDir}/scripts/tesla.py scheduled-charging status
 python3 {baseDir}/scripts/tesla.py scheduled-charging set 23:30 --yes
 python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
 
-# Location (sensitive)
+# Location (approx by default; use --yes for precise coordinates)
 python3 {baseDir}/scripts/tesla.py location
+python3 {baseDir}/scripts/tesla.py location --yes
 
 # Trunk / frunk (safety gated)
 python3 {baseDir}/scripts/tesla.py trunk trunk --yes
@@ -85,7 +86,8 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `location`, `trunk`, `windows`, `honk`, `flash`, and `scheduled-charging set|off` require `--yes`
+- `trunk`, `windows`, `honk`, `flash`, and `scheduled-charging set|off` require `--yes`
+- `location` is *approximate* by default; add `--yes` for precise coordinates
 
 ## Privacy
 

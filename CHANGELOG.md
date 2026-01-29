@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.12 — 2026-01-28
+- Make `location` safer by default: show approximate (rounded) coordinates unless `--yes` is provided for precise.
+
 ## 0.1.11 — 2026-01-28
 - Remove `--yes` safety gate from `location` (prints coordinates + maps link without confirmation).
 
