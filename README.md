@@ -87,7 +87,12 @@ python3 scripts/tesla.py trunk frunk --yes
 python3 scripts/tesla.py windows vent  --yes
 python3 scripts/tesla.py windows close --yes
 
-# Charge port door (safety gated)
+# Charge port door
+python3 scripts/tesla.py charge-port status
+python3 scripts/tesla.py charge-port status --no-wake
+python3 scripts/tesla.py charge-port status --json
+
+# Charge port door open/close (safety gated)
 python3 scripts/tesla.py charge-port open  --yes
 python3 scripts/tesla.py charge-port close --yes
 

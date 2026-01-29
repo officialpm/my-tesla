@@ -1107,11 +1107,52 @@ def cmd_flash(args):
     print(f"💡 {vehicle['display_name']} flashed lights!")
 
 
+def _charge_port_status_json(vehicle, data: dict) -> dict:
+    """Small, privacy-safe charge port status object."""
+    charge = (data or {}).get('charge_state', {})
+    return {
+        'display_name': (vehicle or {}).get('display_name'),
+        'state': (vehicle or {}).get('state'),
+        'charge_port_door_open': charge.get('charge_port_door_open'),
+        'charge_port_latch': charge.get('charge_port_latch'),
+        'conn_charge_cable': charge.get('conn_charge_cable'),
+        'charging_state': charge.get('charging_state'),
+    }
+
+
 def cmd_charge_port(args):
-    """Open/close the charge port door (requires --yes)."""
-    require_yes(args, 'charge-port')
+    """Charge port operations.
+
+    - status: read-only (supports --no-wake)
+    - open/close: requires --yes
+    """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
+
+    if args.action == 'status':
+        _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
+        data = vehicle.get_vehicle_data()
+        out = _charge_port_status_json(vehicle, data)
+
+        if getattr(args, 'json', False):
+            # Keep this privacy-safe + stable.
+            print(json.dumps(out, indent=2))
+            return
+
+        print(f"🔌 {vehicle.get('display_name')}")
+        print(f"   State: {vehicle.get('state')}")
+        if out.get('charge_port_door_open') is not None:
+            print(f"   Port door open: {_fmt_bool(out.get('charge_port_door_open'))}")
+        if out.get('charge_port_latch') is not None:
+            print(f"   Port latch: {out.get('charge_port_latch')}")
+        if out.get('conn_charge_cable') is not None:
+            print(f"   Cable: {out.get('conn_charge_cable')}")
+        if out.get('charging_state') is not None:
+            print(f"   Charging: {out.get('charging_state')}")
+        return
+
+    # open/close
+    require_yes(args, 'charge-port')
     wake_vehicle(vehicle)
 
     if args.action == 'open':
@@ -1278,8 +1319,12 @@ def main():
     subparsers.add_parser("flash", help="Flash the lights")
 
     # Charge port
-    charge_port_parser = subparsers.add_parser("charge-port", help="Open/close the charge port door (requires --yes)")
-    charge_port_parser.add_argument("action", choices=["open", "close"], help="Action to perform")
+    charge_port_parser = subparsers.add_parser(
+        "charge-port",
+        help="Charge port status (read-only) or open/close (requires --yes)",
+    )
+    charge_port_parser.add_argument("action", choices=["status", "open", "close"], help="status|open|close")
+    charge_port_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Wake
     subparsers.add_parser("wake", help="Wake up the vehicle")

@@ -124,7 +124,12 @@ python3 {baseDir}/scripts/tesla.py sentry status --no-wake
 python3 {baseDir}/scripts/tesla.py sentry on  --yes
 python3 {baseDir}/scripts/tesla.py sentry off --yes
 
-# Charge port door (safety gated)
+# Charge port door
+python3 {baseDir}/scripts/tesla.py charge-port status
+python3 {baseDir}/scripts/tesla.py charge-port status --no-wake
+python3 {baseDir}/scripts/tesla.py charge-port status --json
+
+# Charge port door open/close (safety gated)
 python3 {baseDir}/scripts/tesla.py charge-port open  --yes
 python3 {baseDir}/scripts/tesla.py charge-port close --yes
 
