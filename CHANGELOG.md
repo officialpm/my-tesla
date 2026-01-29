@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.17 — 2026-01-28
+- Add unit tests for `--no-wake` behavior (wake gating + exit code).
+
 ## 0.1.16 — 2026-01-28
 - Add `--no-wake` to read-only commands to avoid waking the vehicle (fails if asleep/offline).
 
