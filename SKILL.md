@@ -131,6 +131,13 @@ python3 {baseDir}/scripts/tesla.py charge-port status
 python3 {baseDir}/scripts/tesla.py charge-port status --no-wake
 python3 {baseDir}/scripts/tesla.py charge-port status --json
 
+# Mileage tracking (odometer) — local SQLite
+python3 {baseDir}/scripts/tesla.py mileage init
+python3 {baseDir}/scripts/tesla.py mileage record --no-wake --auto-wake-after-hours 24
+python3 {baseDir}/scripts/tesla.py mileage status
+python3 {baseDir}/scripts/tesla.py mileage export --format csv
+python3 {baseDir}/scripts/tesla.py mileage export --format json
+
 # Charge port door open/close (safety gated)
 python3 {baseDir}/scripts/tesla.py charge-port open  --yes
 python3 {baseDir}/scripts/tesla.py charge-port close --yes

@@ -120,6 +120,61 @@ python3 scripts/tesla.py tires --no-wake
 python3 scripts/tesla.py openings
 python3 scripts/tesla.py openings --no-wake
 python3 scripts/tesla.py openings --json
+
+# Mileage tracking (odometer) — local SQLite
+python3 scripts/tesla.py mileage init
+python3 scripts/tesla.py mileage record --no-wake --auto-wake-after-hours 24
+python3 scripts/tesla.py mileage status
+python3 scripts/tesla.py mileage export --format csv > mileage.csv
+python3 scripts/tesla.py mileage export --format json > mileage.json
+```
+
+## Mileage tracking (hourly)
+
+This feature records each vehicle’s **odometer miles** to a **local SQLite database** so we can build analytics later.
+
+Defaults:
+- DB path: `~/.my_tesla/mileage.sqlite` (override with `MY_TESLA_MILEAGE_DB` or `mileage --db ...`)
+- Wake behavior: **no wake by default**. The recorder will only allow waking a car **if it hasn’t recorded mileage in 24h**.
+
+### Quick start
+```bash
+python3 scripts/tesla.py mileage init
+python3 scripts/tesla.py mileage record --no-wake --auto-wake-after-hours 24
+python3 scripts/tesla.py mileage status
+```
+
+### Run every hour (macOS launchd example)
+Create `~/Library/LaunchAgents/com.mytesla.mileage.plist`:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key><string>com.mytesla.mileage</string>
+    <key>StartInterval</key><integer>3600</integer>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/python3</string>
+      <string>/ABS/PATH/TO/scripts/tesla.py</string>
+      <string>mileage</string>
+      <string>record</string>
+      <string>--no-wake</string>
+      <string>--auto-wake-after-hours</string><string>24</string>
+      <string>--json</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>TESLA_EMAIL</key><string>you@email.com</string>
+    </dict>
+    <key>StandardOutPath</key><string>~/.my_tesla/mileage.log</string>
+    <key>StandardErrorPath</key><string>~/.my_tesla/mileage.err.log</string>
+  </dict>
+</plist>
+```
+Load it:
+```bash
+launchctl load -w ~/Library/LaunchAgents/com.mytesla.mileage.plist
 ```
 
 ## Tests

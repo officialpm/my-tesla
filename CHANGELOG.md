@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.45 — 2026-01-29
+- New capability: add `mileage` tracking (local SQLite) to record odometer miles across **all cars**.
+  - Default behavior: `--no-wake` style (skip sleeping cars)
+  - Auto-wake policy: allow waking a car only if it hasn’t recorded mileage in **24 hours**.
+  - Includes `init`, `record`, `status`, and `export` commands.
+- Docs: added a quick-start + an hourly `launchd` example.
+- Tests: added unit tests for mileage DB helpers + record skip behavior.
+
 ## 0.1.44 — 2026-01-29
 - New capability: add `climate defrost on|off` (max defrost / preconditioning).
 - Reliability: add unit tests for the new defrost command wiring.
