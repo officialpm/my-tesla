@@ -59,7 +59,7 @@ python3 {baseDir}/scripts/tesla.py climate temp 22 --celsius
 python3 {baseDir}/scripts/tesla.py charge status
 python3 {baseDir}/scripts/tesla.py charge start
 python3 {baseDir}/scripts/tesla.py charge stop
-python3 {baseDir}/scripts/tesla.py charge limit 80
+python3 {baseDir}/scripts/tesla.py charge limit 80   # 50–100
 
 # Scheduled charging (set/off are safety gated)
 python3 {baseDir}/scripts/tesla.py scheduled-charging status

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.13 — 2026-01-28
+- Improve UX: clearer validation + errors for `charge limit` and `climate temp`.
+
 ## 0.1.12 — 2026-01-28
 - Make `location` safer by default: show approximate (rounded) coordinates unless `--yes` is provided for precise.
 

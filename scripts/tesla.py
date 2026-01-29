@@ -394,10 +394,16 @@ def cmd_climate(args):
         print(f"🌡️ {vehicle['display_name']} climate turned off")
     elif args.action == 'temp':
         if args.value is None:
-            raise ValueError("Missing temperature value")
+            raise ValueError("Missing temperature value (e.g., climate temp 72 or climate temp 22 --celsius)")
 
         value = float(args.value)
-        in_f = not getattr(args, "celsius", False)  # default: Fahrenheit unless --celsius
+        # Default is Fahrenheit unless --celsius is provided.
+        in_f = True
+        if getattr(args, "celsius", False):
+            in_f = False
+        elif getattr(args, "fahrenheit", False):
+            in_f = True
+
         temp_c = (value - 32) * 5 / 9 if in_f else value
         vehicle.command('CHANGE_CLIMATE_TEMPERATURE_SETTING', driver_temp=temp_c, passenger_temp=temp_c)
         print(f"🌡️ {vehicle['display_name']} temperature set to {value:g}°{'F' if in_f else 'C'}")
@@ -426,8 +432,13 @@ def cmd_charge(args):
         vehicle.command('STOP_CHARGE')
         print(f"🛑 {vehicle['display_name']} charging stopped")
     elif args.action == 'limit':
-        vehicle.command('CHANGE_CHARGE_LIMIT', percent=int(args.value))
-        print(f"🎚️ {vehicle['display_name']} charge limit set to {int(args.value)}%")
+        if args.value is None:
+            raise ValueError("Missing charge limit percent (e.g., charge limit 80)")
+        pct = int(args.value)
+        if pct < 50 or pct > 100:
+            raise ValueError("Invalid charge limit percent. Expected 50–100")
+        vehicle.command('CHANGE_CHARGE_LIMIT', percent=pct)
+        print(f"🎚️ {vehicle['display_name']} charge limit set to {pct}%")
 
 
 def _parse_hhmm(value: str):

@@ -41,7 +41,7 @@ python3 scripts/tesla.py status
 python3 scripts/tesla.py --car "My Model 3" lock
 python3 scripts/tesla.py climate temp 72      # default: °F
 python3 scripts/tesla.py climate temp 22 --celsius
-python3 scripts/tesla.py charge limit 80
+python3 scripts/tesla.py charge limit 80      # 50–100
 
 # Scheduled charging (set/off are safety gated)
 python3 scripts/tesla.py scheduled-charging status
