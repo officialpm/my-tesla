@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.23 — 2026-01-28
+- UX: `status --json` now prints *only* JSON (no extra human text), making it safe to pipe/parse.
+
 ## 0.1.22 — 2026-01-28
 - UX: include TPMS tire pressures in `report` output when available.
 - Docs/privacy: remove personal default-car example from README/SKILL.

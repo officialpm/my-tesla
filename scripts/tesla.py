@@ -428,6 +428,12 @@ def cmd_status(args):
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = vehicle.get_vehicle_data()
 
+    # When --json is requested, print *only* JSON (no extra human text), so it can
+    # be reliably piped/parsed.
+    if args.json:
+        print(json.dumps(data, indent=2))
+        return
+
     charge = data.get('charge_state', {})
     climate = data.get('climate_state', {})
     vehicle_state = data.get('vehicle_state', {})
@@ -473,9 +479,6 @@ def cmd_status(args):
     odo = vehicle_state.get('odometer')
     if odo is not None:
         print(f"   Odometer: {odo:.0f} mi")
-
-    if args.json:
-        print(json.dumps(data, indent=2))
 
 
 def cmd_lock(args):

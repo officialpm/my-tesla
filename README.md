@@ -47,6 +47,10 @@ python3 scripts/tesla.py report --no-wake
 python3 scripts/tesla.py status
 python3 scripts/tesla.py status --no-wake
 
+# JSON output (prints ONLY JSON; good for piping/parsing)
+python3 scripts/tesla.py status --json
+python3 scripts/tesla.py report --json
+
 python3 scripts/tesla.py --car "My Model 3" lock
 python3 scripts/tesla.py climate temp 72      # default: °F
 python3 scripts/tesla.py climate temp 22 --celsius
