@@ -79,6 +79,8 @@ python3 {baseDir}/scripts/tesla.py climate status
 python3 {baseDir}/scripts/tesla.py climate status --no-wake
 python3 {baseDir}/scripts/tesla.py climate on
 python3 {baseDir}/scripts/tesla.py climate off
+python3 {baseDir}/scripts/tesla.py climate defrost on
+python3 {baseDir}/scripts/tesla.py climate defrost off
 python3 {baseDir}/scripts/tesla.py climate temp 72      # default: °F
 python3 {baseDir}/scripts/tesla.py climate temp 22 --celsius
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.44 — 2026-01-29
+- New capability: add `climate defrost on|off` (max defrost / preconditioning).
+- Reliability: add unit tests for the new defrost command wiring.
+
 ## 0.1.43 — 2026-01-29
 - Reliability: prevent Python from writing `__pycache__/` bytecode when running the CLI (keeps the repo clean).
 

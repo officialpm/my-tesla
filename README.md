@@ -70,6 +70,10 @@ python3 scripts/tesla.py --car "My Model 3" lock
 # Climate (status is read-only)
 python3 scripts/tesla.py climate status
 python3 scripts/tesla.py climate status --no-wake
+python3 scripts/tesla.py climate on
+python3 scripts/tesla.py climate off
+python3 scripts/tesla.py climate defrost on
+python3 scripts/tesla.py climate defrost off
 python3 scripts/tesla.py climate temp 72      # default: °F
 python3 scripts/tesla.py climate temp 22 --celsius
 python3 scripts/tesla.py charge limit 80 --yes   # 50–100

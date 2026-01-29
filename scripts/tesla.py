@@ -676,18 +676,22 @@ def cmd_unlock(args):
 
 
 def cmd_climate(args):
-    """Control climate."""
+    """Control climate.
+
+    Actions:
+    - status (read-only)
+    - on/off
+    - temp <value> [--celsius|--fahrenheit]
+    - defrost <on|off> (max defrost / preconditioning)
+    """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
-    # Read-only action can skip waking the car.
-    allow_wake = True
     if args.action == 'status':
+        # Read-only action can skip waking the car.
         allow_wake = not getattr(args, 'no_wake', False)
+        _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
-    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
-
-    if args.action == 'status':
         data = vehicle.get_vehicle_data()
         climate = data.get('climate_state', {})
 
@@ -719,7 +723,7 @@ def cmd_climate(args):
             print(f"Setpoint: driver {driver or '(unknown)'} | passenger {passenger or '(unknown)'}")
         return
 
-    # Mutating actions
+    # Mutating actions (wake is allowed)
     wake_vehicle(vehicle)
 
     if args.action == 'on':
@@ -743,6 +747,16 @@ def cmd_climate(args):
         temp_c = (value - 32) * 5 / 9 if in_f else value
         vehicle.command('CHANGE_CLIMATE_TEMPERATURE_SETTING', driver_temp=temp_c, passenger_temp=temp_c)
         print(f"🌡️ {vehicle['display_name']} temperature set to {value:g}°{'F' if in_f else 'C'}")
+    elif args.action == 'defrost':
+        if args.value is None or str(args.value).strip().lower() not in ('on', 'off'):
+            raise ValueError("Missing defrost value. Use: climate defrost on|off")
+
+        on = str(args.value).strip().lower() == 'on'
+        vehicle.command('SET_PRECONDITIONING_MAX', on=on)
+        print(f"🧊 {vehicle['display_name']} max defrost {('enabled' if on else 'disabled')}")
+    else:
+        raise ValueError(f"Unknown action: {args.action}")
+
 
 
 def cmd_charge(args):
@@ -1296,8 +1310,12 @@ def main():
     
     # Climate
     climate_parser = subparsers.add_parser("climate", help="Climate control")
-    climate_parser.add_argument("action", choices=["status", "on", "off", "temp"])
-    climate_parser.add_argument("value", nargs="?", help="Temperature value (temp only)")
+    climate_parser.add_argument("action", choices=["status", "on", "off", "temp", "defrost"])
+    climate_parser.add_argument(
+        "value",
+        nargs="?",
+        help="For 'temp': temperature value. For 'defrost': on|off.",
+    )
     climate_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
     temp_units = climate_parser.add_mutually_exclusive_group()
     temp_units.add_argument("--fahrenheit", "-f", action="store_true", help="Temperature value is in °F (default)")
