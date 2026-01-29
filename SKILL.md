@@ -126,6 +126,16 @@ python3 {baseDir}/scripts/tesla.py windows status --json
 python3 {baseDir}/scripts/tesla.py windows vent  --yes
 python3 {baseDir}/scripts/tesla.py windows close --yes
 
+# Seat heaters
+python3 {baseDir}/scripts/tesla.py seats status
+python3 {baseDir}/scripts/tesla.py seats status --no-wake
+python3 {baseDir}/scripts/tesla.py seats status --json
+
+# Seat heaters (safety gated)
+# seat: driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)
+# level: 0–3 (0=off)
+python3 {baseDir}/scripts/tesla.py seats set driver 3 --yes
+
 # Sentry Mode (status is read-only; on/off safety gated)
 python3 {baseDir}/scripts/tesla.py sentry status
 python3 {baseDir}/scripts/tesla.py sentry status --no-wake
@@ -156,7 +166,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `sentry on|off`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
+- `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `seats set`, `sentry on|off`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
 - `location` is *approximate* by default; add `--yes` for precise coordinates
 
 ## Privacy

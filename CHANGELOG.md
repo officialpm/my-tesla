@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.54 — 2026-01-29
+- New capability (safe): add `seats` command for seat heater status + setting levels (set requires `--yes`).
+
 ## 0.1.53 — 2026-01-29
 - Better UX: `report` now includes a one-line openings summary (doors/trunk/frunk/windows) when the vehicle reports it.
 

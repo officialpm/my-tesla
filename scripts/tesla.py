@@ -1211,6 +1211,124 @@ def cmd_windows(args):
     raise ValueError(f"Unknown action: {args.action}")
 
 
+def _seat_heater_fields(climate_state: dict) -> dict:
+    """Extract seat heater levels from climate_state (if present)."""
+    if not isinstance(climate_state, dict):
+        return {}
+
+    # Common Tesla API fields (may vary by model/firmware).
+    keys = [
+        "seat_heater_left",  # driver
+        "seat_heater_right",  # passenger
+        "seat_heater_rear_left",
+        "seat_heater_rear_center",
+        "seat_heater_rear_right",
+        "seat_heater_third_row_left",
+        "seat_heater_third_row_right",
+    ]
+    out = {k: climate_state.get(k) for k in keys if k in climate_state}
+    # Drop unknown/nulls for clean output.
+    return {k: v for k, v in out.items() if v is not None}
+
+
+_SEAT_NAME_TO_HEATER_ID = {
+    # Tesla's REMOTE_SEAT_HEATER_REQUEST uses numeric "heater" ids.
+    # These mappings are the common convention used by community clients.
+    "driver": 0,
+    "front-left": 0,
+    "front_left": 0,
+    "left": 0,
+    "passenger": 1,
+    "front-right": 1,
+    "front_right": 1,
+    "right": 1,
+    "rear-left": 2,
+    "rear_left": 2,
+    "rear-center": 3,
+    "rear_center": 3,
+    "rear-right": 4,
+    "rear_right": 4,
+    "3rd-left": 5,
+    "3rd_left": 5,
+    "third-left": 5,
+    "third_left": 5,
+    "3rd-right": 6,
+    "3rd_right": 6,
+    "third-right": 6,
+    "third_right": 6,
+}
+
+
+def _parse_seat_heater(seat: str) -> int:
+    """Parse a seat name into a Tesla heater id.
+
+    Accepts friendly names (driver/passenger/rear-left/etc) or a numeric id.
+    """
+    if seat is None:
+        raise ValueError("Missing seat. Example: seats set driver 3")
+
+    s = str(seat).strip().lower()
+    if not s:
+        raise ValueError("Missing seat. Example: seats set driver 3")
+
+    if s.isdigit():
+        hid = int(s)
+        if hid < 0 or hid > 6:
+            raise ValueError("Invalid seat heater id. Expected 0–6")
+        return hid
+
+    hid = _SEAT_NAME_TO_HEATER_ID.get(s)
+    if hid is None:
+        raise ValueError(
+            "Unknown seat. Use one of: driver, passenger, rear-left, rear-center, rear-right, 3rd-left, 3rd-right (or 0–6)"
+        )
+    return hid
+
+
+def cmd_seats(args):
+    """Seat heaters: status (read-only) or set (requires --yes)."""
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    if args.action == "status":
+        allow_wake = not getattr(args, "no_wake", False)
+        _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+        data = vehicle.get_vehicle_data()
+        climate = data.get("climate_state", {})
+        out = _seat_heater_fields(climate)
+
+        if getattr(args, "json", False):
+            print(json.dumps(out, indent=2))
+            return
+
+        print(f"🚗 {vehicle['display_name']}")
+        if not out:
+            print("Seat heaters: (unavailable)")
+            return
+        print("Seat heaters (0=off .. 3=high):")
+        for k, v in out.items():
+            label = k.replace("seat_heater_", "").replace("_", " ")
+            print(f"  - {label}: {v}")
+        return
+
+    if args.action == "set":
+        require_yes(args, "seats set")
+        wake_vehicle(vehicle)
+
+        heater = _parse_seat_heater(getattr(args, "seat", None))
+        if getattr(args, "level", None) is None:
+            raise ValueError("Missing level. Expected 0–3")
+        level = int(getattr(args, "level"))
+        if level < 0 or level > 3:
+            raise ValueError("Invalid level. Expected 0–3")
+
+        vehicle.command("REMOTE_SEAT_HEATER_REQUEST", heater=heater, level=level)
+        print(f"🔥 {vehicle['display_name']} seat heater {heater} set to {level}")
+        return
+
+    raise ValueError(f"Unknown action: {args.action}")
+
+
 def cmd_sentry(args):
     """Get/set Sentry Mode (on/off requires --yes)."""
     tesla = get_tesla(require_email(args))
@@ -1671,7 +1789,7 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(unlock/charge start|stop|limit|amps/trunk/windows/honk/flash/charge-port open|close/"
+            "(unlock/charge start|stop|limit|amps/trunk/windows/seats set/honk/flash/charge-port open|close/"
             "scheduled-charging set|off/sentry on|off/location precise)"
         ),
     )
@@ -1779,6 +1897,14 @@ def main():
     windows_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
     windows_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
 
+    # Seat heaters
+    seats_parser = subparsers.add_parser("seats", help="Seat heater status (read-only) or set level (requires --yes)")
+    seats_parser.add_argument("action", choices=["status", "set"], help="status|set")
+    seats_parser.add_argument("seat", nargs="?", help="For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)")
+    seats_parser.add_argument("level", nargs="?", help="For 'set': 0–3 (0=off)")
+    seats_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
+    seats_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
+
     # Sentry
     sentry_parser = subparsers.add_parser("sentry", help="Get/set Sentry Mode (on/off requires --yes)")
     sentry_parser.add_argument("action", choices=["status", "on", "off"], help="status|on|off")
@@ -1826,6 +1952,7 @@ def main():
         "openings": cmd_openings,
         "trunk": cmd_trunk,
         "windows": cmd_windows,
+        "seats": cmd_seats,
         "sentry": cmd_sentry,
         "honk": cmd_honk,
         "flash": cmd_flash,
