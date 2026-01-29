@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.27 — 2026-01-29
+- UX/privacy: `report --json` now outputs a sanitized report object by default (no location). Use `--raw-json` to get full vehicle_data.
+
 ## 0.1.26 — 2026-01-29
 - UX: `charge status --json` now prints *only* JSON (subset of `charge_state`) for piping/parsing.
 

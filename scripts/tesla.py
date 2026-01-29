@@ -392,6 +392,71 @@ def _report(vehicle, data):
     return "\n".join(lines)
 
 
+def _report_json(vehicle, data: dict) -> dict:
+    """Sanitized JSON equivalent of `_report`.
+
+    Intentionally excludes location/drive_state.
+    """
+    charge = data.get('charge_state', {})
+    climate = data.get('climate_state', {})
+    vs = data.get('vehicle_state', {})
+
+    out = {
+        "vehicle": {
+            "display_name": vehicle.get('display_name'),
+            "state": vehicle.get('state'),
+        },
+        "battery": {
+            "level_percent": charge.get('battery_level'),
+            "range_mi": charge.get('battery_range'),
+            "usable_battery_level_percent": charge.get('usable_battery_level'),
+        },
+        "charging": {
+            "charging_state": charge.get('charging_state'),
+            "charge_limit_percent": charge.get('charge_limit_soc'),
+            "minutes_to_full_charge": charge.get('minutes_to_full_charge'),
+            "time_to_full_charge_hours": charge.get('time_to_full_charge'),
+            "charge_rate_mph": charge.get('charge_rate'),
+            "charger_power_kw": charge.get('charger_power'),
+            "charger_voltage_v": charge.get('charger_voltage'),
+            "charger_actual_current_a": charge.get('charger_actual_current'),
+            "charge_current_request_a": charge.get('charge_current_request'),
+            "charge_current_request_max_a": charge.get('charge_current_request_max'),
+            "charging_amps": charge.get('charging_amps'),
+        },
+        "climate": {
+            "inside_temp_c": climate.get('inside_temp'),
+            "outside_temp_c": climate.get('outside_temp'),
+            "is_climate_on": climate.get('is_climate_on'),
+        },
+        "security": {
+            "locked": vs.get('locked'),
+            "sentry_mode": vs.get('sentry_mode'),
+        },
+        "tpms": {
+            "pressure_fl": vs.get('tpms_pressure_fl'),
+            "pressure_fr": vs.get('tpms_pressure_fr'),
+            "pressure_rl": vs.get('tpms_pressure_rl'),
+            "pressure_rr": vs.get('tpms_pressure_rr'),
+        },
+        "odometer_mi": vs.get('odometer'),
+    }
+
+    # Drop empty nested dicts for cleaner output.
+    for k in list(out.keys()):
+        v = out[k]
+        if isinstance(v, dict):
+            v2 = {kk: vv for kk, vv in v.items() if vv is not None}
+            if v2:
+                out[k] = v2
+            else:
+                del out[k]
+        elif v is None:
+            del out[k]
+
+    return out
+
+
 def _ensure_online_or_exit(vehicle, allow_wake: bool):
     if wake_vehicle(vehicle, allow_wake=allow_wake):
         return
@@ -414,7 +479,13 @@ def cmd_report(args):
     data = vehicle.get_vehicle_data()
 
     if args.json:
-        print(json.dumps(data, indent=2))
+        # Default JSON output is a structured, sanitized report object.
+        # Use --raw-json if you explicitly want the full vehicle_data payload
+        # (which may include location/drive_state).
+        if getattr(args, "raw_json", False):
+            print(json.dumps(data, indent=2))
+        else:
+            print(json.dumps(_report_json(vehicle, data), indent=2))
         return
 
     print(_report(vehicle, data))
@@ -904,6 +975,14 @@ def main():
     parser.add_argument("--email", "-e", help="Tesla account email")
     parser.add_argument("--car", "-c", help="Vehicle name (default: first vehicle)")
     parser.add_argument("--json", "-j", action="store_true", help="Output JSON")
+    parser.add_argument(
+        "--raw-json",
+        action="store_true",
+        help=(
+            "When used with --json on supported commands, output raw vehicle_data (may include location). "
+            "Default JSON output is sanitized/summary for safety."
+        ),
+    )
     parser.add_argument(
         "--yes",
         action="store_true",
