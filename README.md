@@ -31,12 +31,15 @@ python3 scripts/tesla.py default-car "PM’s M3 LR"
 
 # One-line summary (best for chat)
 python3 scripts/tesla.py summary
+python3 scripts/tesla.py summary --no-wake   # don't wake a sleeping car
 
 # One-screen report (chat friendly, more detail)
 python3 scripts/tesla.py report
+python3 scripts/tesla.py report --no-wake
 
 # Detailed status
 python3 scripts/tesla.py status
+python3 scripts/tesla.py status --no-wake
 
 python3 scripts/tesla.py --car "My Model 3" lock
 python3 scripts/tesla.py climate temp 72      # default: °F
@@ -62,6 +65,7 @@ python3 scripts/tesla.py charge-port close --yes
 
 # Location (approx by default; use --yes for precise coordinates)
 python3 scripts/tesla.py location
+python3 scripts/tesla.py location --no-wake
 python3 scripts/tesla.py location --yes
 ```
 
@@ -75,4 +79,5 @@ python3 -m unittest discover -s tests -v
 
 - Never commit tokens, VINs, or location outputs.
 - Some commands (unlock/charge start|stop/trunk/windows/honk/flash/charge-port open|close/scheduled-charging set|off) require `--yes`.
+- Read-only commands support `--no-wake` to avoid waking the car (will fail if the vehicle is asleep/offline).
 - `location` shows *approximate* coords by default; add `--yes` for precise coordinates.

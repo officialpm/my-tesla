@@ -37,12 +37,15 @@ python3 {baseDir}/scripts/tesla.py default-car "PM’s M3 LR"
 
 # One-line summary (best for chat)
 python3 {baseDir}/scripts/tesla.py summary
+python3 {baseDir}/scripts/tesla.py summary --no-wake   # don't wake a sleeping car
 
 # One-screen report (chat friendly, more detail)
 python3 {baseDir}/scripts/tesla.py report
+python3 {baseDir}/scripts/tesla.py report --no-wake
 
 # Detailed status
 python3 {baseDir}/scripts/tesla.py status
+python3 {baseDir}/scripts/tesla.py status --no-wake
 python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 
 # Lock / unlock
@@ -57,17 +60,20 @@ python3 {baseDir}/scripts/tesla.py climate temp 22 --celsius
 
 # Charging
 python3 {baseDir}/scripts/tesla.py charge status
+python3 {baseDir}/scripts/tesla.py charge status --no-wake
 python3 {baseDir}/scripts/tesla.py charge start
 python3 {baseDir}/scripts/tesla.py charge stop
 python3 {baseDir}/scripts/tesla.py charge limit 80   # 50–100
 
 # Scheduled charging (set/off are safety gated)
 python3 {baseDir}/scripts/tesla.py scheduled-charging status
+python3 {baseDir}/scripts/tesla.py scheduled-charging status --no-wake
 python3 {baseDir}/scripts/tesla.py scheduled-charging set 23:30 --yes
 python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
 
 # Location (approx by default; use --yes for precise coordinates)
 python3 {baseDir}/scripts/tesla.py location
+python3 {baseDir}/scripts/tesla.py location --no-wake
 python3 {baseDir}/scripts/tesla.py location --yes
 
 # Trunk / frunk (safety gated)

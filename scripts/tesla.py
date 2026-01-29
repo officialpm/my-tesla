@@ -109,11 +109,30 @@ def get_vehicle(tesla, name: str = None):
     return vehicles[0]
 
 
-def wake_vehicle(vehicle):
-    """Wake vehicle if asleep."""
-    if vehicle['state'] != 'online':
+def wake_vehicle(vehicle, allow_wake: bool = True) -> bool:
+    """Wake vehicle if asleep.
+
+    Returns True if the vehicle is (or becomes) online.
+    If allow_wake is False and the vehicle is not online, returns False.
+    """
+    state = vehicle.get('state')
+    if state == 'online':
+        return True
+
+    if not allow_wake:
+        return False
+
+    try:
         print("⏳ Waking vehicle...", file=sys.stderr)
         vehicle.sync_wake_up()
+        return True
+    except Exception as e:
+        print(
+            f"❌ Failed to wake vehicle (state was: {state}). Try again, or run: python3 scripts/tesla.py wake\n"
+            f"   Details: {e}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 def cmd_auth(args):
@@ -290,11 +309,25 @@ def _report(vehicle, data):
     return "\n".join(lines)
 
 
+def _ensure_online_or_exit(vehicle, allow_wake: bool):
+    if wake_vehicle(vehicle, allow_wake=allow_wake):
+        return
+
+    state = vehicle.get('state')
+    name = vehicle.get('display_name', 'Vehicle')
+    print(
+        f"ℹ️ {name} is currently '{state}'. Skipping wake because --no-wake was set.\n"
+        "   Re-run without --no-wake, or run: python3 scripts/tesla.py wake",
+        file=sys.stderr,
+    )
+    sys.exit(3)
+
+
 def cmd_report(args):
     """One-screen status report."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
-    wake_vehicle(vehicle)
+    _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = vehicle.get_vehicle_data()
 
     if args.json:
@@ -309,7 +342,7 @@ def cmd_status(args):
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
-    wake_vehicle(vehicle)
+    _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = vehicle.get_vehicle_data()
 
     charge = data.get('charge_state', {})
@@ -414,8 +447,14 @@ def cmd_charge(args):
     """Control charging."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
-    wake_vehicle(vehicle)
-    
+
+    # Read-only action can skip waking the car.
+    allow_wake = True
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
     if args.action == 'status':
         data = vehicle.get_vehicle_data()
         charge = data['charge_state']
@@ -463,7 +502,13 @@ def cmd_scheduled_charging(args):
     """Get/set scheduled charging (requires --yes to change)."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
-    wake_vehicle(vehicle)
+
+    # Read-only action can skip waking the car.
+    allow_wake = True
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
     if args.action == 'status':
         data = vehicle.get_vehicle_data()
@@ -526,7 +571,7 @@ def cmd_location(args):
     """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
-    wake_vehicle(vehicle)
+    _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
 
     data = vehicle.get_vehicle_data()
     drive = data['drive_state']
@@ -678,12 +723,15 @@ def main():
     # Status
     status_parser = subparsers.add_parser("status", help="Get vehicle status")
     status_parser.add_argument("--summary", action="store_true", help="Also print a one-line summary")
+    status_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
     # Summary (alias)
-    subparsers.add_parser("summary", help="One-line status summary")
+    summary_parser = subparsers.add_parser("summary", help="One-line status summary")
+    summary_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
     # Report (one-screen)
-    subparsers.add_parser("report", help="One-screen status report")
+    report_parser = subparsers.add_parser("report", help="One-screen status report")
+    report_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
     # Default car
     default_parser = subparsers.add_parser("default-car", help="Set/show default vehicle name")
@@ -705,14 +753,17 @@ def main():
     charge_parser = subparsers.add_parser("charge", help="Charging control")
     charge_parser.add_argument("action", choices=["status", "start", "stop", "limit"])
     charge_parser.add_argument("value", nargs="?", help="Charge limit percent for 'limit' (e.g., 80)")
+    charge_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Scheduled charging
     sched_parser = subparsers.add_parser("scheduled-charging", help="Get/set scheduled charging (set/off requires --yes)")
     sched_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
     sched_parser.add_argument("time", nargs="?", help="Start time for 'set' as HH:MM (24-hour)")
+    sched_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Location
-    subparsers.add_parser("location", help="Get vehicle location (approx by default; use --yes for precise)")
+    location_parser = subparsers.add_parser("location", help="Get vehicle location (approx by default; use --yes for precise)")
+    location_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
     # Trunk / frunk
     trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")

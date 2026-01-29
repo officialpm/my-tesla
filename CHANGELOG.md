@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.16 — 2026-01-28
+- Add `--no-wake` to read-only commands to avoid waking the vehicle (fails if asleep/offline).
+
 ## 0.1.15 — 2026-01-28
 - Add `charge-port` command (open/close) with `--yes` safety gate.
 
