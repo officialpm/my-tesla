@@ -1589,6 +1589,7 @@ def main():
     # Mileage tracking (odometer)
     mileage_parser = subparsers.add_parser("mileage", help="Record odometer mileage to a local SQLite DB")
     mileage_parser.add_argument("action", choices=["init", "record", "status", "export"], help="init|record|status|export")
+    mileage_parser.add_argument("--json", action="store_true", help="Output JSON (record/status only)")
     mileage_parser.add_argument("--db", help="Path to the SQLite DB (default: ~/.my_tesla/mileage.sqlite)")
     mileage_parser.add_argument("--no-wake", action="store_true", help="Do not wake sleeping cars")
     mileage_parser.add_argument(

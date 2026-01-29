@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.46 — 2026-01-29
+- Fix: `mileage record` now supports `--json` (subcommand flag) so hourly cron runs can log machine-readable output.
+
 ## 0.1.45 — 2026-01-29
 - New capability: add `mileage` tracking (local SQLite) to record odometer miles across **all cars**.
   - Default behavior: `--no-wake` style (skip sleeping cars)
