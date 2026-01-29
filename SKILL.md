@@ -86,7 +86,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `trunk`, `windows`, `honk`, `flash`, and `scheduled-charging set|off` require `--yes`
+- `unlock`, `charge start|stop`, `trunk`, `windows`, `honk`, `flash`, and `scheduled-charging set|off` require `--yes`
 - `location` is *approximate* by default; add `--yes` for precise coordinates
 
 ## Privacy

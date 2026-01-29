@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.14 — 2026-01-28
+- Safety: require `--yes` for `unlock` and `charge start|stop` to avoid accidental disruptive actions.
+
 ## 0.1.13 — 2026-01-28
 - Improve UX: clearer validation + errors for `charge limit` and `climate temp`.
 

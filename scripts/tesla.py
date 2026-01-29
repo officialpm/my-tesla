@@ -373,6 +373,7 @@ def cmd_lock(args):
 
 def cmd_unlock(args):
     """Unlock the vehicle."""
+    require_yes(args, 'unlock')
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
@@ -426,9 +427,11 @@ def cmd_charge(args):
             print(f"   Time left: {charge['time_to_full_charge']:.1f} hrs")
             print(f"   Rate: {charge['charge_rate']} mph")
     elif args.action == 'start':
+        require_yes(args, 'charge start')
         vehicle.command('START_CHARGE')
         print(f"⚡ {vehicle['display_name']} charging started")
     elif args.action == 'stop':
+        require_yes(args, 'charge stop')
         vehicle.command('STOP_CHARGE')
         print(f"🛑 {vehicle['display_name']} charging stopped")
     elif args.action == 'limit':
@@ -642,7 +645,7 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(trunk/windows/honk/flash/scheduled-charging set|off/location precise)"
+            "(unlock/charge start|stop/trunk/windows/honk/flash/scheduled-charging set|off/location precise)"
         ),
     )
     

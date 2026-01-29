@@ -70,5 +70,5 @@ python3 -m unittest discover -s tests -v
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (trunk/windows/honk/flash/scheduled-charging set|off) require `--yes`.
+- Some commands (unlock/charge start|stop/trunk/windows/honk/flash/scheduled-charging set|off) require `--yes`.
 - `location` shows *approximate* coords by default; add `--yes` for precise coordinates.
