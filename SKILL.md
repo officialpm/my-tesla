@@ -61,6 +61,11 @@ python3 {baseDir}/scripts/tesla.py charge start
 python3 {baseDir}/scripts/tesla.py charge stop
 python3 {baseDir}/scripts/tesla.py charge limit 80
 
+# Scheduled charging (set/off are safety gated)
+python3 {baseDir}/scripts/tesla.py scheduled-charging status
+python3 {baseDir}/scripts/tesla.py scheduled-charging set 23:30 --yes
+python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
+
 # Location (sensitive)
 python3 {baseDir}/scripts/tesla.py location --yes
 
@@ -80,7 +85,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `location`, `trunk`, `windows`, `honk`, `flash` require `--yes`
+- `location`, `trunk`, `windows`, `honk`, `flash`, and `scheduled-charging set|off` require `--yes`
 
 ## Privacy
 

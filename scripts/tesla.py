@@ -195,6 +195,22 @@ def _fmt_temp_pair(c):
     return f"{c}°C ({f:.0f}°F)"
 
 
+def _fmt_minutes_hhmm(minutes):
+    """Format minutes-from-midnight as HH:MM.
+
+    Tesla endpoints commonly represent scheduled times as minutes after midnight.
+    """
+    try:
+        m = int(minutes)
+    except Exception:
+        return None
+    if m < 0:
+        return None
+    hh = (m // 60) % 24
+    mm = m % 60
+    return f"{hh:02d}:{mm:02d}"
+
+
 def _report(vehicle, data):
     """One-screen status report (safe for chat)."""
     charge = data.get('charge_state', {})
@@ -231,6 +247,21 @@ def _report(vehicle, data):
                 extra.append(f"{rate} mph")
         suffix = f" ({', '.join(extra)})" if extra else ""
         lines.append(f"Charging: {charging_state}{suffix}")
+
+    sched_time = charge.get('scheduled_charging_start_time')
+    sched_mode = charge.get('scheduled_charging_mode')
+    sched_pending = charge.get('scheduled_charging_pending')
+    if sched_time is not None or sched_mode is not None or sched_pending is not None:
+        bits = []
+        if isinstance(sched_mode, str) and sched_mode.strip():
+            bits.append(sched_mode.strip())
+        elif sched_pending is not None:
+            bits.append('On' if sched_pending else 'Off')
+        hhmm = _fmt_minutes_hhmm(sched_time)
+        if hhmm:
+            bits.append(hhmm)
+        if bits:
+            lines.append(f"Scheduled charging: {' '.join(bits)}")
 
     inside = _fmt_temp_pair(climate.get('inside_temp'))
     outside = _fmt_temp_pair(climate.get('outside_temp'))
@@ -414,6 +445,72 @@ def cmd_charge(args):
         print(f"🎚️ {vehicle['display_name']} charge limit set to {int(args.value)}%")
 
 
+def _parse_hhmm(value: str):
+    """Parse HH:MM into minutes after midnight."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("Missing time. Expected HH:MM (e.g., 23:30)")
+    s = value.strip()
+    if ":" not in s:
+        raise ValueError("Invalid time. Expected HH:MM (e.g., 23:30)")
+    hh_s, mm_s = s.split(":", 1)
+    hh = int(hh_s)
+    mm = int(mm_s)
+    if hh < 0 or hh > 23 or mm < 0 or mm > 59:
+        raise ValueError("Invalid time. Expected HH:MM using 24-hour time")
+    return hh * 60 + mm
+
+
+def cmd_scheduled_charging(args):
+    """Get/set scheduled charging (requires --yes to change)."""
+    email = resolve_email(args, prompt=False)
+    if not email:
+        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
+        sys.exit(2)
+    tesla = get_tesla(email)
+    vehicle = get_vehicle(tesla, args.car)
+    wake_vehicle(vehicle)
+
+    if args.action == 'status':
+        data = vehicle.get_vehicle_data()
+        charge = data.get('charge_state', {})
+        sched_time = charge.get('scheduled_charging_start_time')
+        sched_mode = charge.get('scheduled_charging_mode')
+        sched_pending = charge.get('scheduled_charging_pending')
+
+        if args.json:
+            print(json.dumps({'scheduled_charging_start_time': sched_time,
+                              'scheduled_charging_mode': sched_mode,
+                              'scheduled_charging_pending': sched_pending}, indent=2))
+            return
+
+        hhmm = _fmt_minutes_hhmm(sched_time)
+        mode = (sched_mode.strip() if isinstance(sched_mode, str) else None)
+        if not mode and sched_pending is not None:
+            mode = 'On' if sched_pending else 'Off'
+
+        print(f"🚗 {vehicle['display_name']}")
+        print(f"Scheduled charging: {mode or '(unknown)'}")
+        if hhmm:
+            print(f"Start time: {hhmm}")
+        return
+
+    # Mutating actions
+    require_yes(args, 'scheduled-charging')
+
+    if args.action == 'off':
+        vehicle.command('SCHEDULED_CHARGING', enable=False, time=0)
+        print(f"⏱️ {vehicle['display_name']} scheduled charging disabled")
+        return
+
+    if args.action == 'set':
+        minutes = _parse_hhmm(args.time)
+        vehicle.command('SCHEDULED_CHARGING', enable=True, time=minutes)
+        print(f"⏱️ {vehicle['display_name']} scheduled charging set to {_fmt_minutes_hhmm(minutes)}")
+        return
+
+    raise ValueError(f"Unknown action: {args.action}")
+
+
 def cmd_location(args):
     """Get vehicle location (sensitive)."""
     require_yes(args, 'location')
@@ -589,7 +686,12 @@ def main():
     charge_parser = subparsers.add_parser("charge", help="Charging control")
     charge_parser.add_argument("action", choices=["status", "start", "stop", "limit"])
     charge_parser.add_argument("value", nargs="?", help="Charge limit percent for 'limit' (e.g., 80)")
-    
+
+    # Scheduled charging
+    sched_parser = subparsers.add_parser("scheduled-charging", help="Get/set scheduled charging (set/off requires --yes)")
+    sched_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
+    sched_parser.add_argument("time", nargs="?", help="Start time for 'set' as HH:MM (24-hour)")
+
     # Location
     subparsers.add_parser("location", help="Get vehicle location (requires --yes)")
 
@@ -620,6 +722,7 @@ def main():
         "unlock": cmd_unlock,
         "climate": cmd_climate,
         "charge": cmd_charge,
+        "scheduled-charging": cmd_scheduled_charging,
         "location": cmd_location,
         "trunk": cmd_trunk,
         "windows": cmd_windows,

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.9 — 2026-01-28
+- Add `scheduled-charging` command (status/set/off) with safety gate; show scheduled charging info in `report`.
+
 ## 0.1.8 — 2026-01-28
 - Improve UX: clearer error when Tesla email is missing (instead of confusing auth failures).
 

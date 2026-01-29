@@ -43,6 +43,11 @@ python3 scripts/tesla.py climate temp 72      # default: °F
 python3 scripts/tesla.py climate temp 22 --celsius
 python3 scripts/tesla.py charge limit 80
 
+# Scheduled charging (set/off are safety gated)
+python3 scripts/tesla.py scheduled-charging status
+python3 scripts/tesla.py scheduled-charging set 23:30 --yes
+python3 scripts/tesla.py scheduled-charging off --yes
+
 # Trunk / frunk (safety gated)
 python3 scripts/tesla.py trunk trunk --yes
 python3 scripts/tesla.py trunk frunk --yes
@@ -64,4 +69,4 @@ python3 -m unittest discover -s tests -v
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (location/trunk/windows/honk/flash) require `--yes`.
+- Some commands (location/trunk/windows/honk/flash/scheduled-charging set|off) require `--yes`.
