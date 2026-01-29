@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.37 — 2026-01-29
+- Packaging: keep `VERSION.txt` in sync with `VERSION` so installed skills report the correct version.
+
 ## 0.1.36 — 2026-01-29
 - Reliability: harden test runner to clean stray Python bytecode and fail if `__pycache__` / `*.pyc` are produced.
 
