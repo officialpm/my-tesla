@@ -94,7 +94,11 @@ def get_tesla(email: str):
     if not tesla.authorized:
         tesla.fetch_token()
         print("✅ Authenticated successfully!")
-    
+
+    # Best-effort: keep the local OAuth cache file private.
+    if CACHE_FILE.exists():
+        _chmod_0600(CACHE_FILE)
+
     return tesla
 
 
@@ -108,8 +112,19 @@ def load_defaults():
     return {}
 
 
+def _chmod_0600(path: Path):
+    """Best-effort: set file permissions to user read/write only."""
+    try:
+        path.chmod(0o600)
+    except Exception:
+        # Non-POSIX FS or permission error; ignore.
+        pass
+
+
 def save_defaults(obj: dict):
+    # Defaults can include human-readable vehicle names; keep them private.
     DEFAULTS_FILE.write_text(json.dumps(obj, indent=2) + "\n")
+    _chmod_0600(DEFAULTS_FILE)
 
 
 def resolve_default_car_name():

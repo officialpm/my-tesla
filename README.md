@@ -18,11 +18,11 @@ Set `TESLA_EMAIL` and run:
 TESLA_EMAIL="you@email.com" python3 scripts/tesla.py auth
 ```
 
-This uses a browser-based login flow and stores tokens locally in `~/.tesla_cache.json`.
+This uses a browser-based login flow and stores tokens locally in `~/.tesla_cache.json` (best-effort chmod `0600`).
 
 Optional defaults:
 - `MY_TESLA_DEFAULT_CAR` — default vehicle display name (overrides `default-car` setting)
-- `python3 scripts/tesla.py default-car "Name"` stores a local default in `~/.my_tesla.json`
+- `python3 scripts/tesla.py default-car "Name"` stores a local default in `~/.my_tesla.json` (best-effort chmod `0600`)
 
 ## Usage
 

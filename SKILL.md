@@ -24,9 +24,9 @@ TESLA_EMAIL="you@email.com" python3 {baseDir}/scripts/tesla.py auth
 
 This opens a Tesla login URL. Log in, then paste the callback URL back into the CLI.
 
-- Token cache: `~/.tesla_cache.json` (local only)
+- Token cache: `~/.tesla_cache.json` (local only; best-effort chmod `0600`)
 - Optional: set `MY_TESLA_DEFAULT_CAR` to a vehicle display name to pick a default car via env var
-- Or persist a local default with: `python3 {baseDir}/scripts/tesla.py default-car "Name"` (writes `~/.my_tesla.json`)
+- Or persist a local default with: `python3 {baseDir}/scripts/tesla.py default-car "Name"` (writes `~/.my_tesla.json`; best-effort chmod `0600`)
 
 ## Commands
 

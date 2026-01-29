@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.48 — 2026-01-29
+- Security: set best-effort `0600` permissions on local token cache (`~/.tesla_cache.json`) and defaults (`~/.my_tesla.json`).
+- Reliability: add unit test for defaults file permission behavior.
+
 ## 0.1.47 — 2026-01-29
 - Reliability: make `tests/` a package that disables Python bytecode writing, so running tests won’t create `__pycache__/` in the repo.
 
