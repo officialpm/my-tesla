@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.19 — 2026-01-28
+- Add `tires` command to show TPMS tire pressures (read-only; supports `--no-wake`).
+
 ## 0.1.18 — 2026-01-28
 - Add `sentry` command (status/on/off) with `--yes` safety gate for toggles.
 - Show Sentry state in `report` output + add a unit test for it.

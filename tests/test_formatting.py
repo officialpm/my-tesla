@@ -18,6 +18,14 @@ class FormattingTests(unittest.TestCase):
         self.assertIsNone(tesla._fmt_temp_pair(None))
         self.assertEqual(tesla._fmt_temp_pair(20), "20°C (68°F)")
 
+    def test_tire_pressure_formatting(self):
+        # 2.90 bar is ~42 psi (common on Model 3)
+        psi = tesla._bar_to_psi(2.90)
+        self.assertIsNotNone(psi)
+        self.assertTrue(40 <= psi <= 45)
+        self.assertEqual(tesla._fmt_tire_pressure(2.9), "2.90 bar (42 psi)")
+        self.assertIsNone(tesla._fmt_tire_pressure(None))
+
     def test_short_status_contains_expected_bits(self):
         vehicle = {"display_name": "Test Car"}
         data = {

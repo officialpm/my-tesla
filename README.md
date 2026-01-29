@@ -73,6 +73,10 @@ python3 scripts/tesla.py sentry off --yes
 python3 scripts/tesla.py location
 python3 scripts/tesla.py location --no-wake
 python3 scripts/tesla.py location --yes
+
+# Tire pressures (TPMS)
+python3 scripts/tesla.py tires
+python3 scripts/tesla.py tires --no-wake
 ```
 
 ## Tests

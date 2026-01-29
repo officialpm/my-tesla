@@ -76,6 +76,10 @@ python3 {baseDir}/scripts/tesla.py location
 python3 {baseDir}/scripts/tesla.py location --no-wake
 python3 {baseDir}/scripts/tesla.py location --yes
 
+# Tire pressures (TPMS)
+python3 {baseDir}/scripts/tesla.py tires
+python3 {baseDir}/scripts/tesla.py tires --no-wake
+
 # Trunk / frunk (safety gated)
 python3 {baseDir}/scripts/tesla.py trunk trunk --yes
 python3 {baseDir}/scripts/tesla.py trunk frunk --yes

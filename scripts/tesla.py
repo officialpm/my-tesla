@@ -223,6 +223,31 @@ def _fmt_temp_pair(c):
     return f"{c}°C ({f:.0f}°F)"
 
 
+def _bar_to_psi(bar):
+    """Convert bar to PSI.
+
+    Tesla APIs commonly return tire pressures in bar.
+    """
+    try:
+        return float(bar) * 14.5037738
+    except Exception:
+        return None
+
+
+def _fmt_tire_pressure(bar):
+    """Format tire pressure as "X.X bar (Y psi)"."""
+    if bar is None:
+        return None
+    try:
+        b = float(bar)
+    except Exception:
+        return None
+    psi = _bar_to_psi(b)
+    if psi is None:
+        return None
+    return f"{b:.2f} bar ({psi:.0f} psi)"
+
+
 def _fmt_minutes_hhmm(minutes):
     """Format minutes-from-midnight as HH:MM.
 
@@ -597,6 +622,40 @@ def cmd_location(args):
     print("   (Use --yes for precise coordinates)")
 
 
+def cmd_tires(args):
+    """Show tire pressures (TPMS) (read-only)."""
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    # Read-only action can skip waking the car.
+    allow_wake = not getattr(args, 'no_wake', False)
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
+    data = vehicle.get_vehicle_data()
+    vs = data.get('vehicle_state', {})
+
+    fl = _fmt_tire_pressure(vs.get('tpms_pressure_fl'))
+    fr = _fmt_tire_pressure(vs.get('tpms_pressure_fr'))
+    rl = _fmt_tire_pressure(vs.get('tpms_pressure_rl'))
+    rr = _fmt_tire_pressure(vs.get('tpms_pressure_rr'))
+
+    if args.json:
+        print(json.dumps({
+            'tpms_pressure_fl': vs.get('tpms_pressure_fl'),
+            'tpms_pressure_fr': vs.get('tpms_pressure_fr'),
+            'tpms_pressure_rl': vs.get('tpms_pressure_rl'),
+            'tpms_pressure_rr': vs.get('tpms_pressure_rr'),
+        }, indent=2))
+        return
+
+    print(f"🚗 {vehicle['display_name']}")
+    print("Tire pressures (TPMS):")
+    print(f"  FL: {fl or '(unknown)'}")
+    print(f"  FR: {fr or '(unknown)'}")
+    print(f"  RL: {rl or '(unknown)'}")
+    print(f"  RR: {rr or '(unknown)'}")
+
+
 def cmd_trunk(args):
     """Toggle frunk/trunk (requires --yes)."""
     require_yes(args, 'trunk')
@@ -810,6 +869,10 @@ def main():
     location_parser = subparsers.add_parser("location", help="Get vehicle location (approx by default; use --yes for precise)")
     location_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
+    # Tire pressures (TPMS)
+    tires_parser = subparsers.add_parser("tires", help="Show tire pressures (TPMS)")
+    tires_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+
     # Trunk / frunk
     trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")
     trunk_parser.add_argument("which", choices=["trunk", "frunk"], help="Which to actuate")
@@ -848,6 +911,7 @@ def main():
         "charge": cmd_charge,
         "scheduled-charging": cmd_scheduled_charging,
         "location": cmd_location,
+        "tires": cmd_tires,
         "trunk": cmd_trunk,
         "windows": cmd_windows,
         "sentry": cmd_sentry,
