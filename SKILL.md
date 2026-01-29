@@ -51,6 +51,11 @@ python3 {baseDir}/scripts/tesla.py default-car "My Model 3"
 python3 {baseDir}/scripts/tesla.py summary
 python3 {baseDir}/scripts/tesla.py summary --no-wake   # don't wake a sleeping car
 
+# Summary as JSON (privacy-safe)
+# Unlike `status --json`, this emits a small sanitized object (no location).
+python3 {baseDir}/scripts/tesla.py summary --json
+python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_data (may include location)
+
 # One-screen report (chat friendly, more detail)
 # Includes battery/charging/climate + (when available) TPMS tire pressures.
 # Also includes a quick openings summary (doors/trunk/frunk/windows) when available.
@@ -66,10 +71,12 @@ python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 
 # JSON output (prints ONLY JSON; good for piping/parsing)
 # NOTE: `status --json` outputs *raw* `vehicle_data`, which may include location/drive_state.
-# Prefer `report --json` (sanitized) unless you explicitly need the raw payload.
-python3 {baseDir}/scripts/tesla.py status --json             # raw vehicle_data (may include location)
-python3 {baseDir}/scripts/tesla.py report --json             # sanitized report object (no location; includes scheduled charging + charge port state)
-python3 {baseDir}/scripts/tesla.py report --json --raw-json  # raw vehicle_data (may include location)
+# Prefer `summary --json` (sanitized) or `report --json` (sanitized) unless you explicitly need the raw payload.
+python3 {baseDir}/scripts/tesla.py summary --json              # sanitized summary object (no location)
+python3 {baseDir}/scripts/tesla.py report --json               # sanitized report object (no location; includes scheduled charging + charge port state)
+python3 {baseDir}/scripts/tesla.py status --json               # raw vehicle_data (may include location)
+python3 {baseDir}/scripts/tesla.py report --json --raw-json    # raw vehicle_data (may include location)
+python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py charge status --json
 
 # Lock / unlock

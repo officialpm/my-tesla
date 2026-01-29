@@ -346,6 +346,56 @@ def _short_status(vehicle, data):
     return " • ".join(parts)
 
 
+def _summary_json(vehicle, data: dict) -> dict:
+    """Sanitized, machine-readable one-line summary.
+
+    Unlike `status --json`, this does NOT emit raw vehicle_data (which may include location).
+    """
+    charge = data.get('charge_state', {})
+    climate = data.get('climate_state', {})
+    vs = data.get('vehicle_state', {})
+
+    inside_c = climate.get('inside_temp')
+    inside_f = _c_to_f(inside_c) if inside_c is not None else None
+
+    out = {
+        "vehicle": {
+            "display_name": vehicle.get("display_name"),
+            "state": vehicle.get("state"),
+        },
+        "summary": _short_status(vehicle, data),
+        "security": {
+            "locked": vs.get("locked"),
+        },
+        "battery": {
+            "level_percent": charge.get("battery_level"),
+            "range_mi": charge.get("battery_range"),
+        },
+        "charging": {
+            "charging_state": charge.get("charging_state"),
+        },
+        "climate": {
+            "inside_temp_c": inside_c,
+            "inside_temp_f": inside_f,
+            "is_climate_on": climate.get("is_climate_on"),
+        },
+    }
+
+    # Drop empty nested dicts / None values.
+    for k in list(out.keys()):
+        v = out[k]
+        if isinstance(v, dict):
+            v2 = {kk: vv for kk, vv in v.items() if vv is not None}
+            if v2:
+                out[k] = v2
+            else:
+                del out[k]
+        elif v is None:
+            del out[k]
+
+    return out
+
+
 def _fmt_temp_pair(c):
     if c is None:
         return None
@@ -1503,9 +1553,26 @@ def cmd_wake(args):
 
 
 def cmd_summary(args):
-    """One-line status summary."""
-    args.summary = True
-    return cmd_status(args)
+    """One-line status summary.
+
+    - default (human): prints a single line for chat
+    - with --json: prints a sanitized JSON object (privacy-safe)
+    - with --json --raw-json: prints raw vehicle_data (may include location)
+    """
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
+    data = vehicle.get_vehicle_data()
+
+    if getattr(args, 'json', False):
+        if getattr(args, 'raw_json', False):
+            print(json.dumps(data, indent=2))
+        else:
+            print(json.dumps(_summary_json(vehicle, data), indent=2))
+        return
+
+    print(_short_status(vehicle, data))
 
 
 # ----------------------------

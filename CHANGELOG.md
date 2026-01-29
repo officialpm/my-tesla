@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.56 — 2026-01-29
+- Better UX: `summary --json` now outputs a small **sanitized** JSON object (no location) for easy scripting; `--raw-json` is still available when you explicitly want raw `vehicle_data`.
+- Reliability: add unit tests for summary JSON sanitization.
+
 ## 0.1.55 — 2026-01-29
 - Better UX: `report` now includes a compact seat-heater summary line when the vehicle reports seat heater levels.
 - JSON: `report --json` includes `climate.seat_heaters` when available.
