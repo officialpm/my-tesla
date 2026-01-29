@@ -65,7 +65,9 @@ python3 {baseDir}/scripts/tesla.py charge status --json
 python3 {baseDir}/scripts/tesla.py lock
 python3 {baseDir}/scripts/tesla.py unlock
 
-# Climate
+# Climate (status is read-only)
+python3 {baseDir}/scripts/tesla.py climate status
+python3 {baseDir}/scripts/tesla.py climate status --no-wake
 python3 {baseDir}/scripts/tesla.py climate on
 python3 {baseDir}/scripts/tesla.py climate off
 python3 {baseDir}/scripts/tesla.py climate temp 72      # default: °F

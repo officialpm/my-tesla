@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.33 — 2026-01-29
+- UX: add `climate status` (read-only) with `--no-wake` and `--json` support for a focused climate-only view.
+
 ## 0.1.32 — 2026-01-29
 - Reliability: add `./scripts/run_tests.sh` and recommend `PYTHONDONTWRITEBYTECODE=1` to prevent repo-local `__pycache__`.
 

@@ -592,8 +592,49 @@ def cmd_climate(args):
     """Control climate."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
+
+    # Read-only action can skip waking the car.
+    allow_wake = True
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
+    if args.action == 'status':
+        data = vehicle.get_vehicle_data()
+        climate = data.get('climate_state', {})
+
+        out = {
+            'is_climate_on': climate.get('is_climate_on'),
+            'inside_temp_c': climate.get('inside_temp'),
+            'outside_temp_c': climate.get('outside_temp'),
+            'driver_temp_setting_c': climate.get('driver_temp_setting'),
+            'passenger_temp_setting_c': climate.get('passenger_temp_setting'),
+        }
+
+        if args.json:
+            print(json.dumps(out, indent=2))
+            return
+
+        inside = _fmt_temp_pair(climate.get('inside_temp'))
+        outside = _fmt_temp_pair(climate.get('outside_temp'))
+        print(f"🚗 {vehicle['display_name']}")
+        if out.get('is_climate_on') is not None:
+            print(f"Climate: {_fmt_bool(out.get('is_climate_on'), 'On', 'Off')}")
+        if inside:
+            print(f"Inside: {inside}")
+        if outside:
+            print(f"Outside: {outside}")
+
+        driver = _fmt_temp_pair(climate.get('driver_temp_setting'))
+        passenger = _fmt_temp_pair(climate.get('passenger_temp_setting'))
+        if driver or passenger:
+            print(f"Setpoint: driver {driver or '(unknown)'} | passenger {passenger or '(unknown)'}")
+        return
+
+    # Mutating actions
     wake_vehicle(vehicle)
-    
+
     if args.action == 'on':
         vehicle.command('CLIMATE_ON')
         print(f"❄️ {vehicle['display_name']} climate turned on")
@@ -1112,8 +1153,9 @@ def main():
     
     # Climate
     climate_parser = subparsers.add_parser("climate", help="Climate control")
-    climate_parser.add_argument("action", choices=["on", "off", "temp"])
-    climate_parser.add_argument("value", nargs="?", help="Temperature value")
+    climate_parser.add_argument("action", choices=["status", "on", "off", "temp"])
+    climate_parser.add_argument("value", nargs="?", help="Temperature value (temp only)")
+    climate_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
     temp_units = climate_parser.add_mutually_exclusive_group()
     temp_units.add_argument("--fahrenheit", "-f", action="store_true", help="Temperature value is in °F (default)")
     temp_units.add_argument("--celsius", action="store_true", help="Temperature value is in °C")
