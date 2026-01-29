@@ -25,6 +25,8 @@ TESLA_EMAIL="you@email.com" python3 {baseDir}/scripts/tesla.py auth
 This opens a Tesla login URL. Log in, then paste the callback URL back into the CLI.
 
 - Token cache: `~/.tesla_cache.json` (local only)
+- Optional: set `MY_TESLA_DEFAULT_CAR` to a vehicle display name to pick a default car via env var
+- Or persist a local default with: `python3 {baseDir}/scripts/tesla.py default-car "Name"` (writes `~/.my_tesla.json`)
 
 ## Commands
 
@@ -56,8 +58,10 @@ python3 {baseDir}/scripts/tesla.py status --summary   # include one-line summary
 python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 
 # JSON output (prints ONLY JSON; good for piping/parsing)
-python3 {baseDir}/scripts/tesla.py status --json          # raw vehicle_data
-python3 {baseDir}/scripts/tesla.py report --json          # sanitized report object (no location; includes scheduled charging + charge port state)
+# NOTE: `status --json` outputs *raw* `vehicle_data`, which may include location/drive_state.
+# Prefer `report --json` (sanitized) unless you explicitly need the raw payload.
+python3 {baseDir}/scripts/tesla.py status --json             # raw vehicle_data (may include location)
+python3 {baseDir}/scripts/tesla.py report --json             # sanitized report object (no location; includes scheduled charging + charge port state)
 python3 {baseDir}/scripts/tesla.py report --json --raw-json  # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py charge status --json
 

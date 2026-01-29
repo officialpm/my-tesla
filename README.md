@@ -20,6 +20,10 @@ TESLA_EMAIL="you@email.com" python3 scripts/tesla.py auth
 
 This uses a browser-based login flow and stores tokens locally in `~/.tesla_cache.json`.
 
+Optional defaults:
+- `MY_TESLA_DEFAULT_CAR` — default vehicle display name (overrides `default-car` setting)
+- `python3 scripts/tesla.py default-car "Name"` stores a local default in `~/.my_tesla.json`
+
 ## Usage
 
 ```bash
@@ -49,7 +53,9 @@ python3 scripts/tesla.py status --no-wake
 python3 scripts/tesla.py status --summary   # include one-line summary + detailed output
 
 # JSON output (prints ONLY JSON; good for piping/parsing)
-python3 scripts/tesla.py status --json            # raw vehicle_data
+# NOTE: `status --json` outputs *raw* `vehicle_data`, which may include location/drive_state.
+# Prefer `report --json` (sanitized) unless you explicitly need the raw payload.
+python3 scripts/tesla.py status --json            # raw vehicle_data (may include location)
 python3 scripts/tesla.py report --json            # sanitized report object (no location)
 python3 scripts/tesla.py report --json --raw-json # raw vehicle_data (may include location)
 python3 scripts/tesla.py charge status --json

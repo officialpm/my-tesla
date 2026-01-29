@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.35 — 2026-01-29
+- Docs/privacy: document `MY_TESLA_DEFAULT_CAR` and clarify that `status --json` outputs raw `vehicle_data` (may include location); recommend `report --json` for sanitized output.
+
 ## 0.1.34 — 2026-01-29
 - UX: make `--car` selection errors clearer when a partial name matches multiple vehicles (shows matches + suggests using an index).
 
