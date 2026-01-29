@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.41 — 2026-01-29
+- UX: improve error/help messages by printing a copy/pastable invocation that works outside the repo (uses the script’s absolute path).
+
 ## 0.1.40 — 2026-01-29
 - New capability (safe): add `charge-port status` (read-only) with `--no-wake` + `--json`.
 - Reliability: add unit test coverage for the new charge port status formatter.

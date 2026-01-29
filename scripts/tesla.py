@@ -21,6 +21,16 @@ DEFAULTS_FILE = Path.home() / ".my_tesla.json"
 SKILL_DIR = Path(__file__).resolve().parent.parent
 
 
+def _invocation(extra: str = "") -> str:
+    """Return a copy/pastable invocation string for help/error messages.
+
+    Use the absolute path to this script so the suggestion works even when the
+    current working directory is not the repo root.
+    """
+    prog = str(Path(__file__).resolve())
+    return f"python3 {prog}{(' ' + extra) if extra else ''}"
+
+
 def read_skill_version() -> str:
     """Read the skill version from VERSION.txt/VERSION in the repo.
 
@@ -55,7 +65,7 @@ def require_email(args) -> str:
     if not email:
         print(
             "❌ Missing Tesla email. Set TESLA_EMAIL or pass --email\n"
-            "   Example: TESLA_EMAIL=\"you@email.com\" python3 scripts/tesla.py list",
+            f"   Example: TESLA_EMAIL=\"you@email.com\" {_invocation('list')}",
             file=sys.stderr,
         )
         sys.exit(2)
@@ -214,7 +224,7 @@ def wake_vehicle(vehicle, allow_wake: bool = True) -> bool:
         return True
     except Exception as e:
         print(
-            f"❌ Failed to wake vehicle (state was: {state}). Try again, or run: python3 scripts/tesla.py wake\n"
+            f"❌ Failed to wake vehicle (state was: {state}). Try again, or run: {_invocation('wake')}\n"
             f"   Details: {e}",
             file=sys.stderr,
         )
@@ -269,7 +279,7 @@ def cmd_list(args):
     if default_name:
         print(f"Default car: {default_name}")
     else:
-        print("Default car: (none) — set with: python3 scripts/tesla.py default-car \"Name\"")
+        print(f"Default car: (none) — set with: {_invocation('default-car \"Name\"')}")
 
 
 def _c_to_f(c):
@@ -537,7 +547,7 @@ def _ensure_online_or_exit(vehicle, allow_wake: bool):
     name = vehicle.get('display_name', 'Vehicle')
     print(
         f"ℹ️ {name} is currently '{state}'. Skipping wake because --no-wake was set.\n"
-        "   Re-run without --no-wake, or run: python3 scripts/tesla.py wake",
+        f"   Re-run without --no-wake, or run: {_invocation('wake')}",
         file=sys.stderr,
     )
     sys.exit(3)
