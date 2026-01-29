@@ -603,6 +603,23 @@ def cmd_flash(args):
     print(f"💡 {vehicle['display_name']} flashed lights!")
 
 
+def cmd_charge_port(args):
+    """Open/close the charge port door (requires --yes)."""
+    require_yes(args, 'charge-port')
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+    wake_vehicle(vehicle)
+
+    if args.action == 'open':
+        vehicle.command('CHARGE_PORT_DOOR_OPEN')
+        print(f"🔌 {vehicle['display_name']} charge port opened")
+    elif args.action == 'close':
+        vehicle.command('CHARGE_PORT_DOOR_CLOSE')
+        print(f"🔌 {vehicle['display_name']} charge port closed")
+    else:
+        raise ValueError(f"Unknown action: {args.action}")
+
+
 def cmd_wake(args):
     """Wake up the vehicle."""
     tesla = get_tesla(require_email(args))
@@ -645,7 +662,8 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(unlock/charge start|stop/trunk/windows/honk/flash/scheduled-charging set|off/location precise)"
+            "(unlock/charge start|stop/trunk/windows/honk/flash/charge-port open|close/"
+            "scheduled-charging set|off/location precise)"
         ),
     )
     
@@ -707,7 +725,11 @@ def main():
     # Honk/flash
     subparsers.add_parser("honk", help="Honk the horn")
     subparsers.add_parser("flash", help="Flash the lights")
-    
+
+    # Charge port
+    charge_port_parser = subparsers.add_parser("charge-port", help="Open/close the charge port door (requires --yes)")
+    charge_port_parser.add_argument("action", choices=["open", "close"], help="Action to perform")
+
     # Wake
     subparsers.add_parser("wake", help="Wake up the vehicle")
     
@@ -729,6 +751,7 @@ def main():
         "windows": cmd_windows,
         "honk": cmd_honk,
         "flash": cmd_flash,
+        "charge-port": cmd_charge_port,
         "wake": cmd_wake,
         "default-car": cmd_default_car,
     }

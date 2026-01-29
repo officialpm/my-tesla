@@ -78,6 +78,10 @@ python3 {baseDir}/scripts/tesla.py trunk frunk --yes
 python3 {baseDir}/scripts/tesla.py windows vent  --yes
 python3 {baseDir}/scripts/tesla.py windows close --yes
 
+# Charge port door (safety gated)
+python3 {baseDir}/scripts/tesla.py charge-port open  --yes
+python3 {baseDir}/scripts/tesla.py charge-port close --yes
+
 # Fun / attention-grabbing
 python3 {baseDir}/scripts/tesla.py honk   --yes
 python3 {baseDir}/scripts/tesla.py flash  --yes
@@ -86,7 +90,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `unlock`, `charge start|stop`, `trunk`, `windows`, `honk`, `flash`, and `scheduled-charging set|off` require `--yes`
+- `unlock`, `charge start|stop`, `trunk`, `windows`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
 - `location` is *approximate* by default; add `--yes` for precise coordinates
 
 ## Privacy

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.15 — 2026-01-28
+- Add `charge-port` command (open/close) with `--yes` safety gate.
+
 ## 0.1.14 — 2026-01-28
 - Safety: require `--yes` for `unlock` and `charge start|stop` to avoid accidental disruptive actions.
 
