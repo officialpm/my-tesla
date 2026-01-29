@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.47 — 2026-01-29
+- Reliability: make `tests/` a package that disables Python bytecode writing, so running tests won’t create `__pycache__/` in the repo.
+
 ## 0.1.46 — 2026-01-29
 - Fix: `mileage record` now supports `--json` (subcommand flag) so hourly cron runs can log machine-readable output.
 
