@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.49 — 2026-01-29
+- Fix: repair an indentation bug in `report` output formatting that could break `python3 -m py_compile` / CLI execution.
+
 ## 0.1.48 — 2026-01-29
 - Security: set best-effort `0600` permissions on local token cache (`~/.tesla_cache.json`) and defaults (`~/.my_tesla.json`).
 - Reliability: add unit test for defaults file permission behavior.

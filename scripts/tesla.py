@@ -453,7 +453,7 @@ def _report(vehicle, data):
             if bits:
                 lines.append(f"Charging power: {' '.join(bits)}")
 
-# Charge port / cable state
+    # Charge port / cable state
     cpd = charge.get('charge_port_door_open')
     if cpd is not None:
         lines.append(f"Charge port door: {_fmt_bool(cpd, 'Open', 'Closed')}")
