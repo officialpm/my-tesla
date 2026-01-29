@@ -57,7 +57,7 @@ python3 scripts/tesla.py windows vent  --yes
 python3 scripts/tesla.py windows close --yes
 
 # Location (sensitive)
-python3 scripts/tesla.py location --yes
+python3 scripts/tesla.py location
 ```
 
 ## Tests
@@ -69,4 +69,4 @@ python3 -m unittest discover -s tests -v
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (location/trunk/windows/honk/flash/scheduled-charging set|off) require `--yes`.
+- Some commands (trunk/windows/honk/flash/scheduled-charging set|off) require `--yes`.

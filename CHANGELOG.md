@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.11 — 2026-01-28
+- Remove `--yes` safety gate from `location` (prints coordinates + maps link without confirmation).
+
 ## 0.1.10 — 2026-01-28
 - Refactor: centralize missing-email handling into a single helper with a clearer example.
 - Clarify --yes help text to include scheduled-charging set|off.

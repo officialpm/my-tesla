@@ -67,7 +67,7 @@ python3 {baseDir}/scripts/tesla.py scheduled-charging set 23:30 --yes
 python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
 
 # Location (sensitive)
-python3 {baseDir}/scripts/tesla.py location --yes
+python3 {baseDir}/scripts/tesla.py location
 
 # Trunk / frunk (safety gated)
 python3 {baseDir}/scripts/tesla.py trunk trunk --yes

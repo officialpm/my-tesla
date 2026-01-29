@@ -494,7 +494,6 @@ def cmd_scheduled_charging(args):
 
 def cmd_location(args):
     """Get vehicle location (sensitive)."""
-    require_yes(args, 'location')
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
@@ -604,7 +603,7 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(location/trunk/windows/honk/flash/scheduled-charging set|off)"
+            "(trunk/windows/honk/flash/scheduled-charging set|off)"
         ),
     )
     
@@ -653,7 +652,7 @@ def main():
     sched_parser.add_argument("time", nargs="?", help="Start time for 'set' as HH:MM (24-hour)")
 
     # Location
-    subparsers.add_parser("location", help="Get vehicle location (requires --yes)")
+    subparsers.add_parser("location", help="Get vehicle location")
 
     # Trunk / frunk
     trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")
