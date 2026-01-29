@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.57 — 2026-01-29
+- Dev hygiene: ignore common Python tooling caches (e.g., `.pytest_cache/`, `.mypy_cache/`) to keep the repo clean.
+
 ## 0.1.56 — 2026-01-29
 - Better UX: `summary --json` now outputs a small **sanitized** JSON object (no location) for easy scripting; `--raw-json` is still available when you explicitly want raw `vehicle_data`.
 - Reliability: add unit tests for summary JSON sanitization.
