@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.24 — 2026-01-29
+- Reliability: add unit tests for scheduled-charging time parsing/formatting helpers.
+
 ## 0.1.23 — 2026-01-28
 - UX: `status --json` now prints *only* JSON (no extra human text), making it safe to pipe/parse.
 
