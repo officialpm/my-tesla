@@ -301,7 +301,7 @@ def cmd_list(args):
     if default_name:
         print(f"Default car: {default_name}")
     else:
-        print(f"Default car: (none) — set with: {_invocation('default-car \"Name\"')}")
+        print(f"Default car: (none) — set with: {_invocation('default-car "Name"')}")
 
 
 def _c_to_f(c):

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.51 — 2026-01-29
+- Fix: remove an invalid f-string escape in `list` output so `scripts/tesla.py` compiles cleanly and tests can import it.
+
 ## 0.1.50 — 2026-01-29
 - Reliability: make `windows` command handler defensive (explicitly errors on unknown actions) and add unit tests.
 
