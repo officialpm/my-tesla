@@ -26,7 +26,13 @@ class ReportJsonTests(unittest.TestCase):
                 "scheduled_charging_pending": True,
                 "scheduled_charging_start_time": 60,  # 01:00
             },
-            "climate_state": {"inside_temp": 21, "outside_temp": 10, "is_climate_on": True},
+            "climate_state": {
+                "inside_temp": 21,
+                "outside_temp": 10,
+                "is_climate_on": True,
+                "seat_heater_left": 3,
+                "seat_heater_right": 1,
+            },
             "vehicle_state": {"locked": False, "sentry_mode": True, "odometer": 12345.6},
             # This is intentionally present in raw vehicle_data, but should not show up in report JSON.
             "drive_state": {"latitude": 37.1234, "longitude": -122.5678},
@@ -49,6 +55,10 @@ class ReportJsonTests(unittest.TestCase):
         self.assertEqual(out["charging"]["conn_charge_cable"], "SAE")
         self.assertEqual(out["scheduled_charging"]["start_time_hhmm"], "01:00")
         self.assertEqual(out["security"]["locked"], False)
+
+        # Seat heaters should be present when vehicle reports them
+        self.assertIn("seat_heaters", out["climate"])
+        self.assertEqual(out["climate"]["seat_heaters"]["seat_heater_left"], 3)
 
 
 if __name__ == "__main__":

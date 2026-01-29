@@ -491,6 +491,10 @@ def _report(vehicle, data):
     if climate_on is not None:
         lines.append(f"Climate: {_fmt_bool(climate_on, 'On', 'Off')}")
 
+    heaters = _seat_heater_fields(climate)
+    if heaters:
+        lines.append(f"Seat heaters: {_seat_heaters_one_line(heaters)}")
+
     # Tire pressures (TPMS) if available
     fl = _fmt_tire_pressure(vs.get('tpms_pressure_fl'))
     fr = _fmt_tire_pressure(vs.get('tpms_pressure_fr'))
@@ -552,6 +556,7 @@ def _report_json(vehicle, data: dict) -> dict:
             "inside_temp_c": climate.get('inside_temp'),
             "outside_temp_c": climate.get('outside_temp'),
             "is_climate_on": climate.get('is_climate_on'),
+            "seat_heaters": _seat_heater_fields(climate) or None,
         },
         "security": {
             "locked": vs.get('locked'),
@@ -1229,6 +1234,40 @@ def _seat_heater_fields(climate_state: dict) -> dict:
     out = {k: climate_state.get(k) for k in keys if k in climate_state}
     # Drop unknown/nulls for clean output.
     return {k: v for k, v in out.items() if v is not None}
+
+
+def _seat_heaters_one_line(fields: dict) -> str:
+    """Format seat heater levels in a compact one-line form.
+
+    Example: "D 3 | P 2 | RL 1".
+    """
+    if not isinstance(fields, dict) or not fields:
+        return ""
+
+    labels = {
+        "seat_heater_left": "D",
+        "seat_heater_right": "P",
+        "seat_heater_rear_left": "RL",
+        "seat_heater_rear_center": "RC",
+        "seat_heater_rear_right": "RR",
+        "seat_heater_third_row_left": "3L",
+        "seat_heater_third_row_right": "3R",
+    }
+
+    parts = []
+    for k in [
+        "seat_heater_left",
+        "seat_heater_right",
+        "seat_heater_rear_left",
+        "seat_heater_rear_center",
+        "seat_heater_rear_right",
+        "seat_heater_third_row_left",
+        "seat_heater_third_row_right",
+    ]:
+        if k in fields and fields.get(k) is not None:
+            parts.append(f"{labels.get(k, k)} {fields.get(k)}")
+
+    return " | ".join(parts)
 
 
 _SEAT_NAME_TO_HEATER_ID = {

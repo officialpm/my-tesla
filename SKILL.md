@@ -54,6 +54,7 @@ python3 {baseDir}/scripts/tesla.py summary --no-wake   # don't wake a sleeping c
 # One-screen report (chat friendly, more detail)
 # Includes battery/charging/climate + (when available) TPMS tire pressures.
 # Also includes a quick openings summary (doors/trunk/frunk/windows) when available.
+# When available, includes a compact seat heater summary line.
 python3 {baseDir}/scripts/tesla.py report
 python3 {baseDir}/scripts/tesla.py report --no-wake
 

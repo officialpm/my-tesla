@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.55 — 2026-01-29
+- Better UX: `report` now includes a compact seat-heater summary line when the vehicle reports seat heater levels.
+- JSON: `report --json` includes `climate.seat_heaters` when available.
+
 ## 0.1.54 — 2026-01-29
 - New capability (safe): add `seats` command for seat heater status + setting levels (set requires `--yes`).
 
