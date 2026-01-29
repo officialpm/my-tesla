@@ -544,6 +544,25 @@ def cmd_charge(args):
     if args.action == 'status':
         data = vehicle.get_vehicle_data()
         charge = data['charge_state']
+
+        if args.json:
+            # Print *only* JSON (no extra human text) so it can be piped/parsed.
+            # Keep it focused to avoid leaking unrelated vehicle details.
+            keys = [
+                'battery_level',
+                'battery_range',
+                'charging_state',
+                'charge_limit_soc',
+                'time_to_full_charge',
+                'charge_rate',
+                'scheduled_charging_start_time',
+                'scheduled_charging_mode',
+                'scheduled_charging_pending',
+            ]
+            out = {k: charge.get(k) for k in keys}
+            print(json.dumps(out, indent=2))
+            return
+
         print(f"🔋 {vehicle['display_name']} Battery: {charge['battery_level']}%")
         print(f"   Range: {charge['battery_range']:.0f} mi")
         print(f"   State: {charge['charging_state']}")

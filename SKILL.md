@@ -57,6 +57,7 @@ python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 # JSON output (prints ONLY JSON; good for piping/parsing)
 python3 {baseDir}/scripts/tesla.py status --json
 python3 {baseDir}/scripts/tesla.py report --json
+python3 {baseDir}/scripts/tesla.py charge status --json
 
 # Lock / unlock
 python3 {baseDir}/scripts/tesla.py lock

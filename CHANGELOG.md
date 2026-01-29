@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.26 — 2026-01-29
+- UX: `charge status --json` now prints *only* JSON (subset of `charge_state`) for piping/parsing.
+
 ## 0.1.25 — 2026-01-29
 - New capability (safe): add `charge amps <N>` to set charging current (requires `--yes`).
 
