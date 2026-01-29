@@ -138,15 +138,39 @@ def get_vehicle(tesla, name: str = None):
             return selected
 
         # Give a more helpful error (and show numeric indices too).
+        s = str(target_name).strip()
+        ambiguous = False
+        matches = []
+        if s and not s.isdigit():
+            s_l = s.lower()
+            matches = [
+                (i + 1, v) for i, v in enumerate(vehicles)
+                if s_l in v.get('display_name', '').lower()
+            ]
+            ambiguous = len(matches) > 1
+
         options = "\n".join(
             f"   {i+1}. {v.get('display_name')}" for i, v in enumerate(vehicles)
         )
-        print(
-            f"❌ Vehicle '{target_name}' not found (or ambiguous).\n"
-            "   Tip: you can pass --car with a partial name (substring match) or a 1-based index.\n"
-            f"Available vehicles:\n{options}",
-            file=sys.stderr,
-        )
+
+        if ambiguous:
+            match_lines = "\n".join(
+                f"   {idx}. {v.get('display_name')}" for idx, v in matches
+            )
+            print(
+                f"❌ Vehicle '{target_name}' is ambiguous (matched multiple vehicles).\n"
+                "   Tip: use a more specific name, or choose by index: --car <N>\n"
+                f"Matches:\n{match_lines}\n\n"
+                f"All vehicles:\n{options}",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                f"❌ Vehicle '{target_name}' not found.\n"
+                "   Tip: you can pass --car with a partial name (substring match) or a 1-based index.\n"
+                f"Available vehicles:\n{options}",
+                file=sys.stderr,
+            )
         sys.exit(1)
 
     return vehicles[0]

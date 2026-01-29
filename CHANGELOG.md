@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.34 — 2026-01-29
+- UX: make `--car` selection errors clearer when a partial name matches multiple vehicles (shows matches + suggests using an index).
+
 ## 0.1.33 — 2026-01-29
 - UX: add `climate status` (read-only) with `--no-wake` and `--json` support for a focused climate-only view.
 
