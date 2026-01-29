@@ -63,6 +63,12 @@ python3 scripts/tesla.py windows close --yes
 python3 scripts/tesla.py charge-port open  --yes
 python3 scripts/tesla.py charge-port close --yes
 
+# Sentry Mode (status is read-only; on/off safety gated)
+python3 scripts/tesla.py sentry status
+python3 scripts/tesla.py sentry status --no-wake
+python3 scripts/tesla.py sentry on  --yes
+python3 scripts/tesla.py sentry off --yes
+
 # Location (approx by default; use --yes for precise coordinates)
 python3 scripts/tesla.py location
 python3 scripts/tesla.py location --no-wake
@@ -78,6 +84,6 @@ python3 -m unittest discover -s tests -v
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (unlock/charge start|stop/trunk/windows/honk/flash/charge-port open|close/scheduled-charging set|off) require `--yes`.
+- Some commands (unlock/charge start|stop/trunk/windows/sentry on|off/honk/flash/charge-port open|close/scheduled-charging set|off) require `--yes`.
 - Read-only commands support `--no-wake` to avoid waking the car (will fail if the vehicle is asleep/offline).
 - `location` shows *approximate* coords by default; add `--yes` for precise coordinates.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.18 — 2026-01-28
+- Add `sentry` command (status/on/off) with `--yes` safety gate for toggles.
+- Show Sentry state in `report` output + add a unit test for it.
+
 ## 0.1.17 — 2026-01-28
 - Add unit tests for `--no-wake` behavior (wake gating + exit code).
 

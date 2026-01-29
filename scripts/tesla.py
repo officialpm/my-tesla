@@ -253,6 +253,10 @@ def _report(vehicle, data):
     if locked is not None:
         lines.append(f"Locked: {_fmt_bool(locked, 'Yes', 'No')}")
 
+    sentry = vs.get('sentry_mode')
+    if sentry is not None:
+        lines.append(f"Sentry: {_fmt_bool(sentry, 'On', 'Off')}")
+
     batt = charge.get('battery_level')
     rng = charge.get('battery_range')
     if batt is not None and rng is not None:
@@ -622,6 +626,47 @@ def cmd_windows(args):
         print(f"🪟 {vehicle['display_name']} windows closed")
 
 
+def cmd_sentry(args):
+    """Get/set Sentry Mode (on/off requires --yes)."""
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    # Read-only action can skip waking the car.
+    allow_wake = True
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
+    if args.action == 'status':
+        data = vehicle.get_vehicle_data()
+        sentry = data.get('vehicle_state', {}).get('sentry_mode')
+        if args.json:
+            print(json.dumps({'sentry_mode': sentry}, indent=2))
+            return
+        if sentry is None:
+            print(f"🚗 {vehicle['display_name']}\nSentry: (unknown)")
+        else:
+            print(f"🚗 {vehicle['display_name']}\nSentry: {_fmt_bool(sentry, 'On', 'Off')}")
+        return
+
+    # Mutating actions
+    require_yes(args, 'sentry')
+    wake_vehicle(vehicle)
+
+    if args.action == 'on':
+        vehicle.command('SET_SENTRY_MODE', on=True)
+        print(f"🛡️ {vehicle['display_name']} Sentry turned on")
+        return
+
+    if args.action == 'off':
+        vehicle.command('SET_SENTRY_MODE', on=False)
+        print(f"🛡️ {vehicle['display_name']} Sentry turned off")
+        return
+
+    raise ValueError(f"Unknown action: {args.action}")
+
+
 def cmd_honk(args):
     """Honk the horn."""
     require_yes(args, 'honk')
@@ -708,7 +753,7 @@ def main():
         help=(
             "Safety confirmation for sensitive/disruptive actions "
             "(unlock/charge start|stop/trunk/windows/honk/flash/charge-port open|close/"
-            "scheduled-charging set|off/location precise)"
+            "scheduled-charging set|off/sentry on|off/location precise)"
         ),
     )
     
@@ -773,6 +818,11 @@ def main():
     windows_parser = subparsers.add_parser("windows", help="Vent/close windows (requires --yes)")
     windows_parser.add_argument("action", choices=["vent", "close"], help="Action to perform")
 
+    # Sentry
+    sentry_parser = subparsers.add_parser("sentry", help="Get/set Sentry Mode (on/off requires --yes)")
+    sentry_parser.add_argument("action", choices=["status", "on", "off"], help="status|on|off")
+    sentry_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
+
     # Honk/flash
     subparsers.add_parser("honk", help="Honk the horn")
     subparsers.add_parser("flash", help="Flash the lights")
@@ -800,6 +850,7 @@ def main():
         "location": cmd_location,
         "trunk": cmd_trunk,
         "windows": cmd_windows,
+        "sentry": cmd_sentry,
         "honk": cmd_honk,
         "flash": cmd_flash,
         "charge-port": cmd_charge_port,

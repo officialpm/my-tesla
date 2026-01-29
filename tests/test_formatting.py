@@ -71,7 +71,7 @@ class FormattingTests(unittest.TestCase):
                 "scheduled_charging_pending": True,
             },
             "climate_state": {"inside_temp": 21, "outside_temp": 10, "is_climate_on": True},
-            "vehicle_state": {"locked": False, "odometer": 12345.6},
+            "vehicle_state": {"locked": False, "sentry_mode": True, "odometer": 12345.6},
         }
 
         out = tesla._report(vehicle, data)
@@ -79,6 +79,7 @@ class FormattingTests(unittest.TestCase):
         self.assertTrue(out.startswith("🚗 Test Car"))
         self.assertIn("State: online", out)
         self.assertIn("Locked: No", out)
+        self.assertIn("Sentry: On", out)
         self.assertIn("Battery: 80% (250 mi)", out)
         self.assertIn("Charging: Charging", out)
         self.assertIn("Scheduled charging:", out)
