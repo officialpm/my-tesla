@@ -1087,10 +1087,41 @@ def cmd_trunk(args):
 
 
 def cmd_windows(args):
-    """Vent or close windows (requires --yes)."""
-    require_yes(args, 'windows')
+    """Windows: status (read-only) or vent/close (requires --yes)."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
+
+    # Read-only action can skip waking the car.
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+        _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+        data = vehicle.get_vehicle_data()
+        vs = data.get('vehicle_state', {})
+
+        out = {
+            'front_driver': _fmt_open(vs.get('fd_window')),
+            'front_passenger': _fmt_open(vs.get('fp_window')),
+            'rear_driver': _fmt_open(vs.get('rd_window')),
+            'rear_passenger': _fmt_open(vs.get('rp_window')),
+        }
+        # Drop unknowns for cleaner output
+        out = {k: v for k, v in out.items() if v is not None}
+
+        if getattr(args, 'json', False):
+            print(json.dumps(out, indent=2))
+            return
+
+        print(f"🚗 {vehicle['display_name']}")
+        if not out:
+            print("Windows: (unavailable)")
+            return
+        print("Windows:")
+        for k, v in out.items():
+            print(f"  - {k.replace('_',' ')}: {v}")
+        return
+
+    # Mutating actions
+    require_yes(args, 'windows')
     wake_vehicle(vehicle)
 
     # Tesla API requires lat/lon parameters; 0/0 works for this endpoint.
@@ -1669,8 +1700,10 @@ def main():
     trunk_parser.add_argument("which", choices=["trunk", "frunk"], help="Which to actuate")
 
     # Windows
-    windows_parser = subparsers.add_parser("windows", help="Vent/close windows (requires --yes)")
-    windows_parser.add_argument("action", choices=["vent", "close"], help="Action to perform")
+    windows_parser = subparsers.add_parser("windows", help="Windows status (read-only) or vent/close (requires --yes)")
+    windows_parser.add_argument("action", choices=["status", "vent", "close"], help="status|vent|close")
+    windows_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
+    windows_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
 
     # Sentry
     sentry_parser = subparsers.add_parser("sentry", help="Get/set Sentry Mode (on/off requires --yes)")

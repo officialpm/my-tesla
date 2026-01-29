@@ -88,6 +88,11 @@ python3 scripts/tesla.py scheduled-charging off --yes
 python3 scripts/tesla.py trunk trunk --yes
 python3 scripts/tesla.py trunk frunk --yes
 
+# Windows
+python3 scripts/tesla.py windows status
+python3 scripts/tesla.py windows status --no-wake
+python3 scripts/tesla.py windows status --json
+
 # Windows (safety gated)
 python3 scripts/tesla.py windows vent  --yes
 python3 scripts/tesla.py windows close --yes

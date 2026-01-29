@@ -116,6 +116,11 @@ python3 {baseDir}/scripts/tesla.py openings --json
 python3 {baseDir}/scripts/tesla.py trunk trunk --yes
 python3 {baseDir}/scripts/tesla.py trunk frunk --yes
 
+# Windows
+python3 {baseDir}/scripts/tesla.py windows status
+python3 {baseDir}/scripts/tesla.py windows status --no-wake
+python3 {baseDir}/scripts/tesla.py windows status --json
+
 # Windows (safety gated)
 python3 {baseDir}/scripts/tesla.py windows vent  --yes
 python3 {baseDir}/scripts/tesla.py windows close --yes
