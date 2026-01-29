@@ -530,6 +530,25 @@ def _report(vehicle, data):
         if bits:
             lines.append(f"Scheduled charging: {' '.join(bits)}")
 
+    # Scheduled departure / off-peak charging (read-only)
+    dep_enabled = charge.get('scheduled_departure_enabled')
+    dep_time = charge.get('scheduled_departure_time')
+    precond = charge.get('preconditioning_enabled')
+    off_peak = charge.get('off_peak_charging_enabled')
+    if dep_enabled is not None or dep_time is not None or precond is not None or off_peak is not None:
+        bits = []
+        if dep_enabled is not None:
+            bits.append('On' if dep_enabled else 'Off')
+        hhmm = _fmt_minutes_hhmm(dep_time)
+        if hhmm:
+            bits.append(hhmm)
+        if precond is not None:
+            bits.append(f"precond {'On' if precond else 'Off'}")
+        if off_peak is not None:
+            bits.append(f"off-peak {'On' if off_peak else 'Off'}")
+        if bits:
+            lines.append(f"Scheduled departure: {' '.join(bits)}")
+
     inside = _fmt_temp_pair(climate.get('inside_temp'))
     outside = _fmt_temp_pair(climate.get('outside_temp'))
     if inside:
@@ -601,6 +620,12 @@ def _report_json(vehicle, data: dict) -> dict:
             "mode": charge.get('scheduled_charging_mode'),
             "pending": charge.get('scheduled_charging_pending'),
             "start_time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_charging_start_time')),
+        },
+        "scheduled_departure": {
+            "enabled": charge.get('scheduled_departure_enabled'),
+            "time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_departure_time')),
+            "preconditioning_enabled": charge.get('preconditioning_enabled'),
+            "off_peak_charging_enabled": charge.get('off_peak_charging_enabled'),
         },
         "climate": {
             "inside_temp_c": climate.get('inside_temp'),

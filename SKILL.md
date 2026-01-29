@@ -60,6 +60,7 @@ python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_dat
 # Includes battery/charging/climate + (when available) TPMS tire pressures.
 # Also includes a quick openings summary (doors/trunk/frunk/windows) when available.
 # When available, includes a compact seat heater summary line.
+# When the vehicle reports it, includes scheduled departure / preconditioning / off-peak charging status.
 python3 {baseDir}/scripts/tesla.py report
 python3 {baseDir}/scripts/tesla.py report --no-wake
 

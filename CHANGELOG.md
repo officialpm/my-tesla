@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.58 — 2026-01-29
+- Better UX: `report` now includes scheduled departure / preconditioning / off-peak charging status when the vehicle reports it.
+
 ## 0.1.57 — 2026-01-29
 - Dev hygiene: ignore common Python tooling caches (e.g., `.pytest_cache/`, `.mypy_cache/`) to keep the repo clean.
 
