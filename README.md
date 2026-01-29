@@ -90,6 +90,11 @@ python3 scripts/tesla.py location --yes
 # Tire pressures (TPMS)
 python3 scripts/tesla.py tires
 python3 scripts/tesla.py tires --no-wake
+
+# Openings (doors/trunks/windows)
+python3 scripts/tesla.py openings
+python3 scripts/tesla.py openings --no-wake
+python3 scripts/tesla.py openings --json
 ```
 
 ## Tests

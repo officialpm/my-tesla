@@ -93,6 +93,11 @@ python3 {baseDir}/scripts/tesla.py location --yes
 python3 {baseDir}/scripts/tesla.py tires
 python3 {baseDir}/scripts/tesla.py tires --no-wake
 
+# Openings (doors/trunks/windows)
+python3 {baseDir}/scripts/tesla.py openings
+python3 {baseDir}/scripts/tesla.py openings --no-wake
+python3 {baseDir}/scripts/tesla.py openings --json
+
 # Trunk / frunk (safety gated)
 python3 {baseDir}/scripts/tesla.py trunk trunk --yes
 python3 {baseDir}/scripts/tesla.py trunk frunk --yes

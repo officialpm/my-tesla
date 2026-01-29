@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.30 — 2026-01-29
+- New capability (safe): add `openings` command to show which doors/trunks/windows are open (supports `--no-wake` + `--json`).
+
 ## 0.1.29 — 2026-01-29
 - UX: `report` now includes charge port door + cable status. `report --json` now includes scheduled charging + charge port fields.
 

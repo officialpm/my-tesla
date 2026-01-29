@@ -840,6 +840,77 @@ def cmd_tires(args):
     print(f"  RR: {rr or '(unknown)'}")
 
 
+
+def _fmt_open(v):
+    if v is None:
+        return None
+    # Tesla often uses 0/1 ints for open states.
+    if isinstance(v, bool):
+        return 'Open' if v else 'Closed'
+    try:
+        i = int(v)
+        return 'Open' if i else 'Closed'
+    except Exception:
+        return None
+
+
+def cmd_openings(args):
+    """Show which doors/trunks/windows are open (read-only)."""
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    allow_wake = not getattr(args, 'no_wake', False)
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
+    data = vehicle.get_vehicle_data()
+    vs = data.get('vehicle_state', {})
+
+    out = {
+        'doors': {
+            'driver_front': _fmt_open(vs.get('df')),
+            'driver_rear': _fmt_open(vs.get('dr')),
+            'passenger_front': _fmt_open(vs.get('pf')),
+            'passenger_rear': _fmt_open(vs.get('pr')),
+        },
+        'trunks': {
+            'frunk': _fmt_open(vs.get('ft')),
+            'trunk': _fmt_open(vs.get('rt')),
+        },
+        'windows': {
+            'front_driver': _fmt_open(vs.get('fd_window')),
+            'front_passenger': _fmt_open(vs.get('fp_window')),
+            'rear_driver': _fmt_open(vs.get('rd_window')),
+            'rear_passenger': _fmt_open(vs.get('rp_window')),
+        },
+    }
+
+    # Drop unknown keys for cleaner output.
+    for k in list(out.keys()):
+        out[k] = {kk: vv for kk, vv in out[k].items() if vv is not None}
+        if not out[k]:
+            del out[k]
+
+    if args.json:
+        print(json.dumps(out, indent=2))
+        return
+
+    print(f"🚗 {vehicle['display_name']}")
+    if not out:
+        print("Openings: (unavailable)")
+        return
+
+    def _section(title, d):
+        if not d:
+            return
+        print(f"{title}:")
+        for kk, vv in d.items():
+            print(f"  - {kk.replace('_',' ')}: {vv}")
+
+    _section('Doors', out.get('doors'))
+    _section('Trunks', out.get('trunks'))
+    _section('Windows', out.get('windows'))
+
+
 def cmd_trunk(args):
     """Toggle frunk/trunk (requires --yes)."""
     require_yes(args, 'trunk')
@@ -1069,6 +1140,10 @@ def main():
     tires_parser = subparsers.add_parser("tires", help="Show tire pressures (TPMS)")
     tires_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
+    # Openings (doors/trunks/windows)
+    openings_parser = subparsers.add_parser("openings", help="Show which doors/trunks/windows are open")
+    openings_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+
     # Trunk / frunk
     trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")
     trunk_parser.add_argument("which", choices=["trunk", "frunk"], help="Which to actuate")
@@ -1108,6 +1183,7 @@ def main():
         "scheduled-charging": cmd_scheduled_charging,
         "location": cmd_location,
         "tires": cmd_tires,
+        "openings": cmd_openings,
         "trunk": cmd_trunk,
         "windows": cmd_windows,
         "sentry": cmd_sentry,
