@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10 — 2026-01-28
+- Refactor: centralize missing-email handling into a single helper with a clearer example.
+- Clarify --yes help text to include scheduled-charging set|off.
+
 ## 0.1.9 — 2026-01-28
 - Add `scheduled-charging` command (status/set/off) with safety gate; show scheduled charging info in `report`.
 

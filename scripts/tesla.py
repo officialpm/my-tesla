@@ -30,6 +30,19 @@ def resolve_email(args, prompt: bool = True) -> str:
     return input("Tesla email: ").strip()
 
 
+def require_email(args) -> str:
+    """Require a Tesla email to be provided via --email or TESLA_EMAIL."""
+    email = resolve_email(args, prompt=False)
+    if not email:
+        print(
+            "❌ Missing Tesla email. Set TESLA_EMAIL or pass --email\n"
+            "   Example: TESLA_EMAIL=\"you@email.com\" python3 scripts/tesla.py list",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    return email
+
+
 def get_tesla(email: str):
     """Get authenticated Tesla instance."""
     import teslapy
@@ -121,11 +134,7 @@ def cmd_auth(args):
 
 def cmd_list(args):
     """List all vehicles."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicles = tesla.vehicle_list()
 
     default_name = resolve_default_car_name()
@@ -283,11 +292,7 @@ def _report(vehicle, data):
 
 def cmd_report(args):
     """One-screen status report."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     data = vehicle.get_vehicle_data()
@@ -301,11 +306,7 @@ def cmd_report(args):
 
 def cmd_status(args):
     """Get vehicle status."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
     wake_vehicle(vehicle)
@@ -363,11 +364,7 @@ def cmd_status(args):
 
 def cmd_lock(args):
     """Lock the vehicle."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     vehicle.command('LOCK')
@@ -376,11 +373,7 @@ def cmd_lock(args):
 
 def cmd_unlock(args):
     """Unlock the vehicle."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     vehicle.command('UNLOCK')
@@ -389,11 +382,7 @@ def cmd_unlock(args):
 
 def cmd_climate(args):
     """Control climate."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     
@@ -416,11 +405,7 @@ def cmd_climate(args):
 
 def cmd_charge(args):
     """Control charging."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     
@@ -462,11 +447,7 @@ def _parse_hhmm(value: str):
 
 def cmd_scheduled_charging(args):
     """Get/set scheduled charging (requires --yes to change)."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
 
@@ -514,11 +495,7 @@ def cmd_scheduled_charging(args):
 def cmd_location(args):
     """Get vehicle location (sensitive)."""
     require_yes(args, 'location')
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
 
@@ -533,11 +510,7 @@ def cmd_location(args):
 def cmd_trunk(args):
     """Toggle frunk/trunk (requires --yes)."""
     require_yes(args, 'trunk')
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
 
@@ -550,11 +523,7 @@ def cmd_trunk(args):
 def cmd_windows(args):
     """Vent or close windows (requires --yes)."""
     require_yes(args, 'windows')
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
 
@@ -570,11 +539,7 @@ def cmd_windows(args):
 def cmd_honk(args):
     """Honk the horn."""
     require_yes(args, 'honk')
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     vehicle.command('HONK_HORN')
@@ -590,11 +555,7 @@ def require_yes(args, action: str):
 def cmd_flash(args):
     """Flash the lights."""
     require_yes(args, 'flash')
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     wake_vehicle(vehicle)
     vehicle.command('FLASH_LIGHTS')
@@ -603,11 +564,7 @@ def cmd_flash(args):
 
 def cmd_wake(args):
     """Wake up the vehicle."""
-    email = resolve_email(args, prompt=False)
-    if not email:
-        print("❌ Missing Tesla email. Set TESLA_EMAIL or pass --email", file=sys.stderr)
-        sys.exit(2)
-    tesla = get_tesla(email)
+    tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     print(f"⏳ Waking {vehicle['display_name']}...")
     vehicle.sync_wake_up()
@@ -645,7 +602,10 @@ def main():
     parser.add_argument(
         "--yes",
         action="store_true",
-        help="Safety confirmation for sensitive/disruptive actions (location/trunk/windows/honk/flash)",
+        help=(
+            "Safety confirmation for sensitive/disruptive actions "
+            "(location/trunk/windows/honk/flash/scheduled-charging set|off)"
+        ),
     )
     
     subparsers = parser.add_subparsers(dest="command", required=True)
