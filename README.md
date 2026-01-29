@@ -135,6 +135,8 @@ python3 scripts/tesla.py sentry off --yes
 # Location (approx by default; use --yes for precise coordinates)
 python3 scripts/tesla.py location
 python3 scripts/tesla.py location --no-wake
+python3 scripts/tesla.py location --digits 1   # coarser rounding
+python3 scripts/tesla.py location --digits 3   # a bit more precise (still approximate)
 python3 scripts/tesla.py location --yes
 
 # Tire pressures (TPMS)

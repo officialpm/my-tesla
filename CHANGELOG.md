@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.59 — 2026-01-29
+- Better UX / safety: `location` now supports `--digits N` (0–6) to control rounding precision for approximate coordinates.
+- Reliability: add unit tests for coordinate rounding helper.
+
 ## 0.1.58 — 2026-01-29
 - Better UX: `report` now includes scheduled departure / preconditioning / off-peak charging status when the vehicle reports it.
 

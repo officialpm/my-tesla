@@ -111,6 +111,8 @@ python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
 # Location (approx by default; use --yes for precise coordinates)
 python3 {baseDir}/scripts/tesla.py location
 python3 {baseDir}/scripts/tesla.py location --no-wake
+python3 {baseDir}/scripts/tesla.py location --digits 1   # coarser rounding
+python3 {baseDir}/scripts/tesla.py location --digits 3   # a bit more precise (still approximate)
 python3 {baseDir}/scripts/tesla.py location --yes
 
 # Tire pressures (TPMS)
@@ -176,7 +178,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 
 Some actions require an explicit confirmation flag:
 - `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `seats set`, `sentry on|off`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
-- `location` is *approximate* by default; add `--yes` for precise coordinates
+- `location` is *approximate* by default; add `--yes` for precise coordinates (or `--digits N` to control rounding)
 
 ## Privacy
 

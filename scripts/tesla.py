@@ -1014,11 +1014,23 @@ def cmd_scheduled_charging(args):
 def _round_coord(x, digits: int = 2):
     """Round a coordinate for safer display.
 
-    digits=2 is roughly ~1km precision (varies with latitude) and is
-    intended as a non-sensitive default.
+    digits=2 is roughly ~1km precision (varies with latitude) and is intended
+    as a non-sensitive default.
+
+    We cap digits to a small range to avoid accidentally producing overly
+    precise coordinates.
     """
     try:
-        return round(float(x), digits)
+        d = int(digits)
+    except Exception:
+        return None
+
+    # 0..6 is still plenty for display; tighter by default.
+    if d < 0 or d > 6:
+        return None
+
+    try:
+        return round(float(x), d)
     except Exception:
         return None
 
@@ -1028,6 +1040,8 @@ def cmd_location(args):
 
     Default output is *approximate* (rounded) to reduce accidental leakage.
     Use --yes for precise coordinates.
+
+    Use --digits N (0–6) to control rounding precision for approximate output.
     """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
@@ -1043,10 +1057,11 @@ def cmd_location(args):
         print(f"   https://www.google.com/maps?q={lat},{lon}")
         return
 
-    lat_r = _round_coord(lat, 2)
-    lon_r = _round_coord(lon, 2)
+    digits = getattr(args, 'digits', 2)
+    lat_r = _round_coord(lat, digits)
+    lon_r = _round_coord(lon, digits)
     if lat_r is None or lon_r is None:
-        raise ValueError("Missing location coordinates")
+        raise ValueError("Invalid or missing location coordinates (try --digits 0..6)")
 
     print(f"📍 {vehicle['display_name']} Location (approx): {lat_r}, {lon_r}")
     print(f"   https://www.google.com/maps?q={lat_r},{lon_r}")
@@ -2007,8 +2022,17 @@ def main():
     sched_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Location
-    location_parser = subparsers.add_parser("location", help="Get vehicle location (approx by default; use --yes for precise)")
+    location_parser = subparsers.add_parser(
+        "location",
+        help="Get vehicle location (approx by default; use --yes for precise)",
+    )
     location_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+    location_parser.add_argument(
+        "--digits",
+        type=int,
+        default=2,
+        help="(approx output) Rounding precision for latitude/longitude (0–6). Default: 2",
+    )
 
     # Tire pressures (TPMS)
     tires_parser = subparsers.add_parser("tires", help="Show tire pressures (TPMS)")
