@@ -159,6 +159,10 @@ python3 scripts/tesla.py mileage record --no-wake --auto-wake-after-hours 24
 python3 scripts/tesla.py mileage status
 python3 scripts/tesla.py mileage export --format csv > mileage.csv
 python3 scripts/tesla.py mileage export --format json > mileage.json
+
+# Export a time window
+python3 scripts/tesla.py mileage export --format csv --since-days 7 > mileage_last_7d.csv
+python3 scripts/tesla.py mileage export --format json --since-ts 1738195200 > mileage_since_ts.json
 ```
 
 ## Mileage tracking (hourly)

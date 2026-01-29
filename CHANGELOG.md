@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.61 — 2026-01-29
+- Better UX: `mileage export` now supports time-window filtering via `--since-days` or `--since-ts`.
+- Reliability: add unit tests for mileage export filtering helpers.
+
 ## 0.1.60 — 2026-01-29
 - Better UX: add global `--debug` (or `MY_TESLA_DEBUG=1`) to print full tracebacks on errors.
 

@@ -1640,6 +1640,49 @@ def resolve_mileage_db_path(args=None) -> Path:
     return MILEAGE_DB_DEFAULT
 
 
+def resolve_since_ts(*, since_ts: int | None = None, since_days: float | None = None) -> int | None:
+    """Resolve a cutoff timestamp (UTC epoch seconds) for mileage export.
+
+    - since_ts wins if provided.
+    - since_days is interpreted as "now - N days".
+
+    Returns None when no cutoff is requested.
+    """
+    if since_ts is not None:
+        try:
+            return int(since_ts)
+        except Exception:
+            raise ValueError("--since-ts must be an integer epoch timestamp (seconds)")
+
+    if since_days is None:
+        return None
+
+    try:
+        days = float(since_days)
+    except Exception:
+        raise ValueError("--since-days must be a number (e.g., 7 or 0.5)")
+
+    if days < 0:
+        raise ValueError("--since-days must be >= 0")
+
+    return int(time.time() - days * 86400)
+
+
+def mileage_fetch_points(conn, *, since_ts: int | None = None):
+    """Fetch mileage points ordered by timestamp asc, optionally filtered."""
+    if since_ts is None:
+        cur = conn.execute(
+            "SELECT ts_utc, vehicle_id, vehicle_name, odometer_mi, state, source, note FROM mileage_points ORDER BY ts_utc ASC"
+        )
+        return cur.fetchall()
+
+    cur = conn.execute(
+        "SELECT ts_utc, vehicle_id, vehicle_name, odometer_mi, state, source, note FROM mileage_points WHERE ts_utc >= ? ORDER BY ts_utc ASC",
+        (int(since_ts),),
+    )
+    return cur.fetchall()
+
+
 def _db_connect(path: Path):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1859,12 +1902,15 @@ def cmd_mileage(args):
 
     if args.action == "export":
         fmt = getattr(args, "format", "csv")
+
+        since_ts = resolve_since_ts(
+            since_ts=getattr(args, "since_ts", None),
+            since_days=getattr(args, "since_days", None),
+        )
+
         conn = _db_connect(db_path)
         try:
-            cur = conn.execute(
-                "SELECT ts_utc, vehicle_id, vehicle_name, odometer_mi, state, source, note FROM mileage_points ORDER BY ts_utc ASC"
-            )
-            rows = cur.fetchall()
+            rows = mileage_fetch_points(conn, since_ts=since_ts)
         finally:
             conn.close()
 
@@ -1881,7 +1927,7 @@ def cmd_mileage(args):
                 }
                 for (ts, vid, name, odo, state, source, note) in rows
             ]
-            print(json.dumps({"db": str(db_path), "items": items}, indent=2))
+            print(json.dumps({"db": str(db_path), "since_ts_utc": since_ts, "items": items}, indent=2))
             return
 
         # csv
@@ -1994,6 +2040,16 @@ def main():
         help="If a car hasn't recorded mileage in this many hours, allow waking it (default: 24)",
     )
     mileage_parser.add_argument("--format", choices=["csv", "json"], default="csv", help="For export: csv|json")
+    mileage_parser.add_argument(
+        "--since-ts",
+        type=int,
+        help="(export only) Only include points with ts_utc >= this epoch timestamp (seconds)",
+    )
+    mileage_parser.add_argument(
+        "--since-days",
+        type=float,
+        help="(export only) Only include points from the last N days (e.g., 7 or 0.5)",
+    )
 
     # Lock/unlock
     subparsers.add_parser("lock", help="Lock the vehicle")

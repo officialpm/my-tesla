@@ -168,7 +168,9 @@ python3 {baseDir}/scripts/tesla.py mileage init
 python3 {baseDir}/scripts/tesla.py mileage record --no-wake --auto-wake-after-hours 24
 python3 {baseDir}/scripts/tesla.py mileage status
 python3 {baseDir}/scripts/tesla.py mileage export --format csv
+python3 {baseDir}/scripts/tesla.py mileage export --format csv --since-days 7
 python3 {baseDir}/scripts/tesla.py mileage export --format json
+python3 {baseDir}/scripts/tesla.py mileage export --format json --since-ts 1738195200
 
 # Charge port door open/close (safety gated)
 python3 {baseDir}/scripts/tesla.py charge-port open  --yes
