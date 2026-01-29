@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.25 — 2026-01-29
+- New capability (safe): add `charge amps <N>` to set charging current (requires `--yes`).
+
 ## 0.1.24 — 2026-01-29
 - Reliability: add unit tests for scheduled-charging time parsing/formatting helpers.
 

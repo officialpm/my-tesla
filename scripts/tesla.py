@@ -551,15 +551,22 @@ def cmd_charge(args):
         if charge['charging_state'] == 'Charging':
             print(f"   Time left: {charge['time_to_full_charge']:.1f} hrs")
             print(f"   Rate: {charge['charge_rate']} mph")
-    elif args.action == 'start':
+        return
+
+    if args.action == 'start':
         require_yes(args, 'charge start')
         vehicle.command('START_CHARGE')
         print(f"⚡ {vehicle['display_name']} charging started")
-    elif args.action == 'stop':
+        return
+
+    if args.action == 'stop':
         require_yes(args, 'charge stop')
         vehicle.command('STOP_CHARGE')
         print(f"🛑 {vehicle['display_name']} charging stopped")
-    elif args.action == 'limit':
+        return
+
+    if args.action == 'limit':
+        require_yes(args, 'charge limit')
         if args.value is None:
             raise ValueError("Missing charge limit percent (e.g., charge limit 80)")
         pct = int(args.value)
@@ -567,6 +574,21 @@ def cmd_charge(args):
             raise ValueError("Invalid charge limit percent. Expected 50–100")
         vehicle.command('CHANGE_CHARGE_LIMIT', percent=pct)
         print(f"🎚️ {vehicle['display_name']} charge limit set to {pct}%")
+        return
+
+    if args.action == 'amps':
+        require_yes(args, 'charge amps')
+        if args.value is None:
+            raise ValueError("Missing amps value (e.g., charge amps 16)")
+        amps = int(args.value)
+        if amps < 1 or amps > 48:
+            # Conservative guardrail. Many cars support 5-48A depending on setup.
+            raise ValueError("Invalid amps. Expected 1–48")
+        vehicle.command('CHARGING_AMPS', charging_amps=amps)
+        print(f"🔌 {vehicle['display_name']} charging amps set to {amps}A")
+        return
+
+    raise ValueError(f"Unknown action: {args.action}")
 
 
 def _parse_hhmm(value: str):
@@ -868,7 +890,7 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(unlock/charge start|stop/trunk/windows/honk/flash/charge-port open|close/"
+            "(unlock/charge start|stop|limit|amps/trunk/windows/honk/flash/charge-port open|close/"
             "scheduled-charging set|off/sentry on|off/location precise)"
         ),
     )
@@ -912,8 +934,12 @@ def main():
     
     # Charge
     charge_parser = subparsers.add_parser("charge", help="Charging control")
-    charge_parser.add_argument("action", choices=["status", "start", "stop", "limit"])
-    charge_parser.add_argument("value", nargs="?", help="Charge limit percent for 'limit' (e.g., 80)")
+    charge_parser.add_argument("action", choices=["status", "start", "stop", "limit", "amps"])
+    charge_parser.add_argument(
+        "value",
+        nargs="?",
+        help="For 'limit': percent (e.g., 80). For 'amps': amps (e.g., 16).",
+    )
     charge_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Scheduled charging
