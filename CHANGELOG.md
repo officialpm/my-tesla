@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.8 — 2026-01-28
+- Improve UX: clearer error when Tesla email is missing (instead of confusing auth failures).
+
 ## 0.1.7 — 2026-01-28
 - Add `windows` command to vent/close windows (safety gated with `--yes`).
 
