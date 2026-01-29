@@ -87,8 +87,44 @@ def resolve_default_car_name():
     return name.strip() if isinstance(name, str) and name.strip() else None
 
 
+def _select_vehicle(vehicles, target_name: str):
+    """Select a vehicle from a list by name (exact/partial) or 1-based index.
+
+    - Exact match is case-insensitive.
+    - If no exact match, a case-insensitive *substring* match is attempted.
+    - If target_name is a digit (e.g., "1"), it's treated as a 1-based index.
+    """
+    if not vehicles:
+        return None
+
+    if not target_name:
+        return vehicles[0]
+
+    s = target_name.strip()
+    if s.isdigit():
+        idx = int(s) - 1
+        if 0 <= idx < len(vehicles):
+            return vehicles[idx]
+        return None
+
+    s_l = s.lower()
+
+    # 1) Exact match (case-insensitive)
+    for v in vehicles:
+        if v.get('display_name', '').lower() == s_l:
+            return v
+
+    # 2) Substring match (case-insensitive)
+    matches = [v for v in vehicles if s_l in v.get('display_name', '').lower()]
+    if len(matches) == 1:
+        return matches[0]
+
+    # Ambiguous / not found
+    return None
+
+
 def get_vehicle(tesla, name: str = None):
-    """Get vehicle by name, else default car, else first vehicle."""
+    """Get vehicle by name/index, else default car, else first vehicle."""
     vehicles = tesla.vehicle_list()
     if not vehicles:
         print("❌ No vehicles found on this account", file=sys.stderr)
@@ -97,11 +133,18 @@ def get_vehicle(tesla, name: str = None):
     target_name = name or resolve_default_car_name()
 
     if target_name:
-        for v in vehicles:
-            if v['display_name'].lower() == target_name.lower():
-                return v
+        selected = _select_vehicle(vehicles, target_name)
+        if selected:
+            return selected
+
+        # Give a more helpful error (and show numeric indices too).
+        options = "\n".join(
+            f"   {i+1}. {v.get('display_name')}" for i, v in enumerate(vehicles)
+        )
         print(
-            f"❌ Vehicle '{target_name}' not found. Available: {', '.join(v['display_name'] for v in vehicles)}",
+            f"❌ Vehicle '{target_name}' not found (or ambiguous).\n"
+            "   Tip: you can pass --car with a partial name (substring match) or a 1-based index.\n"
+            f"Available vehicles:\n{options}",
             file=sys.stderr,
         )
         sys.exit(1)

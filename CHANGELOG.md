@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.20 — 2026-01-28
+- Improve UX: `--car` now accepts partial name (substring match) or a 1-based index from `list`.
+- Add unit tests for vehicle selection.
+
 ## 0.1.19 — 2026-01-28
 - Add `tires` command to show TPMS tire pressures (read-only; supports `--no-wake`).
 

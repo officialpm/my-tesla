@@ -26,6 +26,11 @@ This uses a browser-based login flow and stores tokens locally in `~/.tesla_cach
 # List vehicles (shows which one is default)
 python3 scripts/tesla.py list
 
+# Pick a car (optional)
+# --car accepts: exact name, partial name (substring match), or a 1-based index from `list`
+python3 scripts/tesla.py --car "Model" report
+python3 scripts/tesla.py --car 1 status
+
 # Set default car (used when you don't pass --car)
 python3 scripts/tesla.py default-car "PM’s M3 LR"
 
