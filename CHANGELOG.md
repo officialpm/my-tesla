@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.36 — 2026-01-29
+- Reliability: harden test runner to clean stray Python bytecode and fail if `__pycache__` / `*.pyc` are produced.
+
 ## 0.1.35 — 2026-01-29
 - Docs/privacy: document `MY_TESLA_DEFAULT_CAR` and clarify that `status --json` outputs raw `vehicle_data` (may include location); recommend `report --json` for sanitized output.
 
