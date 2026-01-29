@@ -348,6 +348,14 @@ def _report(vehicle, data):
         suffix = f" ({', '.join(extra)})" if extra else ""
         lines.append(f"Charging: {charging_state}{suffix}")
 
+    # Charge port / cable state
+    cpd = charge.get('charge_port_door_open')
+    if cpd is not None:
+        lines.append(f"Charge port door: {_fmt_bool(cpd, 'Open', 'Closed')}")
+    cable = charge.get('conn_charge_cable')
+    if cable is not None:
+        lines.append(f"Charge cable: {cable}")
+
     sched_time = charge.get('scheduled_charging_start_time')
     sched_mode = charge.get('scheduled_charging_mode')
     sched_pending = charge.get('scheduled_charging_pending')
@@ -423,6 +431,13 @@ def _report_json(vehicle, data: dict) -> dict:
             "charge_current_request_a": charge.get('charge_current_request'),
             "charge_current_request_max_a": charge.get('charge_current_request_max'),
             "charging_amps": charge.get('charging_amps'),
+            "charge_port_door_open": charge.get('charge_port_door_open'),
+            "conn_charge_cable": charge.get('conn_charge_cable'),
+        },
+        "scheduled_charging": {
+            "mode": charge.get('scheduled_charging_mode'),
+            "pending": charge.get('scheduled_charging_pending'),
+            "start_time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_charging_start_time')),
         },
         "climate": {
             "inside_temp_c": climate.get('inside_temp'),

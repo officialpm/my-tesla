@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.29 — 2026-01-29
+- UX: `report` now includes charge port door + cable status. `report --json` now includes scheduled charging + charge port fields.
+
 ## 0.1.28 — 2026-01-29
 - Reliability/privacy: add unit test to ensure `report` output never echoes location fields from raw vehicle_data.
 

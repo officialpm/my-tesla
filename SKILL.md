@@ -56,7 +56,7 @@ python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 
 # JSON output (prints ONLY JSON; good for piping/parsing)
 python3 {baseDir}/scripts/tesla.py status --json          # raw vehicle_data
-python3 {baseDir}/scripts/tesla.py report --json          # sanitized report object (no location)
+python3 {baseDir}/scripts/tesla.py report --json          # sanitized report object (no location; includes scheduled charging + charge port state)
 python3 {baseDir}/scripts/tesla.py report --json --raw-json  # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py charge status --json
 

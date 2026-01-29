@@ -39,7 +39,7 @@ python3 scripts/tesla.py summary
 python3 scripts/tesla.py summary --no-wake   # don't wake a sleeping car
 
 # One-screen report (chat friendly, more detail)
-# Includes battery/charging/climate + (when available) TPMS tire pressures.
+# Includes battery/charging/climate + charge port/cable + (when available) TPMS tire pressures.
 python3 scripts/tesla.py report
 python3 scripts/tesla.py report --no-wake
 
