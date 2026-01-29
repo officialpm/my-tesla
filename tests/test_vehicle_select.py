@@ -12,14 +12,14 @@ import tesla  # noqa: E402
 class VehicleSelectTests(unittest.TestCase):
     def setUp(self):
         self.vehicles = [
-            {"display_name": "PM’s M3 LR"},
+            {"display_name": "My Model 3"},
             {"display_name": "Road Trip"},
             {"display_name": "Model Y"},
         ]
 
     def test_select_vehicle_default_first(self):
         v = tesla._select_vehicle(self.vehicles, None)
-        self.assertEqual(v["display_name"], "PM’s M3 LR")
+        self.assertEqual(v["display_name"], "My Model 3")
 
     def test_select_vehicle_exact_case_insensitive(self):
         v = tesla._select_vehicle(self.vehicles, "model y")

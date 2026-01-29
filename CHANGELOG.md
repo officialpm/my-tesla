@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.21 — 2026-01-28
+- Reliability/privacy: remove accidentally committed Python bytecode (`__pycache__`) and sanitize unit test fixtures.
+
 ## 0.1.20 — 2026-01-28
 - Improve UX: `--car` now accepts partial name (substring match) or a 1-based index from `list`.
 - Add unit tests for vehicle selection.
