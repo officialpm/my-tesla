@@ -16,6 +16,10 @@ import os
 import sys
 from pathlib import Path
 
+# Keep the repo clean: don't write __pycache__/ bytecode files when running the CLI.
+# (Also helps keep private repos from accumulating noisy artifacts.)
+sys.dont_write_bytecode = True
+
 CACHE_FILE = Path.home() / ".tesla_cache.json"
 DEFAULTS_FILE = Path.home() / ".my_tesla.json"
 SKILL_DIR = Path(__file__).resolve().parent.parent

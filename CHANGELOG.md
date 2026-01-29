@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.43 — 2026-01-29
+- Reliability: prevent Python from writing `__pycache__/` bytecode when running the CLI (keeps the repo clean).
+
 ## 0.1.42 — 2026-01-29
 - UX: `report` now includes charging power details (kW / V / A) when the car is actively charging.
 - Reliability: add unit test coverage for the new report output.
