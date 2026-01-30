@@ -16,6 +16,7 @@ A practical Tesla control skill for Clawdbot built on `teslapy`.
 - `TESLA_EMAIL` env var set (your Tesla account email)
 - Python 3.10+
 - Python dependency: `teslapy` (install: `python3 -m pip install teslapy`)
+- Repo hygiene: the CLI auto-cleans `__pycache__` / `*.pyc` under `{baseDir}` to keep `git status` clean
 
 ### First-time authentication
 

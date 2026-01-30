@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.106 — 2026-01-30
+- DevX/repo hygiene: auto-clean `__pycache__`/`*.pyc` under the skill dir on every CLI run, with a unit test.
+
 ## 0.1.105 — 2026-01-30
 - Better UX: show a friendly install hint if `teslapy` is missing, and document the dependency in README/SKILL.
 

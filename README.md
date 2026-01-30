@@ -7,7 +7,7 @@ Author: Parth Maniar — [@officialpm](https://github.com/officialpm)
 ## What’s inside
 
 - `SKILL.md` — the skill instructions
-- `scripts/tesla.py` — the CLI implementation (teslapy)
+- `scripts/tesla.py` — the CLI implementation (teslapy). It also auto-cleans `__pycache__` / `*.pyc` under the repo to keep `git status` clean.
 - `VERSION` + `CHANGELOG.md` — versioning for ClawdHub publishing
 
 ## Install / auth

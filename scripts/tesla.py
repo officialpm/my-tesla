@@ -19,6 +19,7 @@ import time
 import traceback
 import tempfile
 import shlex
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -29,6 +30,39 @@ sys.dont_write_bytecode = True
 CACHE_FILE = Path.home() / ".tesla_cache.json"
 DEFAULTS_FILE = Path.home() / ".my_tesla.json"
 SKILL_DIR = Path(__file__).resolve().parent.parent
+
+
+def _cleanup_bytecode_under(base: Path):
+    """Remove Python bytecode artifacts under `base`.
+
+    This repo is private, but we still want `git status` to stay clean and avoid
+    accidentally committing bytecode blobs.
+
+    Safe: only deletes __pycache__ directories and *.pyc/*.pyo files.
+    """
+    base = Path(base)
+    if not base.exists():
+        return
+
+    # Walk bottom-up so we can delete dirs after files.
+    for root, dirs, files in os.walk(base, topdown=False):
+        root_p = Path(root)
+
+        # Delete bytecode files.
+        for fn in files:
+            if fn.endswith('.pyc') or fn.endswith('.pyo'):
+                try:
+                    (root_p / fn).unlink(missing_ok=True)
+                except Exception:
+                    pass
+
+        # Delete __pycache__ dirs.
+        for d in list(dirs):
+            if d == '__pycache__':
+                try:
+                    shutil.rmtree(root_p / d, ignore_errors=True)
+                except Exception:
+                    pass
 
 
 def _invocation(extra: str = "") -> str:
@@ -2918,6 +2952,10 @@ def cmd_default_car(args):
 
 
 def main():
+    # Keep the repo clean even if this script is run outside the test runner.
+    # (We intentionally do NOT touch any auth/default files in $HOME.)
+    _cleanup_bytecode_under(SKILL_DIR)
+
     parser = argparse.ArgumentParser(description="Tesla vehicle control")
     parser.add_argument("--email", "-e", help="Tesla account email")
     parser.add_argument(
