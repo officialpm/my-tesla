@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.78 — 2026-01-29
+- Reliability/privacy: write `~/.my_tesla.json` atomically (prevents partial/corrupt JSON) and keep it private (0600) without a brief world-readable window.
+- Reliability: expand unit tests for defaults file permissions + newline/JSON validity.
+
 ## 0.1.77 — 2026-01-29
 - Better UX: add `--no-wake` to `lock` and `unlock` so you can refuse waking a sleeping/offline vehicle (exits 3 if asleep).
 

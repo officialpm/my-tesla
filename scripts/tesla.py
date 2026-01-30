@@ -17,6 +17,7 @@ import sys
 import sqlite3
 import time
 import traceback
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -122,10 +123,51 @@ def _chmod_0600(path: Path):
         pass
 
 
+def _atomic_write_text_private(path: Path, text: str):
+    """Atomically write text to `path` and best-effort chmod 0600.
+
+    Prevents partially-written JSON on crashes/interrupts, and avoids briefly
+    leaving a world-readable file before chmod is applied.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    tmp_fd = None
+    tmp_path = None
+    try:
+        # Create temp file alongside destination so os.replace is atomic.
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            prefix=path.name + ".",
+            suffix=".tmp",
+            dir=str(path.parent),
+            delete=False,
+        ) as tf:
+            tmp_fd = tf.fileno()
+            tmp_path = Path(tf.name)
+            tf.write(text)
+            tf.flush()
+            try:
+                os.fsync(tmp_fd)
+            except Exception:
+                pass
+
+        _chmod_0600(tmp_path)
+        os.replace(str(tmp_path), str(path))
+        _chmod_0600(path)
+    finally:
+        # Best-effort cleanup if something went wrong before replace.
+        try:
+            if tmp_path and tmp_path.exists() and tmp_path != path:
+                tmp_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
 def save_defaults(obj: dict):
     # Defaults can include human-readable vehicle names; keep them private.
-    DEFAULTS_FILE.write_text(json.dumps(obj, indent=2) + "\n")
-    _chmod_0600(DEFAULTS_FILE)
+    _atomic_write_text_private(DEFAULTS_FILE, json.dumps(obj, indent=2) + "\n")
 
 
 def resolve_default_car_name():
