@@ -145,6 +145,8 @@ python3 scripts/tesla.py trunk status frunk --no-wake
 python3 scripts/tesla.py trunk open trunk  --yes
 python3 scripts/tesla.py trunk close trunk --yes
 python3 scripts/tesla.py trunk toggle frunk --yes
+# Note: open/close use a toggle endpoint under the hood; if state can't be determined,
+# the command refuses unless you add --force (to avoid accidental toggles).
 
 # Windows
 python3 scripts/tesla.py windows status

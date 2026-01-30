@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.104 — 2026-01-30
+- Docs: clarify trunk/frunk `--force` safety note (toggle endpoint) and remove duplicated seat-heaters examples in SKILL.md.
+
 ## 0.1.103 — 2026-01-30
 - DevX/repo hygiene: add a repo `.gitignore` to prevent accidental commits of bytecode (`__pycache__`, `*.pyc`) and local cache/defaults files.
 

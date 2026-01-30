@@ -195,10 +195,6 @@ python3 {baseDir}/scripts/tesla.py seats status
 python3 {baseDir}/scripts/tesla.py seats status --no-wake
 python3 {baseDir}/scripts/tesla.py seats status --json
 
-# Seat heaters
-python3 {baseDir}/scripts/tesla.py seats status
-python3 {baseDir}/scripts/tesla.py seats status --no-wake
-
 # Seat heaters (safety gated)
 # seat: driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)
 # level: 0–3 (0=off)
