@@ -40,6 +40,12 @@ python3 scripts/tesla.py --version
 # (or set MY_TESLA_DEBUG=1)
 python3 scripts/tesla.py --debug status --no-wake
 
+# Reliability (transient API failures)
+# Many read-only commands fetch vehicle_data and will retry a couple times by default.
+# You can tune or disable this with:
+python3 scripts/tesla.py --retries 0 status
+python3 scripts/tesla.py --retries 5 --retry-delay 0.25 report
+
 # Pick a car (optional)
 # --car accepts: exact name, partial name (substring match), or a 1-based index from `list`
 python3 scripts/tesla.py --car "Model" report
