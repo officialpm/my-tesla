@@ -99,7 +99,9 @@ python3 {baseDir}/scripts/tesla.py charge status --json   # includes usable batt
 
 # Lock / unlock
 python3 {baseDir}/scripts/tesla.py lock
-python3 {baseDir}/scripts/tesla.py unlock
+python3 {baseDir}/scripts/tesla.py lock --no-wake    # refuse waking (exits 3 if asleep/offline)
+python3 {baseDir}/scripts/tesla.py unlock --yes
+python3 {baseDir}/scripts/tesla.py unlock --yes --no-wake
 
 # Climate (status is read-only)
 python3 {baseDir}/scripts/tesla.py climate status

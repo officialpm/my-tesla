@@ -93,6 +93,10 @@ python3 scripts/tesla.py summary --json --raw-json   # raw vehicle_data (may inc
 python3 scripts/tesla.py charge status --json   # includes usable battery + (when charging) power details (kW/V/A)
 
 python3 scripts/tesla.py --car "My Model 3" lock
+python3 scripts/tesla.py lock --no-wake      # refuse waking (exits 3 if asleep/offline)
+python3 scripts/tesla.py unlock --yes
+python3 scripts/tesla.py unlock --yes --no-wake
+
 # Climate (status is read-only)
 python3 scripts/tesla.py climate status
 python3 scripts/tesla.py climate status --no-wake

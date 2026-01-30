@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.77 — 2026-01-29
+- Better UX: add `--no-wake` to `lock` and `unlock` so you can refuse waking a sleeping/offline vehicle (exits 3 if asleep).
+
 ## 0.1.76 — 2026-01-29
 - Better UX: `scheduled-charging set` now accepts compact time formats like `2330` / `730` (in addition to `HH:MM`).
 - Reliability: add unit tests for the new time parsing behavior.

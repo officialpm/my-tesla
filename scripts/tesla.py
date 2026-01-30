@@ -908,7 +908,10 @@ def cmd_lock(args):
     """Lock the vehicle."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
-    wake_vehicle(vehicle)
+
+    allow_wake = not getattr(args, 'no_wake', False)
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
     vehicle.command('LOCK')
     print(f"🔒 {vehicle['display_name']} locked")
 
@@ -918,7 +921,10 @@ def cmd_unlock(args):
     require_yes(args, 'unlock')
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
-    wake_vehicle(vehicle)
+
+    allow_wake = not getattr(args, 'no_wake', False)
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
     vehicle.command('UNLOCK')
     print(f"🔓 {vehicle['display_name']} unlocked")
 
@@ -2424,8 +2430,11 @@ def main():
     )
 
     # Lock/unlock
-    subparsers.add_parser("lock", help="Lock the vehicle")
-    subparsers.add_parser("unlock", help="Unlock the vehicle")
+    p_lock = subparsers.add_parser("lock", help="Lock the vehicle")
+    p_lock.add_argument("--no-wake", action="store_true", help="Do not wake a sleeping/offline vehicle (exits 3 if asleep)")
+
+    p_unlock = subparsers.add_parser("unlock", help="Unlock the vehicle")
+    p_unlock.add_argument("--no-wake", action="store_true", help="Do not wake a sleeping/offline vehicle (exits 3 if asleep)")
     
     # Climate
     climate_parser = subparsers.add_parser("climate", help="Climate control")
