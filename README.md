@@ -242,6 +242,7 @@ launchctl load -w ~/Library/LaunchAgents/com.mytesla.mileage.plist
 
 ```bash
 # (Recommended) avoid writing __pycache__/ bytecode files into the repo
+# (The repo also includes sitecustomize.py as a safety net.)
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 
 # Or use the helper (cleans stray bytecode first and fails if any is produced):

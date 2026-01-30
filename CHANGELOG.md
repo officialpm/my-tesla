@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.73 — 2026-01-29
+- Dev hygiene: add repo-local `sitecustomize.py` so ad-hoc Python runs don’t create `__pycache__/` / `*.pyc` files.
+
 ## 0.1.72 — 2026-01-29
 - Better UX: when actively charging, `report` now shows an estimated finish time ("full at HH:MM") when Tesla provides `minutes_to_full_charge`.
 - Better UX: `report --json` now includes `charging.full_at_local_hhmm` (derived from `minutes_to_full_charge`).
