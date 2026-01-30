@@ -90,11 +90,13 @@ python3 scripts/tesla.py report
 python3 scripts/tesla.py report --compact    # core lines only (also makes `--json` output single-line + compact)
 python3 scripts/tesla.py report --json --compact   # small sanitized JSON payload (single-line)
 python3 scripts/tesla.py report --no-wake
+python3 scripts/tesla.py report --no-wake --json --compact   # if asleep/offline: single-line JSON + exit 3
 python3 scripts/tesla.py --metric report    # show km instead of miles (and km/h instead of mph where applicable)
 
 # Detailed status
 python3 scripts/tesla.py status
 python3 scripts/tesla.py status --no-wake
+python3 scripts/tesla.py status --no-wake --json --compact   # if asleep/offline: single-line JSON + exit 3
 python3 scripts/tesla.py --metric status   # show km instead of miles
 python3 scripts/tesla.py status --summary   # include one-line summary + detailed output
 

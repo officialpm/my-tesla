@@ -77,6 +77,7 @@ class NoWakeTests(unittest.TestCase):
             retries=0,
             retry_delay=0,
             metric=False,
+            compact=False,
         )
 
         buf = io.StringIO()
@@ -89,6 +90,39 @@ class NoWakeTests(unittest.TestCase):
         payload = _json.loads(buf.getvalue())
         self.assertEqual(payload.get("online"), False)
         self.assertEqual(payload.get("vehicle", {}).get("display_name"), "Test Car")
+
+    def test_report_no_wake_offline_compact_json_is_single_line(self):
+        from types import SimpleNamespace
+        import io
+        from contextlib import redirect_stdout
+        import json as _json
+
+        v = DummyVehicle(state="offline", display_name="Test Car")
+
+        args = SimpleNamespace(
+            email="you@email.com",
+            car=None,
+            no_wake=True,
+            json=True,
+            raw_json=False,
+            retries=0,
+            retry_delay=0,
+            metric=False,
+            compact=True,
+        )
+
+        buf = io.StringIO()
+        with mock.patch.object(tesla, "get_tesla") as _gt, mock.patch.object(tesla, "get_vehicle", return_value=v):
+            with redirect_stdout(buf):
+                with self.assertRaises(SystemExit) as ctx:
+                    tesla.cmd_report(args)
+
+        self.assertEqual(ctx.exception.code, 3)
+        out = buf.getvalue().strip()
+        # Single-line JSON: no newline, no indentation.
+        self.assertNotIn("\n", out)
+        payload = _json.loads(out)
+        self.assertEqual(payload.get("online"), False)
 
     def test_status_no_wake_offline_prints_minimal_human_output_and_exits_3(self):
         from types import SimpleNamespace
@@ -136,6 +170,7 @@ class NoWakeTests(unittest.TestCase):
             retries=0,
             retry_delay=0,
             metric=False,
+            compact=False,
         )
 
         buf = io.StringIO()
@@ -148,6 +183,38 @@ class NoWakeTests(unittest.TestCase):
         payload = _json.loads(buf.getvalue())
         self.assertEqual(payload.get("online"), False)
         self.assertEqual(payload.get("vehicle", {}).get("display_name"), "Test Car")
+
+    def test_status_no_wake_offline_compact_json_is_single_line(self):
+        from types import SimpleNamespace
+        import io
+        from contextlib import redirect_stdout
+        import json as _json
+
+        v = DummyVehicle(state="offline", display_name="Test Car")
+
+        args = SimpleNamespace(
+            email="you@email.com",
+            car=None,
+            no_wake=True,
+            json=True,
+            summary=False,
+            retries=0,
+            retry_delay=0,
+            metric=False,
+            compact=True,
+        )
+
+        buf = io.StringIO()
+        with mock.patch.object(tesla, "get_tesla") as _gt, mock.patch.object(tesla, "get_vehicle", return_value=v):
+            with redirect_stdout(buf):
+                with self.assertRaises(SystemExit) as ctx:
+                    tesla.cmd_status(args)
+
+        self.assertEqual(ctx.exception.code, 3)
+        out = buf.getvalue().strip()
+        self.assertNotIn("\n", out)
+        payload = _json.loads(out)
+        self.assertEqual(payload.get("online"), False)
 
 
 if __name__ == "__main__":

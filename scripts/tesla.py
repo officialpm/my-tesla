@@ -1085,7 +1085,12 @@ def cmd_report(args):
     # minimal payload (then exit 3) so automations/chat have something useful.
     if getattr(args, 'no_wake', False) and vehicle.get('state') != 'online':
         if getattr(args, 'json', False):
-            print(json.dumps(_no_wake_offline_json(vehicle), indent=2))
+            payload = _no_wake_offline_json(vehicle)
+            # UX: when --compact is set, emit single-line JSON (useful for chat/logs).
+            if getattr(args, 'compact', False):
+                print(json.dumps(payload, separators=(',', ':'), sort_keys=True))
+            else:
+                print(json.dumps(payload, indent=2))
         else:
             print(_no_wake_offline_human(vehicle))
         sys.exit(3)
@@ -1129,7 +1134,12 @@ def cmd_status(args):
     # minimal payload (then exit 3) so automations/chat have something useful.
     if getattr(args, 'no_wake', False) and vehicle.get('state') != 'online':
         if getattr(args, 'json', False):
-            print(json.dumps(_no_wake_offline_json(vehicle), indent=2))
+            payload = _no_wake_offline_json(vehicle)
+            # UX: when --compact is set, emit single-line JSON (useful for chat/logs).
+            if getattr(args, 'compact', False):
+                print(json.dumps(payload, separators=(',', ':'), sort_keys=True))
+            else:
+                print(json.dumps(payload, indent=2))
         else:
             print(_no_wake_offline_human(vehicle))
         sys.exit(3)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.109 — 2026-01-30
+- Better UX: when using `--no-wake --json --compact`, offline/asleep output is now single-line JSON for `report` and `status`.
+- Reliability: add unit tests to lock in the compact no-wake JSON behavior.
+
 ## 0.1.108 — 2026-01-30
 - Better UX: add `status --json --safe-json --compact` for single-line, privacy-safe JSON (chat/log friendly).
 - Reliability: add unit test for the compact safe-json output.
