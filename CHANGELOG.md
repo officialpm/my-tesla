@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.74 — 2026-01-29
+- New capability: add `valet` command (status/on/off/reset-pin). Enabling/disabling is safety gated with `--yes`; enabling also requires `--pin`.
+- Reliability: add unit tests for the new valet command behavior.
+
 ## 0.1.73 — 2026-01-29
 - Dev hygiene: add repo-local `sitecustomize.py` so ad-hoc Python runs don’t create `__pycache__/` / `*.pyc` files.
 

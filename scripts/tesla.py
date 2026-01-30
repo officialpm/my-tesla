@@ -1750,6 +1750,81 @@ def cmd_flash(args):
     print(f"💡 {vehicle['display_name']} flashed lights!")
 
 
+def _valet_status_json(vehicle, data: dict) -> dict:
+    """Small, privacy-safe valet mode status object."""
+    vs = (data or {}).get('vehicle_state', {})
+    return {
+        'display_name': (vehicle or {}).get('display_name'),
+        'state': (vehicle or {}).get('state'),
+        'valet_mode': vs.get('valet_mode'),
+        'valet_pin_needed': vs.get('valet_pin_needed'),
+    }
+
+
+def cmd_valet(args):
+    """Valet mode operations.
+
+    - status: read-only (supports --no-wake, --json)
+    - on/off: requires --yes
+    - reset-pin: requires --yes
+
+    Notes:
+      Tesla's API typically requires a PIN/password to enable valet mode.
+    """
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+        _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+        data = fetch_vehicle_data(
+            vehicle,
+            retries=getattr(args, 'retries', 2),
+            retry_delay_s=getattr(args, 'retry_delay', 0.5),
+        )
+        out = _valet_status_json(vehicle, data)
+        if getattr(args, 'json', False):
+            # Only JSON (pipe-friendly)
+            out = {k: v for k, v in out.items() if v is not None}
+            print(json.dumps(out, indent=2))
+            return
+
+        print(f"🚗 {vehicle['display_name']}")
+        vm = out.get('valet_mode')
+        vpn = out.get('valet_pin_needed')
+        if vm is None:
+            print("Valet mode: (unknown)")
+        else:
+            print(f"Valet mode: {_fmt_bool(vm, 'On', 'Off')}")
+        if vpn is not None:
+            print(f"Valet PIN needed: {_fmt_bool(vpn, 'Yes', 'No')}")
+        return
+
+    # Mutating actions
+    require_yes(args, 'valet')
+    wake_vehicle(vehicle)
+
+    if args.action == 'on':
+        pin = getattr(args, 'pin', None)
+        if not isinstance(pin, str) or not pin.strip():
+            raise ValueError("Missing valet PIN. Use: valet on --pin <PIN>")
+        vehicle.command('SET_VALET_MODE', on=True, password=pin.strip())
+        print(f"🅿️ {vehicle['display_name']} valet mode enabled")
+        return
+
+    if args.action == 'off':
+        vehicle.command('SET_VALET_MODE', on=False)
+        print(f"🅿️ {vehicle['display_name']} valet mode disabled")
+        return
+
+    if args.action == 'reset-pin':
+        vehicle.command('RESET_VALET_PIN')
+        print(f"🅿️ {vehicle['display_name']} valet PIN reset")
+        return
+
+    raise ValueError(f"Unknown action: {args.action}")
+
+
 def _charge_port_status_json(vehicle, data: dict) -> dict:
     """Small, privacy-safe charge port status object."""
     charge = (data or {}).get('charge_state', {})
@@ -2386,6 +2461,16 @@ def main():
     sentry_parser.add_argument("action", choices=["status", "on", "off"], help="status|on|off")
     sentry_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
+    # Valet mode
+    valet_parser = subparsers.add_parser(
+        "valet",
+        help="Valet mode status (read-only) or on/off/reset-pin (requires --yes)",
+    )
+    valet_parser.add_argument("action", choices=["status", "on", "off", "reset-pin"], help="status|on|off|reset-pin")
+    valet_parser.add_argument("--pin", help="(on only) Valet PIN/password")
+    valet_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
+    valet_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
+
     # Honk/flash
     subparsers.add_parser("honk", help="Honk the horn")
     subparsers.add_parser("flash", help="Flash the lights")
@@ -2431,6 +2516,7 @@ def main():
         "windows": cmd_windows,
         "seats": cmd_seats,
         "sentry": cmd_sentry,
+        "valet": cmd_valet,
         "honk": cmd_honk,
         "flash": cmd_flash,
         "charge-port": cmd_charge_port,

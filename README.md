@@ -155,6 +155,15 @@ python3 scripts/tesla.py sentry status --no-wake
 python3 scripts/tesla.py sentry on  --yes
 python3 scripts/tesla.py sentry off --yes
 
+# Valet mode (status is read-only; on/off/reset-pin safety gated)
+# Note: enabling valet mode usually requires a PIN/password
+python3 scripts/tesla.py valet status
+python3 scripts/tesla.py valet status --no-wake
+python3 scripts/tesla.py valet status --json
+python3 scripts/tesla.py valet on --pin 1234 --yes
+python3 scripts/tesla.py valet off --yes
+python3 scripts/tesla.py valet reset-pin --yes
+
 # Honk / flash (safety gated)
 python3 scripts/tesla.py honk  --yes
 python3 scripts/tesla.py flash --yes

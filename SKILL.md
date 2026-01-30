@@ -185,6 +185,15 @@ python3 {baseDir}/scripts/tesla.py sentry status --no-wake
 python3 {baseDir}/scripts/tesla.py sentry on  --yes
 python3 {baseDir}/scripts/tesla.py sentry off --yes
 
+# Valet mode (status is read-only; on/off/reset-pin safety gated)
+# Note: enabling valet mode usually requires a PIN/password
+python3 {baseDir}/scripts/tesla.py valet status
+python3 {baseDir}/scripts/tesla.py valet status --no-wake
+python3 {baseDir}/scripts/tesla.py valet status --json
+python3 {baseDir}/scripts/tesla.py valet on --pin 1234 --yes
+python3 {baseDir}/scripts/tesla.py valet off --yes
+python3 {baseDir}/scripts/tesla.py valet reset-pin --yes
+
 # Charge port door
 python3 {baseDir}/scripts/tesla.py charge-port status
 python3 {baseDir}/scripts/tesla.py charge-port status --no-wake
@@ -211,7 +220,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `seats set|off`, `sentry on|off`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
+- `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `seats set|off`, `sentry on|off`, `valet on|off|reset-pin`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
 - `location` is *approximate* by default; add `--yes` for precise coordinates (or `--digits N` to control rounding)
 
 ## Privacy
