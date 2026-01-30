@@ -75,6 +75,59 @@ class ReportJsonTests(unittest.TestCase):
         self.assertIn("seat_heaters", out["climate"])
         self.assertEqual(out["climate"]["seat_heaters"]["seat_heater_left"], 3)
 
+    def test_report_json_compact_is_smaller(self):
+        vehicle = {"display_name": "Test Car", "state": "online"}
+        data = {
+            "charge_state": {
+                "battery_level": 80,
+                "battery_range": 250.2,
+                "charging_state": "Charging",
+                "charge_limit_soc": 90,
+                "minutes_to_full_charge": 60,
+                "charger_voltage": 240,
+                "charger_actual_current": 16,
+            },
+            "climate_state": {
+                "inside_temp": 21,
+                "outside_temp": 10,
+                "is_climate_on": True,
+            },
+            "vehicle_state": {
+                "locked": False,
+                "timestamp": 1767220800000,
+                "car_version": "2025.44.30.7",
+                "odometer": 12345.6,
+            },
+            "drive_state": {"latitude": 37.1234, "longitude": -122.5678},
+        }
+
+        out = tesla._report_json(vehicle, data, compact=True)
+
+        # Core keys should remain
+        self.assertIn("vehicle", out)
+        self.assertIn("battery", out)
+        self.assertIn("charging", out)
+        self.assertIn("climate", out)
+        self.assertIn("security", out)
+
+        # Compact payload should omit verbose sections
+        self.assertNotIn("scheduled_charging", out)
+        self.assertNotIn("scheduled_departure", out)
+        self.assertNotIn("openings", out)
+        self.assertNotIn("tpms", out)
+        self.assertNotIn("odometer_mi", out)
+        self.assertNotIn("odometer_km", out)
+
+        # Still sanitized
+        self.assertNotIn("drive_state", out)
+        self.assertNotIn("latitude", str(out))
+        self.assertNotIn("longitude", str(out))
+
+        # Still useful
+        self.assertEqual(out["battery"]["level_percent"], 80)
+        self.assertEqual(out["charging"]["charging_state"], "Charging")
+        self.assertEqual(out["security"]["locked"], False)
+
 
 if __name__ == "__main__":
     unittest.main()

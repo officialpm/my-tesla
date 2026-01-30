@@ -800,10 +800,14 @@ def _report(vehicle, data, metric: bool = False, compact: bool = False):
     return "\n".join(lines)
 
 
-def _report_json(vehicle, data: dict) -> dict:
+def _report_json(vehicle, data: dict, compact: bool = False) -> dict:
     """Sanitized JSON equivalent of `_report`.
 
     Intentionally excludes location/drive_state.
+
+    Args:
+        compact: when True, emit a smaller JSON payload with only the core fields
+            (useful for chat/automations that want stable, succinct output).
     """
     charge = data.get('charge_state', {})
     climate = data.get('climate_state', {})
@@ -817,68 +821,97 @@ def _report_json(vehicle, data: dict) -> dict:
         if est is not None:
             charger_power_kw = round(est, 1)
 
-    out = {
-        "vehicle": {
-            "display_name": vehicle.get('display_name'),
-            "state": vehicle.get('state'),
-            "car_version": vs.get('car_version'),
-            "updated_local": _fmt_local_timestamp_ms(vs.get('timestamp')),
-        },
-        "battery": {
-            "level_percent": charge.get('battery_level'),
-            "range_mi": charge.get('battery_range'),
-            "range_km": _mi_to_km(charge.get('battery_range')) if charge.get('battery_range') is not None else None,
-            "usable_battery_level_percent": charge.get('usable_battery_level'),
-        },
-        "charging": {
-            "charging_state": charge.get('charging_state'),
-            "charge_limit_percent": charge.get('charge_limit_soc'),
-            "minutes_to_full_charge": charge.get('minutes_to_full_charge'),
-            "full_at_local_hhmm": _fmt_local_hhmm_from_now(charge.get('minutes_to_full_charge')),
-            "time_to_full_charge_hours": charge.get('time_to_full_charge'),
-            "charge_rate_mph": charge.get('charge_rate'),
-            "charger_power_kw": charger_power_kw,
-            "charger_voltage_v": charge.get('charger_voltage'),
-            "charger_actual_current_a": charge.get('charger_actual_current'),
-            "charge_current_request_a": charge.get('charge_current_request'),
-            "charge_current_request_max_a": charge.get('charge_current_request_max'),
-            "charging_amps": charge.get('charging_amps'),
-            "charge_port_door_open": charge.get('charge_port_door_open'),
-            "conn_charge_cable": charge.get('conn_charge_cable'),
-            "fast_charger_present": charge.get('fast_charger_present'),
-            "fast_charger_type": charge.get('fast_charger_type'),
-        },
-        "scheduled_charging": {
-            "mode": charge.get('scheduled_charging_mode'),
-            "pending": charge.get('scheduled_charging_pending'),
-            "start_time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_charging_start_time')),
-        },
-        "scheduled_departure": {
-            "enabled": charge.get('scheduled_departure_enabled'),
-            "time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_departure_time')),
-            "preconditioning_enabled": charge.get('preconditioning_enabled'),
-            "off_peak_charging_enabled": charge.get('off_peak_charging_enabled'),
-        },
-        "climate": {
-            "inside_temp_c": climate.get('inside_temp'),
-            "outside_temp_c": climate.get('outside_temp'),
-            "is_climate_on": climate.get('is_climate_on'),
-            "seat_heaters": _seat_heater_fields(climate) or None,
-        },
-        "security": {
-            "locked": vs.get('locked'),
-            "sentry_mode": vs.get('sentry_mode'),
-        },
-        "openings": _openings_json(vs),
-        "tpms": {
-            "pressure_fl": vs.get('tpms_pressure_fl'),
-            "pressure_fr": vs.get('tpms_pressure_fr'),
-            "pressure_rl": vs.get('tpms_pressure_rl'),
-            "pressure_rr": vs.get('tpms_pressure_rr'),
-        },
-        "odometer_mi": vs.get('odometer'),
-        "odometer_km": _mi_to_km(vs.get('odometer')) if vs.get('odometer') is not None else None,
-    }
+    if compact:
+        out = {
+            "vehicle": {
+                "display_name": vehicle.get('display_name'),
+                "state": vehicle.get('state'),
+                "updated_local": _fmt_local_timestamp_ms(vs.get('timestamp')),
+            },
+            "battery": {
+                "level_percent": charge.get('battery_level'),
+                "range_mi": charge.get('battery_range'),
+                "range_km": _mi_to_km(charge.get('battery_range')) if charge.get('battery_range') is not None else None,
+            },
+            "charging": {
+                "charging_state": charge.get('charging_state'),
+                "charge_limit_percent": charge.get('charge_limit_soc'),
+                "minutes_to_full_charge": charge.get('minutes_to_full_charge'),
+                "full_at_local_hhmm": _fmt_local_hhmm_from_now(charge.get('minutes_to_full_charge')),
+                "charger_power_kw": charger_power_kw,
+            },
+            "climate": {
+                "inside_temp_c": climate.get('inside_temp'),
+                "outside_temp_c": climate.get('outside_temp'),
+                "is_climate_on": climate.get('is_climate_on'),
+            },
+            "security": {
+                "locked": vs.get('locked'),
+            },
+        }
+    else:
+        out = {
+            "vehicle": {
+                "display_name": vehicle.get('display_name'),
+                "state": vehicle.get('state'),
+                "car_version": vs.get('car_version'),
+                "updated_local": _fmt_local_timestamp_ms(vs.get('timestamp')),
+            },
+            "battery": {
+                "level_percent": charge.get('battery_level'),
+                "range_mi": charge.get('battery_range'),
+                "range_km": _mi_to_km(charge.get('battery_range')) if charge.get('battery_range') is not None else None,
+                "usable_battery_level_percent": charge.get('usable_battery_level'),
+            },
+            "charging": {
+                "charging_state": charge.get('charging_state'),
+                "charge_limit_percent": charge.get('charge_limit_soc'),
+                "minutes_to_full_charge": charge.get('minutes_to_full_charge'),
+                "full_at_local_hhmm": _fmt_local_hhmm_from_now(charge.get('minutes_to_full_charge')),
+                "time_to_full_charge_hours": charge.get('time_to_full_charge'),
+                "charge_rate_mph": charge.get('charge_rate'),
+                "charger_power_kw": charger_power_kw,
+                "charger_voltage_v": charge.get('charger_voltage'),
+                "charger_actual_current_a": charge.get('charger_actual_current'),
+                "charge_current_request_a": charge.get('charge_current_request'),
+                "charge_current_request_max_a": charge.get('charge_current_request_max'),
+                "charging_amps": charge.get('charging_amps'),
+                "charge_port_door_open": charge.get('charge_port_door_open'),
+                "conn_charge_cable": charge.get('conn_charge_cable'),
+                "fast_charger_present": charge.get('fast_charger_present'),
+                "fast_charger_type": charge.get('fast_charger_type'),
+            },
+            "scheduled_charging": {
+                "mode": charge.get('scheduled_charging_mode'),
+                "pending": charge.get('scheduled_charging_pending'),
+                "start_time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_charging_start_time')),
+            },
+            "scheduled_departure": {
+                "enabled": charge.get('scheduled_departure_enabled'),
+                "time_hhmm": _fmt_minutes_hhmm(charge.get('scheduled_departure_time')),
+                "preconditioning_enabled": charge.get('preconditioning_enabled'),
+                "off_peak_charging_enabled": charge.get('off_peak_charging_enabled'),
+            },
+            "climate": {
+                "inside_temp_c": climate.get('inside_temp'),
+                "outside_temp_c": climate.get('outside_temp'),
+                "is_climate_on": climate.get('is_climate_on'),
+                "seat_heaters": _seat_heater_fields(climate) or None,
+            },
+            "security": {
+                "locked": vs.get('locked'),
+                "sentry_mode": vs.get('sentry_mode'),
+            },
+            "openings": _openings_json(vs),
+            "tpms": {
+                "pressure_fl": vs.get('tpms_pressure_fl'),
+                "pressure_fr": vs.get('tpms_pressure_fr'),
+                "pressure_rl": vs.get('tpms_pressure_rl'),
+                "pressure_rr": vs.get('tpms_pressure_rr'),
+            },
+            "odometer_mi": vs.get('odometer'),
+            "odometer_km": _mi_to_km(vs.get('odometer')) if vs.get('odometer') is not None else None,
+        }
 
     # Drop empty nested dicts for cleaner output.
     for k in list(out.keys()):
@@ -998,7 +1031,7 @@ def cmd_report(args):
         if getattr(args, "raw_json", False):
             print(json.dumps(data, indent=2))
         else:
-            print(json.dumps(_report_json(vehicle, data), indent=2))
+            print(json.dumps(_report_json(vehicle, data, compact=(getattr(args, 'compact', False) is True)), indent=2))
         return
 
     print(
@@ -2709,7 +2742,7 @@ def main():
     report_parser.add_argument(
         "--compact",
         action="store_true",
-        help="Compact report (core lines only)",
+        help="Compact report (core lines only; also makes --json output compact)",
     )
 
     # Default car

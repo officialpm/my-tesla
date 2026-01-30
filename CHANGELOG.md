@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.96 — 2026-01-30
+- Better UX: `report --json --compact` now emits a smaller sanitized JSON payload (using the existing `--compact` flag).
+
 ## 0.1.95 — 2026-01-30
 - DevX/reliability: add a repo `.gitignore` to prevent accidental commits of bytecode (`__pycache__`, `*.pyc`) and local cache/data files.
 

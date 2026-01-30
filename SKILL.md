@@ -81,7 +81,8 @@ python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_dat
 # When the vehicle reports it, includes scheduled departure / preconditioning / off-peak charging status.
 # When the vehicle reports it, includes software version + last-updated timestamp.
 python3 {baseDir}/scripts/tesla.py report
-python3 {baseDir}/scripts/tesla.py report --compact    # core lines only
+python3 {baseDir}/scripts/tesla.py report --compact    # core lines only (also makes `--json` output compact)
+python3 {baseDir}/scripts/tesla.py report --json --compact   # small sanitized JSON payload
 python3 {baseDir}/scripts/tesla.py report --no-wake
 python3 {baseDir}/scripts/tesla.py --metric report    # show km instead of miles
 
