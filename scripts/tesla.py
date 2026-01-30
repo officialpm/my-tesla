@@ -1097,10 +1097,17 @@ def cmd_report(args):
         # Default JSON output is a structured, sanitized report object.
         # Use --raw-json if you explicitly want the full vehicle_data payload
         # (which may include location/drive_state).
+        compact = (getattr(args, 'compact', False) is True)
+
+        # UX: for --compact, emit single-line JSON (useful for chat + logs).
+        # Otherwise keep pretty JSON for readability.
+        dumps_kwargs = ({"separators": (',', ':'), "sort_keys": True} if compact else {"indent": 2})
+
         if getattr(args, "raw_json", False):
-            print(json.dumps(data, indent=2))
+            print(json.dumps(data, **dumps_kwargs))
         else:
-            print(json.dumps(_report_json(vehicle, data, compact=(getattr(args, 'compact', False) is True)), indent=2))
+            payload = _report_json(vehicle, data, compact=compact)
+            print(json.dumps(payload, **dumps_kwargs))
         return
 
     print(

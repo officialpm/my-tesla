@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.107 — 2026-01-30
+- Better UX: `report --json --compact` now prints single-line compact JSON (stable key order) for easier chat/log parsing.
+- Reliability: add unit test to lock in the compact JSON behavior.
+- Docs: clarify that compact JSON output is single-line.
+
 ## 0.1.106 — 2026-01-30
 - DevX/repo hygiene: auto-clean `__pycache__`/`*.pyc` under the skill dir on every CLI run, with a unit test.
 
