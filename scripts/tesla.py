@@ -601,6 +601,60 @@ def _fmt_local_timestamp_ms(ts_ms, tz=None):
     return dt.strftime('%Y-%m-%d %H:%M')
 
 
+def _fmt_age_from_timestamp_ms(ts_ms, now=None) -> str:
+    """Format how long ago a timestamp was (e.g., "9m ago").
+
+    Intended for human-friendly report output so you can quickly tell whether
+    Tesla data is fresh without parsing the full timestamp.
+
+    Args:
+        ts_ms: epoch milliseconds
+        now: optional datetime for testability
+    """
+    try:
+        ms = int(ts_ms)
+    except Exception:
+        return None
+    if ms <= 0:
+        return None
+
+    import datetime as _dt
+
+    base = now or _dt.datetime.now(_dt.timezone.utc)
+
+    # If `now` is naive, treat it as UTC for consistent testing.
+    if base.tzinfo is None:
+        base = base.replace(tzinfo=_dt.timezone.utc)
+
+    dt = _dt.datetime.fromtimestamp(ms / 1000.0, tz=_dt.timezone.utc)
+    delta_s = int((base - dt).total_seconds())
+
+    if delta_s < 0:
+        delta_s = 0
+
+    if delta_s < 10:
+        return "just now"
+    if delta_s < 60:
+        return f"{delta_s}s ago"
+
+    minutes = delta_s // 60
+    if minutes < 60:
+        return f"{minutes}m ago"
+
+    hours = minutes // 60
+    rem_m = minutes % 60
+    if hours < 24:
+        if rem_m:
+            return f"{hours}h {rem_m}m ago"
+        return f"{hours}h ago"
+
+    days = hours // 24
+    rem_h = hours % 24
+    if rem_h:
+        return f"{days}d {rem_h}h ago"
+    return f"{days}d ago"
+
+
 def _mi_to_km(mi: float) -> float:
     """Convert miles to kilometers."""
     return float(mi) * 1.609344
@@ -858,7 +912,11 @@ def _report(vehicle, data, metric: bool = False, compact: bool = False):
         # Confirm how fresh this snapshot is (Tesla provides epoch-ms timestamps).
         stamp = _fmt_local_timestamp_ms(vs.get('timestamp'))
         if stamp:
-            lines.append(f"Updated: {stamp}")
+            age = _fmt_age_from_timestamp_ms(vs.get('timestamp'))
+            if age:
+                lines.append(f"Updated: {stamp} ({age})")
+            else:
+                lines.append(f"Updated: {stamp}")
 
         odo = vs.get('odometer')
         if odo is not None:

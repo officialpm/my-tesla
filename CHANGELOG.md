@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.112 — 2026-01-30
+- Better UX: `report` now shows how old the snapshot is (e.g., `Updated: 2026-01-30 14:31 (9m ago)`).
+- Reliability: add unit tests for the new timestamp age formatting helper.
+
 ## 0.1.111 — 2026-01-30
 - Better UX: add `charge status --compact` for one-line, chat-friendly charging output.
 

@@ -1,6 +1,12 @@
 import unittest
 
-from scripts.tesla import _fmt_local_hhmm_from_now, _fmt_local_timestamp_ms, _fmt_minutes_hhmm, _parse_hhmm
+from scripts.tesla import (
+    _fmt_local_hhmm_from_now,
+    _fmt_local_timestamp_ms,
+    _fmt_age_from_timestamp_ms,
+    _fmt_minutes_hhmm,
+    _parse_hhmm,
+)
 
 
 class TestTimeHelpers(unittest.TestCase):
@@ -88,6 +94,37 @@ class TestTimeHelpers(unittest.TestCase):
         self.assertIsNone(_fmt_local_timestamp_ms(""))
         self.assertIsNone(_fmt_local_timestamp_ms(-1))
         self.assertIsNone(_fmt_local_timestamp_ms(0))
+
+    def test_fmt_age_from_timestamp_ms(self):
+        import datetime as dt
+
+        base = dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc)
+
+        # 5 seconds ago => just now
+        ts_ms = int((base - dt.timedelta(seconds=5)).timestamp() * 1000)
+        self.assertEqual(_fmt_age_from_timestamp_ms(ts_ms, now=base), "just now")
+
+        # 45 seconds ago
+        ts_ms = int((base - dt.timedelta(seconds=45)).timestamp() * 1000)
+        self.assertEqual(_fmt_age_from_timestamp_ms(ts_ms, now=base), "45s ago")
+
+        # 9 minutes ago
+        ts_ms = int((base - dt.timedelta(minutes=9)).timestamp() * 1000)
+        self.assertEqual(_fmt_age_from_timestamp_ms(ts_ms, now=base), "9m ago")
+
+        # 2h 3m ago
+        ts_ms = int((base - dt.timedelta(hours=2, minutes=3)).timestamp() * 1000)
+        self.assertEqual(_fmt_age_from_timestamp_ms(ts_ms, now=base), "2h 3m ago")
+
+        # 3d 4h ago
+        ts_ms = int((base - dt.timedelta(days=3, hours=4)).timestamp() * 1000)
+        self.assertEqual(_fmt_age_from_timestamp_ms(ts_ms, now=base), "3d 4h ago")
+
+    def test_fmt_age_from_timestamp_ms_invalid(self):
+        self.assertIsNone(_fmt_age_from_timestamp_ms(None))
+        self.assertIsNone(_fmt_age_from_timestamp_ms(""))
+        self.assertIsNone(_fmt_age_from_timestamp_ms(-1))
+        self.assertIsNone(_fmt_age_from_timestamp_ms(0))
 
 
 if __name__ == "__main__":
