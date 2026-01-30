@@ -680,7 +680,7 @@ def _ensure_online_or_exit(vehicle, allow_wake: bool):
     name = vehicle.get('display_name', 'Vehicle')
     print(
         f"ℹ️ {name} is currently '{state}'. Skipping wake because --no-wake was set.\n"
-        f"   Re-run without --no-wake, or run: {_invocation('wake')}",
+        f"   Re-run without --no-wake, or run: {_invocation('wake --yes')}",
         file=sys.stderr,
     )
     sys.exit(3)
@@ -1687,7 +1687,12 @@ def cmd_charge_port(args):
 
 
 def cmd_wake(args):
-    """Wake up the vehicle."""
+    """Wake up the vehicle (requires --yes).
+
+    Waking a sleeping car has real-world consequences (battery use, noise), so we
+    safety-gate this action.
+    """
+    require_yes(args, "wake")
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     print(f"⏳ Waking {vehicle['display_name']}...")
@@ -2085,7 +2090,7 @@ def main():
         help=(
             "Safety confirmation for sensitive/disruptive actions "
             "(unlock/charge start|stop|limit|amps/trunk/windows/seats set/honk/flash/charge-port open|close/"
-            "scheduled-charging set|off/sentry on|off/location precise)"
+            "scheduled-charging set|off/sentry on|off/location precise/wake)"
         ),
     )
 

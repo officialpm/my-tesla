@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.65 — 2026-01-29
+- Safety: `wake` now requires `--yes` to avoid accidental wake-ups.
+- Docs: add the safety-gated `wake --yes` example.
+
 ## 0.1.64 — 2026-01-29
 - Better UX: `charge status` now shows usable battery + (when charging) power details (kW/V/A) and charge port/cable state.
 - Reliability: add unit tests for charging status JSON helper.

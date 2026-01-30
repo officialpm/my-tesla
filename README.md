@@ -151,6 +151,9 @@ python3 scripts/tesla.py location --digits 1   # coarser rounding
 python3 scripts/tesla.py location --digits 3   # a bit more precise (still approximate)
 python3 scripts/tesla.py location --yes
 
+# Wake (safety gated)
+python3 scripts/tesla.py wake --yes
+
 # Tire pressures (TPMS)
 python3 scripts/tesla.py tires
 python3 scripts/tesla.py tires --no-wake
