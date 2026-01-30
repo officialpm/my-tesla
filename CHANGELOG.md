@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.69 — 2026-01-29
+- New capability: add `seats off --yes` to turn off all seat heaters in one command (best-effort for heater ids 0–6).
+- Reliability: add unit test coverage for the new `seats off` behavior.
+
 ## 0.1.68 — 2026-01-29
 - Better UX: `report` now includes fast-charger info (e.g., Supercharger/CCS) when the vehicle reports it.
 - Reliability: add unit test coverage for the new sanitized report JSON fields.

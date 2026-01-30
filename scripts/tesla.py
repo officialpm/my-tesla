@@ -1575,7 +1575,7 @@ def _parse_seat_heater(seat: str) -> int:
 
 
 def cmd_seats(args):
-    """Seat heaters: status (read-only) or set (requires --yes)."""
+    """Seat heaters: status (read-only), set level, or turn all off (requires --yes)."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
@@ -1613,6 +1613,27 @@ def cmd_seats(args):
 
         vehicle.command("REMOTE_SEAT_HEATER_REQUEST", heater=heater, level=level)
         print(f"🔥 {vehicle['display_name']} seat heater {heater} set to {level}")
+        return
+
+    if args.action == "off":
+        require_yes(args, "seats off")
+        wake_vehicle(vehicle)
+
+        # Try turning off all seat heaters (0..6). Some vehicles may not support
+        # every heater id; keep it best-effort.
+        failures = []
+        for heater in range(7):
+            try:
+                vehicle.command("REMOTE_SEAT_HEATER_REQUEST", heater=heater, level=0)
+            except Exception as e:
+                failures.append((heater, str(e)))
+
+        if failures:
+            print(f"🔥 {vehicle['display_name']} seat heaters: attempted OFF for all; {len(failures)} failed")
+            for heater, msg in failures:
+                print(f"   - heater {heater}: {msg}")
+        else:
+            print(f"🔥 {vehicle['display_name']} seat heaters turned off")
         return
 
     raise ValueError(f"Unknown action: {args.action}")
@@ -2302,9 +2323,16 @@ def main():
     windows_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
 
     # Seat heaters
-    seats_parser = subparsers.add_parser("seats", help="Seat heater status (read-only) or set level (requires --yes)")
-    seats_parser.add_argument("action", choices=["status", "set"], help="status|set")
-    seats_parser.add_argument("seat", nargs="?", help="For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)")
+    seats_parser = subparsers.add_parser(
+        "seats",
+        help="Seat heater status (read-only) or set/off (requires --yes)",
+    )
+    seats_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
+    seats_parser.add_argument(
+        "seat",
+        nargs="?",
+        help="For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)",
+    )
     seats_parser.add_argument("level", nargs="?", help="For 'set': 0–3 (0=off)")
     seats_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
     seats_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")

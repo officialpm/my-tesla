@@ -131,10 +131,17 @@ python3 scripts/tesla.py seats status
 python3 scripts/tesla.py seats status --no-wake
 python3 scripts/tesla.py seats status --json
 
+# Seat heaters
+python3 scripts/tesla.py seats status
+python3 scripts/tesla.py seats status --no-wake
+
 # Seat heaters (safety gated)
 # seat: driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)
 # level: 0–3 (0=off)
 python3 scripts/tesla.py seats set driver 3 --yes
+
+# Turn ALL seat heaters off (safety gated)
+python3 scripts/tesla.py seats off --yes
 
 # Charge port door
 python3 scripts/tesla.py charge-port status
@@ -247,6 +254,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 ## Privacy / safety
 
 - Never commit tokens, VINs, or location outputs.
-- Some commands (unlock/charge start|stop|limit|amps/trunk/windows/seats set/sentry on|off/honk/flash/charge-port open|close/scheduled-charging set|off) require `--yes`.
+- Some commands (unlock/charge start|stop|limit|amps/trunk/windows/seats set|off/sentry on|off/honk/flash/charge-port open|close/scheduled-charging set|off) require `--yes`.
 - Read-only commands support `--no-wake` to avoid waking the car (will fail if the vehicle is asleep/offline).
 - `location` shows *approximate* coords by default; add `--yes` for precise coordinates.
