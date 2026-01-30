@@ -26,7 +26,7 @@ This opens a Tesla login URL. Log in, then paste the callback URL back into the 
 
 - Token cache: `~/.tesla_cache.json` (local only; best-effort chmod `0600`)
 - Optional: set `MY_TESLA_DEFAULT_CAR` to a vehicle display name to pick a default car via env var
-- Or persist a local default with: `python3 {baseDir}/scripts/tesla.py default-car "Name"` (writes `~/.my_tesla.json`; best-effort chmod `0600`)
+- Or persist a local default with: `python3 {baseDir}/scripts/tesla.py default-car "Name"` (writes `~/.my_tesla.json`; best-effort chmod `0600`). By default it validates the name against your account; use `--force` to skip validation.
 
 ## Commands
 
@@ -56,7 +56,11 @@ python3 {baseDir}/scripts/tesla.py --car "Model" status
 python3 {baseDir}/scripts/tesla.py --car 1 report
 
 # Set a default car (used when --car is not passed)
+# Accepts exact name / partial name / 1-based index from `list`.
+# Use --force to set without validating against the Tesla API.
 python3 {baseDir}/scripts/tesla.py default-car "My Model 3"
+python3 {baseDir}/scripts/tesla.py default-car 1
+python3 {baseDir}/scripts/tesla.py default-car "My Model 3" --force
 
 # One-line summary (best for chat)
 python3 {baseDir}/scripts/tesla.py summary

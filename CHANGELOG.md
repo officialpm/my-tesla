@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.102 — 2026-01-30
+- Better UX: `default-car` now validates the provided name/index against your Tesla account (and stores the canonical display name). Add `default-car --force` to skip validation.
+- Docs: update README/SKILL with new `default-car` examples and `--force`.
+- Reliability: add unit test for `default-car --force` behavior.
+
 ## 0.1.101 — 2026-01-30
 - Better UX: `--metric` now also converts charging rate to km/h (previously always showed mph) in `report` and `charge status`.
 - Reliability: add unit tests for metric speed formatting.

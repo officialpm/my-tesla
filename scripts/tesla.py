@@ -345,7 +345,7 @@ def cmd_list(args):
     if default_name:
         print(f"Default car: {default_name}")
     else:
-        print(f"Default car: (none) — set with: {_invocation('default-car "Name"')}")
+        print(f"Default car: (none) — set with: {_invocation('default-car <NAME>')}")
 
 
 def _c_to_f(c):
@@ -2815,7 +2815,13 @@ def cmd_version(args):
 
 
 def cmd_default_car(args):
-    """Set or show the default car used when --car is not provided."""
+    """Set or show the default car used when --car is not provided.
+
+    By default, when setting, we try to validate the provided name against the
+    authenticated account's vehicle list and store the canonical display_name.
+
+    Use --force to set without validation (useful for offline workflows).
+    """
     if not args.name:
         name = resolve_default_car_name()
         if name:
@@ -2824,17 +2830,94 @@ def cmd_default_car(args):
             print("Default car: (none)")
         return
 
+    requested = str(args.name).strip()
+    if not requested:
+        raise ValueError("Default car name cannot be empty")
+
+    canonical = requested
+
+    # Best-effort validation (unless --force). We avoid prompting for email here.
+    if not getattr(args, 'force', False):
+        email = resolve_email(args, prompt=False)
+        if email:
+            try:
+                tesla = get_tesla(email)
+                vehicles = tesla.vehicle_list()
+                selected = _select_vehicle(vehicles, requested)
+                if selected:
+                    canonical = selected.get('display_name') or canonical
+                else:
+                    # Mirror `get_vehicle` UX, but don't exit the whole program with sys.exit
+                    # unless we have real vehicles to show.
+                    if vehicles:
+                        options = "\n".join(
+                            f"   {i+1}. {v.get('display_name')}" for i, v in enumerate(vehicles)
+                        )
+
+                        s = requested
+                        ambiguous = False
+                        matches = []
+                        if s and not s.isdigit():
+                            s_l = s.lower()
+                            matches = [
+                                (i + 1, v) for i, v in enumerate(vehicles)
+                                if s_l in v.get('display_name', '').lower()
+                            ]
+                            ambiguous = len(matches) > 1
+
+                        if ambiguous:
+                            match_lines = "\n".join(
+                                f"   {idx}. {v.get('display_name')}" for idx, v in matches
+                            )
+                            print(
+                                f"❌ Default car '{requested}' is ambiguous (matched multiple vehicles).\n"
+                                "   Tip: use a more specific name, or choose by index: default-car <N>\n"
+                                f"Matches:\n{match_lines}\n\nAll vehicles:\n{options}",
+                                file=sys.stderr,
+                            )
+                            sys.exit(1)
+
+                        print(
+                            f"❌ Default car '{requested}' not found on this account.\n"
+                            "   Tip: you can set by partial name (substring match) or a 1-based index.\n"
+                            f"Available vehicles:\n{options}\n\n"
+                            "   If you still want to set it without validation, re-run with --force.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+            except SystemExit:
+                raise
+            except Exception as e:
+                # Don't block setting the default on transient auth/API issues.
+                print(
+                    f"ℹ️ Could not validate vehicle name via Tesla API ({e}). Setting '{requested}' anyway.\n"
+                    "   Tip: re-run with --force to skip validation, or run `list` to see vehicles.",
+                    file=sys.stderr,
+                )
+        else:
+            print(
+                "ℹ️ No TESLA_EMAIL/--email provided; skipping vehicle validation.\n"
+                "   Tip: set TESLA_EMAIL and re-run to validate, or use --force.",
+                file=sys.stderr,
+            )
+
     defaults = load_defaults()
-    defaults["default_car"] = args.name
+    defaults["default_car"] = canonical
     save_defaults(defaults)
-    print(f"✅ Default car set to: {args.name}")
+    print(f"✅ Default car set to: {canonical}")
     print(f"Saved to: {DEFAULTS_FILE}")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Tesla vehicle control")
     parser.add_argument("--email", "-e", help="Tesla account email")
-    parser.add_argument("--car", "-c", help="Vehicle name (default: first vehicle)")
+    parser.add_argument(
+        "--car",
+        "-c",
+        help=(
+            "Vehicle name or 1-based index. Default: MY_TESLA_DEFAULT_CAR/~/.my_tesla.json default_car if set, else first vehicle"
+        ),
+    )
     parser.add_argument("--json", "-j", action="store_true", help="Output JSON")
     parser.add_argument(
         "--raw-json",
@@ -2922,8 +3005,17 @@ def main():
 
     # Default car
     default_parser = subparsers.add_parser("default-car", help="Set/show default vehicle name")
-    default_parser.add_argument("name", nargs="?", help="Vehicle display name to set as default")
-    
+    default_parser.add_argument(
+        "name",
+        nargs="?",
+        help="Vehicle display name (or 1-based index) to set as default",
+    )
+    default_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Set without validating against the Tesla account's vehicle list",
+    )
+
     # Mileage tracking (odometer)
     mileage_parser = subparsers.add_parser("mileage", help="Record odometer mileage to a local SQLite DB")
     mileage_parser.add_argument("action", choices=["init", "record", "status", "export"], help="init|record|status|export")

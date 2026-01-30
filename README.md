@@ -22,7 +22,7 @@ This uses a browser-based login flow and stores tokens locally in `~/.tesla_cach
 
 Optional defaults:
 - `MY_TESLA_DEFAULT_CAR` — default vehicle display name (overrides `default-car` setting)
-- `python3 scripts/tesla.py default-car "Name"` stores a local default in `~/.my_tesla.json` (best-effort chmod `0600`)
+- `python3 scripts/tesla.py default-car "Name"` stores a local default in `~/.my_tesla.json` (best-effort chmod `0600`). By default it validates the name against your account; use `--force` to skip validation.
 
 ## Usage
 
@@ -52,7 +52,11 @@ python3 scripts/tesla.py --car "Model" report
 python3 scripts/tesla.py --car 1 status
 
 # Set default car (used when you don't pass --car)
+# Accepts exact name / partial name / 1-based index from `list`.
+# Use --force to set without validating against the Tesla API.
 python3 scripts/tesla.py default-car "My Model 3"
+python3 scripts/tesla.py default-car 1
+python3 scripts/tesla.py default-car "My Model 3" --force
 
 # One-line summary (best for chat)
 python3 scripts/tesla.py summary
