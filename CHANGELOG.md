@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.80 — 2026-01-29
+- Better UX: when actively charging, `report` now shows the requested charging current (and max) when Tesla provides it.
+- Reliability: add unit tests for the new report line.
+
 ## 0.1.79 — 2026-01-29
 - Reliability: add unit tests for `_fmt_local_timestamp_ms` (used by `report` to show "Updated" time) to prevent regressions.
 

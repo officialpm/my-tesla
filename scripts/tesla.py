@@ -625,6 +625,22 @@ def _report(vehicle, data):
             if bits:
                 lines.append(f"Charging power: {' '.join(bits)}")
 
+            # Requested / configured charging current (useful to diagnose slow charging)
+            req = charge.get('charge_current_request')
+            req_max = charge.get('charge_current_request_max')
+            setting = charge.get('charging_amps')
+
+            if req is not None or req_max is not None:
+                if req is not None and req_max is not None:
+                    msg = f"{req}A (max {req_max}A)"
+                elif req is not None:
+                    msg = f"{req}A"
+                else:
+                    msg = f"max {req_max}A"
+                lines.append(f"Charging current request: {msg}")
+            elif setting is not None:
+                lines.append(f"Charging amps setting: {setting}A")
+
     # Charge port / cable state
     cpd = charge.get('charge_port_door_open')
     if cpd is not None:
