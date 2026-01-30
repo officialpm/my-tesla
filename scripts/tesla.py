@@ -476,6 +476,25 @@ def _fmt_tire_pressure(bar):
     return f"{b:.2f} bar ({psi:.0f} psi)"
 
 
+def _derive_power_kw(voltage_v, current_a):
+    """Derive charging power (kW) from voltage/current when Tesla omits charger_power.
+
+    Some vehicles/sessions provide V + A but not `charger_power`. For UX, we compute a
+    best-effort power estimate as (V * A / 1000).
+
+    Returns:
+        float kW, or None if inputs are missing/invalid.
+    """
+    try:
+        v = float(voltage_v)
+        a = float(current_a)
+    except Exception:
+        return None
+    if v <= 0 or a < 0:
+        return None
+    return (v * a) / 1000.0
+
+
 def _fmt_minutes_hhmm(minutes):
     """Format minutes-from-midnight as HH:MM.
 
@@ -641,6 +660,15 @@ def _report(vehicle, data, metric: bool = False):
             p = charge.get('charger_power')
             v = charge.get('charger_voltage')
             a = charge.get('charger_actual_current')
+
+            # If Tesla doesn't report charger_power, derive a best-effort estimate
+            # from V*A (useful for diagnosing slow charging).
+            if p is None and v is not None and a is not None:
+                est = _derive_power_kw(v, a)
+                if est is not None:
+                    # Keep it simple; one decimal is enough for at-a-glance.
+                    p = round(est, 1)
+
             bits = []
             if p is not None:
                 bits.append(f"{p} kW")
@@ -773,6 +801,14 @@ def _report_json(vehicle, data: dict) -> dict:
     climate = data.get('climate_state', {})
     vs = data.get('vehicle_state', {})
 
+    # Derive a best-effort charging power estimate if Tesla omits charger_power
+    # but provides V/A.
+    charger_power_kw = charge.get('charger_power')
+    if charger_power_kw is None:
+        est = _derive_power_kw(charge.get('charger_voltage'), charge.get('charger_actual_current'))
+        if est is not None:
+            charger_power_kw = round(est, 1)
+
     out = {
         "vehicle": {
             "display_name": vehicle.get('display_name'),
@@ -792,7 +828,7 @@ def _report_json(vehicle, data: dict) -> dict:
             "full_at_local_hhmm": _fmt_local_hhmm_from_now(charge.get('minutes_to_full_charge')),
             "time_to_full_charge_hours": charge.get('time_to_full_charge'),
             "charge_rate_mph": charge.get('charge_rate'),
-            "charger_power_kw": charge.get('charger_power'),
+            "charger_power_kw": charger_power_kw,
             "charger_voltage_v": charge.get('charger_voltage'),
             "charger_actual_current_a": charge.get('charger_actual_current'),
             "charge_current_request_a": charge.get('charge_current_request'),
@@ -1106,6 +1142,12 @@ def _charge_status_json(charge: dict) -> dict:
     Intended for piping/parsing via `charge status --json`.
     """
     charge = charge or {}
+    charger_power = charge.get('charger_power')
+    if charger_power is None:
+        est = _derive_power_kw(charge.get('charger_voltage'), charge.get('charger_actual_current'))
+        if est is not None:
+            charger_power = round(est, 1)
+
     return {
         'battery_level': charge.get('battery_level'),
         'battery_range': charge.get('battery_range'),
@@ -1114,7 +1156,7 @@ def _charge_status_json(charge: dict) -> dict:
         'charge_limit_soc': charge.get('charge_limit_soc'),
         'time_to_full_charge': charge.get('time_to_full_charge'),
         'charge_rate': charge.get('charge_rate'),
-        'charger_power': charge.get('charger_power'),
+        'charger_power': charger_power,
         'charger_voltage': charge.get('charger_voltage'),
         'charger_actual_current': charge.get('charger_actual_current'),
         'scheduled_charging_start_time': charge.get('scheduled_charging_start_time'),
@@ -1182,6 +1224,12 @@ def cmd_charge(args):
             p = charge.get('charger_power')
             v = charge.get('charger_voltage')
             a = charge.get('charger_actual_current')
+
+            if p is None and v is not None and a is not None:
+                est = _derive_power_kw(v, a)
+                if est is not None:
+                    p = round(est, 1)
+
             bits = []
             if p is not None:
                 bits.append(f"{p} kW")

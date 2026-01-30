@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.86 — 2026-01-30
+- Better UX: when Tesla omits `charger_power`, derive a best-effort charging kW estimate from voltage/current (shown in `report` and `charge status`).
+- Reliability: add unit tests for the new power-derivation behavior.
+
 ## 0.1.85 — 2026-01-30
 - Better UX: improve the `--yes` safety gate error with a copy/paste re-run suggestion (and add a unit test).
 
