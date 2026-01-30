@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.110 — 2026-01-30
+- Better UX: invalid user input (ValueError) now exits with code 2 and prints a direct `--help` hint for the relevant command.
+
 ## 0.1.109 — 2026-01-30
 - Better UX: when using `--no-wake --json --compact`, offline/asleep output is now single-line JSON for `report` and `status`.
 - Reliability: add unit tests to lock in the compact no-wake JSON behavior.

@@ -3319,6 +3319,14 @@ def main():
     except KeyboardInterrupt:
         print("\n⛔ Interrupted", file=sys.stderr)
         sys.exit(130)
+    except ValueError as e:
+        # Treat ValueError as "bad input" (exit code 2) instead of "runtime error".
+        # Many commands raise ValueError for missing/invalid parameters.
+        msg = str(e).strip() or "Invalid input"
+        print(f"❌ {msg}", file=sys.stderr)
+        if getattr(args, "command", None):
+            print(f"   Help: {_invocation(f'{args.command} --help')}", file=sys.stderr)
+        sys.exit(2)
     except Exception as e:
         debug = bool(getattr(args, "debug", False)) or os.environ.get("MY_TESLA_DEBUG") == "1"
         if debug:
