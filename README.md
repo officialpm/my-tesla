@@ -117,6 +117,8 @@ python3 scripts/tesla.py charge amps 16 --yes     # 1–48 (conservative guardra
 python3 scripts/tesla.py scheduled-charging status
 python3 scripts/tesla.py scheduled-charging set 23:30 --yes
 python3 scripts/tesla.py scheduled-charging set 2330  --yes   # compact HHMM
+python3 scripts/tesla.py scheduled-charging set 7     --yes   # hour-only (07:00)
+python3 scripts/tesla.py scheduled-charging set 7:30pm --yes  # 12-hour time
 python3 scripts/tesla.py scheduled-charging off --yes
 
 # Scheduled departure (read-only)

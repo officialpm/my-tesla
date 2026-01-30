@@ -30,6 +30,18 @@ class TestTimeHelpers(unittest.TestCase):
         self.assertEqual(_parse_hhmm("0730"), 7 * 60 + 30)
         self.assertEqual(_parse_hhmm("730"), 7 * 60 + 30)
 
+    def test_parse_hhmm_hour_only(self):
+        self.assertEqual(_parse_hhmm("7"), 7 * 60)
+        self.assertEqual(_parse_hhmm("19"), 19 * 60)
+
+    def test_parse_hhmm_ampm(self):
+        self.assertEqual(_parse_hhmm("7am"), 7 * 60)
+        self.assertEqual(_parse_hhmm("7pm"), 19 * 60)
+        self.assertEqual(_parse_hhmm("12am"), 0)
+        self.assertEqual(_parse_hhmm("12pm"), 12 * 60)
+        self.assertEqual(_parse_hhmm("7:30pm"), 19 * 60 + 30)
+        self.assertEqual(_parse_hhmm("07:30 PM"), 19 * 60 + 30)
+
     def test_parse_hhmm_strips(self):
         self.assertEqual(_parse_hhmm(" 07:30 "), 7 * 60 + 30)
 
@@ -38,16 +50,15 @@ class TestTimeHelpers(unittest.TestCase):
             None,
             "",
             " ",
-            "7:30",  # must be zero-padded? actually current parser allows; but still has ':' so ok
+            "7:30",  # allow single-digit hour with colon
         ]:
             if bad == "7:30":
-                # Current implementation allows single-digit hours; keep behavior.
                 self.assertEqual(_parse_hhmm(bad), 7 * 60 + 30)
             else:
                 with self.assertRaises(ValueError):
                     _parse_hhmm(bad)
 
-        for bad in ["24:00", "00:60", "-1:00", "ab:cd", "12", "12345"]:
+        for bad in ["24:00", "00:60", "-1:00", "ab:cd", "12345", "13pm", "0am"]:
             with self.assertRaises(Exception):
                 _parse_hhmm(bad)
 

@@ -1324,24 +1324,56 @@ def _parse_hhmm(value: str):
     """Parse a time into minutes after midnight.
 
     Accepts:
-    - "HH:MM" (e.g., "23:30")
+    - "HH:MM" (24-hour) (e.g., "23:30")
     - "HHMM" or "HMM" digits (e.g., "2330", "730")
+    - Hour-only "H"/"HH" (e.g., "7", "19") which implies ":00"
+    - 12-hour clock with am/pm suffix (e.g., "7am", "7:30PM", "12am")
 
     This is used for scheduled charging.
     """
     if not isinstance(value, str) or not value.strip():
-        raise ValueError("Missing time. Expected HH:MM or HHMM (e.g., 23:30 or 2330)")
+        raise ValueError(
+            "Missing time. Expected HH:MM, HHMM, H/HH, or 12-hour with am/pm (e.g., 23:30, 2330, 7, 7:30pm)"
+        )
 
-    s = value.strip()
+    import re
 
+    s = value.strip().lower()
+
+    # 12-hour formats with am/pm (allow optional whitespace):
+    #   7am, 7:30pm, 07:30 pm
+    m = re.fullmatch(r"(\d{1,2})(?::(\d{2}))?\s*([ap]m)", s)
+    if m:
+        hh = int(m.group(1))
+        mm = int(m.group(2) or "0")
+        ap = m.group(3)
+
+        if hh < 1 or hh > 12 or mm < 0 or mm > 59:
+            raise ValueError("Invalid time. Expected 12-hour time like 7am or 7:30pm")
+
+        # Convert to 24-hour.
+        if hh == 12:
+            hh = 0
+        if ap == "pm":
+            hh += 12
+
+        return hh * 60 + mm
+
+    # 24-hour with colon.
     if ":" in s:
         hh_s, mm_s = s.split(":", 1)
     else:
-        # Allow compact numeric inputs like 2330 or 730.
+        # Compact numeric inputs:
+        # - HHMM/HMM (e.g., 2330/730)
+        # - H/HH hour-only (e.g., 7/19)
         if s.isdigit() and len(s) in (3, 4):
             hh_s, mm_s = s[:-2], s[-2:]
+        elif s.isdigit() and len(s) in (1, 2):
+            hh_s, mm_s = s, "00"
         else:
-            raise ValueError("Invalid time. Expected HH:MM or HHMM (e.g., 23:30 or 2330)")
+            raise ValueError(
+                "Invalid time. Expected HH:MM, HHMM, H/HH, or 12-hour with am/pm (e.g., 23:30, 2330, 7, 7:30pm)"
+            )
 
     try:
         hh = int(hh_s)
@@ -2672,7 +2704,7 @@ def main():
     sched_parser.add_argument(
         "time",
         nargs="?",
-        help="Start time for 'set' as HH:MM (24-hour) or HHMM digits (e.g., 23:30 or 2330)",
+        help="Start time for 'set' as HH:MM (24-hour), HHMM/HMM digits, hour-only (H/HH), or 12-hour with am/pm (e.g., 23:30, 2330, 7, 7:30pm)",
     )
     sched_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 

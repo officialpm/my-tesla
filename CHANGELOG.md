@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.89 — 2026-01-30
+- Better UX: `scheduled-charging set` now accepts hour-only and 12-hour am/pm times (e.g., `7`, `7:30pm`) in addition to `HH:MM` / `HHMM`.
+- Reliability: add unit tests to lock in the new time parsing behavior.
+
 ## 0.1.88 — 2026-01-30
 - Better UX: when `status` is run with `--no-wake` and the car is asleep/offline, print a minimal payload (then exit 3) instead of only an error.
 - Reliability/docs: add unit tests + update docs to reflect the behavior.
