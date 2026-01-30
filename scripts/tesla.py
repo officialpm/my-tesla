@@ -358,7 +358,7 @@ def _fmt_bool(b, yes="Yes", no="No"):
     return yes if b else no
 
 
-def _short_status(vehicle, data):
+def _short_status(vehicle, data, metric: bool = False):
     charge = data.get('charge_state', {})
     climate = data.get('climate_state', {})
     vs = data.get('vehicle_state', {})
@@ -376,7 +376,8 @@ def _short_status(vehicle, data):
         parts.append(f"🔒 {_fmt_bool(locked, 'Locked', 'Unlocked')}")
     if batt is not None:
         if rng is not None:
-            parts.append(f"🔋 {batt}% ({rng:.0f} mi)")
+            dist = _fmt_distance(rng, metric=metric, decimals=0)
+            parts.append(f"🔋 {batt}% ({dist})")
         else:
             parts.append(f"🔋 {batt}%")
     if charging:
@@ -389,7 +390,7 @@ def _short_status(vehicle, data):
     return " • ".join(parts)
 
 
-def _summary_json(vehicle, data: dict) -> dict:
+def _summary_json(vehicle, data: dict, metric: bool = False) -> dict:
     """Sanitized, machine-readable one-line summary.
 
     Unlike `status --json`, this does NOT emit raw vehicle_data (which may include location).
@@ -406,7 +407,7 @@ def _summary_json(vehicle, data: dict) -> dict:
             "display_name": vehicle.get("display_name"),
             "state": vehicle.get("state"),
         },
-        "summary": _short_status(vehicle, data),
+        "summary": _short_status(vehicle, data, metric=metric),
         "security": {
             "locked": vs.get("locked"),
         },
@@ -536,7 +537,30 @@ def _fmt_local_timestamp_ms(ts_ms, tz=None):
     return dt.strftime('%Y-%m-%d %H:%M')
 
 
-def _report(vehicle, data):
+def _mi_to_km(mi: float) -> float:
+    """Convert miles to kilometers."""
+    return float(mi) * 1.609344
+
+
+def _fmt_distance(mi, metric: bool = False, decimals: int = 0):
+    """Format a distance (provided in miles) as mi or km."""
+    if mi is None:
+        return None
+    try:
+        v = float(mi)
+    except Exception:
+        return None
+
+    if metric:
+        km = _mi_to_km(v)
+        s = f"{km:.{decimals}f}"
+        return f"{s} km"
+
+    s = f"{v:.{decimals}f}"
+    return f"{s} mi"
+
+
+def _report(vehicle, data, metric: bool = False):
     """One-screen status report (safe for chat)."""
     charge = data.get('charge_state', {})
     climate = data.get('climate_state', {})
@@ -562,7 +586,8 @@ def _report(vehicle, data):
     usable = charge.get('usable_battery_level')
     rng = charge.get('battery_range')
     if batt is not None and rng is not None:
-        lines.append(f"Battery: {batt}% ({rng:.0f} mi)")
+        dist = _fmt_distance(rng, metric=metric, decimals=0)
+        lines.append(f"Battery: {batt}% ({dist})")
     elif batt is not None:
         lines.append(f"Battery: {batt}%")
 
@@ -732,7 +757,8 @@ def _report(vehicle, data):
 
     odo = vs.get('odometer')
     if odo is not None:
-        lines.append(f"Odometer: {odo:.0f} mi")
+        dist = _fmt_distance(odo, metric=metric, decimals=0)
+        lines.append(f"Odometer: {dist}")
 
     return "\n".join(lines)
 
@@ -896,7 +922,7 @@ def cmd_report(args):
             print(json.dumps(_report_json(vehicle, data), indent=2))
         return
 
-    print(_report(vehicle, data))
+    print(_report(vehicle, data, metric=(getattr(args, 'metric', False) is True)))
 
 
 def cmd_status(args):
@@ -920,7 +946,7 @@ def cmd_status(args):
     if getattr(args, 'summary', False):
         # Print a one-line summary *in addition* to the detailed view.
         # (If you only want the one-liner, use the `summary` command.)
-        print(_short_status(vehicle, data))
+        print(_short_status(vehicle, data, metric=(getattr(args, 'metric', False) is True)))
         print()
 
     # Human-friendly detailed view
@@ -930,7 +956,8 @@ def cmd_status(args):
     batt = charge.get('battery_level')
     rng = charge.get('battery_range')
     if batt is not None and rng is not None:
-        print(f"   Battery: {batt}% ({rng:.0f} mi)")
+        dist = _fmt_distance(rng, metric=(getattr(args, 'metric', False) is True), decimals=0)
+        print(f"   Battery: {batt}% ({dist})")
     elif batt is not None:
         print(f"   Battery: {batt}%")
 
@@ -959,7 +986,8 @@ def cmd_status(args):
 
     odo = vehicle_state.get('odometer')
     if odo is not None:
-        print(f"   Odometer: {odo:.0f} mi")
+        dist = _fmt_distance(odo, metric=(getattr(args, 'metric', False) is True), decimals=0)
+        print(f"   Odometer: {dist}")
 
 
 def cmd_lock(args):
@@ -1122,7 +1150,9 @@ def cmd_charge(args):
             return
 
         print(f"🔋 {vehicle['display_name']} Battery: {charge['battery_level']}%")
-        print(f"   Range: {charge['battery_range']:.0f} mi")
+        dist = _fmt_distance(charge.get('battery_range'), metric=(getattr(args, 'metric', False) is True), decimals=0)
+        if dist:
+            print(f"   Range: {dist}")
 
         usable = charge.get('usable_battery_level')
         if usable is not None:
@@ -2032,10 +2062,10 @@ def cmd_summary(args):
         if getattr(args, 'raw_json', False):
             print(json.dumps(data, indent=2))
         else:
-            print(json.dumps(_summary_json(vehicle, data), indent=2))
+            print(json.dumps(_summary_json(vehicle, data, metric=(getattr(args, 'metric', False) is True)), indent=2))
         return
 
-    print(_short_status(vehicle, data))
+    print(_short_status(vehicle, data, metric=(getattr(args, 'metric', False) is True)))
 
 
 # ----------------------------
@@ -2427,6 +2457,12 @@ def main():
         "--debug",
         action="store_true",
         help="Print a full Python traceback on errors (also enabled by MY_TESLA_DEBUG=1)",
+    )
+
+    parser.add_argument(
+        "--metric",
+        action="store_true",
+        help="Use metric units (km) for distance outputs in human-readable commands (summary/report/status/charge status)",
     )
 
     parser.add_argument(

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.81 — 2026-01-30
+- Better UX: add global `--metric` flag to show distances in kilometers for human-readable outputs (summary/report/status/charge status).
+- Reliability: add unit tests for the new metric output formatting.
+
 ## 0.1.80 — 2026-01-29
 - Better UX: when actively charging, `report` now shows the requested charging current (and max) when Tesla provides it.
 - Reliability: add unit tests for the new report line.

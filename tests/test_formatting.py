@@ -43,6 +43,9 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("Locked", out)
         self.assertIn("55%", out)
         self.assertIn("123 mi", out)
+
+        out_metric = tesla._short_status(vehicle, data, metric=True)
+        self.assertIn("199 km", out_metric)
         self.assertIn("⚡ Stopped", out)
         self.assertIn("68°F", out)
         self.assertIn("Off", out)
@@ -112,6 +115,10 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("Software: 2025.44.30.7", out)
         self.assertIn("Updated:", out)
         self.assertIn("Odometer: 12346 mi", out)
+
+        out_metric = tesla._report(vehicle, data, metric=True)
+        self.assertIn("Battery: 80% (403 km)", out_metric)
+        self.assertIn("Odometer: 19868 km", out_metric)
 
     def test_round_coord(self):
         self.assertEqual(tesla._round_coord(37.123456, 2), 37.12)

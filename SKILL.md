@@ -61,6 +61,7 @@ python3 {baseDir}/scripts/tesla.py default-car "My Model 3"
 # One-line summary (best for chat)
 python3 {baseDir}/scripts/tesla.py summary
 python3 {baseDir}/scripts/tesla.py summary --no-wake   # don't wake a sleeping car
+python3 {baseDir}/scripts/tesla.py --metric summary    # show km instead of miles
 
 # Summary as JSON (privacy-safe)
 # Unlike `status --json`, this emits a small sanitized object (no location).
@@ -81,10 +82,12 @@ python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_dat
 # When the vehicle reports it, includes software version + last-updated timestamp.
 python3 {baseDir}/scripts/tesla.py report
 python3 {baseDir}/scripts/tesla.py report --no-wake
+python3 {baseDir}/scripts/tesla.py --metric report    # show km instead of miles
 
 # Detailed status
 python3 {baseDir}/scripts/tesla.py status
 python3 {baseDir}/scripts/tesla.py status --no-wake
+python3 {baseDir}/scripts/tesla.py --metric status   # show km instead of miles
 python3 {baseDir}/scripts/tesla.py status --summary   # include one-line summary + detailed output
 python3 {baseDir}/scripts/tesla.py --car "My Model 3" status
 
