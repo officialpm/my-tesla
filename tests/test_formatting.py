@@ -83,6 +83,8 @@ class FormattingTests(unittest.TestCase):
             "vehicle_state": {
                 "locked": False,
                 "sentry_mode": True,
+                "car_version": "2025.44.30.7",
+                "timestamp": 1767220800000,
                 "odometer": 12345.6,
                 "tpms_pressure_fl": 2.9,
                 "tpms_pressure_fr": 2.9,
@@ -107,6 +109,8 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("Tires (TPMS):", out)
         self.assertIn("FL 2.90 bar (42 psi)", out)
         self.assertIn("RL 2.80 bar (41 psi)", out)
+        self.assertIn("Software: 2025.44.30.7", out)
+        self.assertIn("Updated:", out)
         self.assertIn("Odometer: 12346 mi", out)
 
     def test_round_coord(self):

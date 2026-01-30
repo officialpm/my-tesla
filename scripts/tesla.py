@@ -471,6 +471,29 @@ def _fmt_local_hhmm_from_now(minutes_from_now, now=None):
     return t.strftime('%H:%M')
 
 
+def _fmt_local_timestamp_ms(ts_ms, tz=None):
+    """Format an epoch-milliseconds timestamp to a local YYYY-MM-DD HH:MM.
+
+    Tesla's vehicle_state includes a `timestamp` field (ms since epoch).
+    This is useful in reports to confirm freshness.
+
+    Args:
+        ts_ms: epoch milliseconds
+        tz: optional tzinfo (defaults to local time)
+    """
+    try:
+        ms = int(ts_ms)
+    except Exception:
+        return None
+    if ms <= 0:
+        return None
+
+    import datetime as _dt
+
+    dt = _dt.datetime.fromtimestamp(ms / 1000.0, tz=tz)
+    return dt.strftime('%Y-%m-%d %H:%M')
+
+
 def _report(vehicle, data):
     """One-screen status report (safe for chat)."""
     charge = data.get('charge_state', {})
@@ -640,6 +663,15 @@ def _report(vehicle, data):
             f"FL {fl or '(?)'} | FR {fr or '(?)'} | RL {rl or '(?)'} | RR {rr or '(?)'}"
         )
 
+    car_ver = vs.get('car_version')
+    if isinstance(car_ver, str) and car_ver.strip():
+        lines.append(f"Software: {car_ver.strip()}")
+
+    # Confirm how fresh this snapshot is (Tesla provides epoch-ms timestamps).
+    stamp = _fmt_local_timestamp_ms(vs.get('timestamp'))
+    if stamp:
+        lines.append(f"Updated: {stamp}")
+
     odo = vs.get('odometer')
     if odo is not None:
         lines.append(f"Odometer: {odo:.0f} mi")
@@ -660,6 +692,8 @@ def _report_json(vehicle, data: dict) -> dict:
         "vehicle": {
             "display_name": vehicle.get('display_name'),
             "state": vehicle.get('state'),
+            "car_version": vs.get('car_version'),
+            "updated_local": _fmt_local_timestamp_ms(vs.get('timestamp')),
         },
         "battery": {
             "level_percent": charge.get('battery_level'),

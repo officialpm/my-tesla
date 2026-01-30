@@ -35,7 +35,13 @@ class ReportJsonTests(unittest.TestCase):
                 "seat_heater_left": 3,
                 "seat_heater_right": 1,
             },
-            "vehicle_state": {"locked": False, "sentry_mode": True, "odometer": 12345.6},
+            "vehicle_state": {
+                "locked": False,
+                "sentry_mode": True,
+                "odometer": 12345.6,
+                "car_version": "2025.44.30.7",
+                "timestamp": 1767220800000,  # 2026-01-01 00:00:00 UTC
+            },
             # This is intentionally present in raw vehicle_data, but should not show up in report JSON.
             "drive_state": {"latitude": 37.1234, "longitude": -122.5678},
         }
@@ -43,6 +49,9 @@ class ReportJsonTests(unittest.TestCase):
         out = tesla._report_json(vehicle, data)
         self.assertIn("vehicle", out)
         self.assertEqual(out["vehicle"]["display_name"], "Test Car")
+        self.assertEqual(out["vehicle"]["car_version"], "2025.44.30.7")
+        self.assertIn("updated_local", out["vehicle"])
+        self.assertIsInstance(out["vehicle"]["updated_local"], str)
 
         # Must not include raw drive_state/location
         self.assertNotIn("drive_state", out)

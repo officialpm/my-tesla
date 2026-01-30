@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.75 — 2026-01-29
+- Better UX: `report` now includes vehicle software version (`car_version`) and an "Updated" timestamp when Tesla provides it.
+- Reliability: add unit tests covering the new report fields.
+
 ## 0.1.74 — 2026-01-29
 - New capability: add `valet` command (status/on/off/reset-pin). Enabling/disabling is safety gated with `--yes`; enabling also requires `--pin`.
 - Reliability: add unit tests for the new valet command behavior.
