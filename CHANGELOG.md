@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.85 — 2026-01-30
+- Better UX: improve the `--yes` safety gate error with a copy/paste re-run suggestion (and add a unit test).
+
 ## 0.1.84 — 2026-01-30
 - Bugfix/UX: add the missing `--json` flag to `charge-port status` (it was documented and implemented, but not wired in argparse).
 

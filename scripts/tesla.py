@@ -18,6 +18,7 @@ import sqlite3
 import time
 import traceback
 import tempfile
+import shlex
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -1883,9 +1884,23 @@ def cmd_honk(args):
 
 
 def require_yes(args, action: str):
-    if not getattr(args, "yes", False):
-        print(f"❌ Refusing to run '{action}' without --yes (safety gate)", file=sys.stderr)
-        sys.exit(2)
+    """Require an explicit --yes for mutating/disruptive actions."""
+    if getattr(args, "yes", False):
+        return
+
+    # Provide a copy/paste rerun suggestion.
+    extra_args = list(sys.argv[1:])
+    if "--yes" not in extra_args:
+        extra_args.append("--yes")
+    suggestion = _invocation(" ".join(shlex.quote(a) for a in extra_args))
+
+    print(
+        f"❌ Refusing to run '{action}' without --yes (safety gate).\n"
+        f"   If you really want to do this, re-run with --yes:\n"
+        f"   {suggestion}",
+        file=sys.stderr,
+    )
+    sys.exit(2)
 
 
 def cmd_flash(args):
