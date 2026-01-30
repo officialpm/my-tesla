@@ -1406,6 +1406,52 @@ def cmd_charge(args):
             print(json.dumps(out, indent=2))
             return
 
+        # Compact one-line human output (useful for chat)
+        if getattr(args, 'compact', False):
+            parts = []
+            try:
+                parts.append(f"{int(charge.get('battery_level'))}%")
+            except Exception:
+                if charge.get('battery_level') is not None:
+                    parts.append(f"{charge.get('battery_level')}%")
+
+            dist = _fmt_distance(charge.get('battery_range'), metric=(getattr(args, 'metric', False) is True), decimals=0)
+            if dist:
+                parts.append(f"Range {dist}")
+
+            state = charge.get('charging_state')
+            if state:
+                parts.append(str(state))
+
+            limit = charge.get('charge_limit_soc')
+            if limit is not None:
+                parts.append(f"Limit {limit}%")
+
+            # Scheduled charging (best-effort; fields vary by vehicle/firmware)
+            sched_time = charge.get('scheduled_charging_start_time')
+            sched_mode = charge.get('scheduled_charging_mode')
+            sched_pending = charge.get('scheduled_charging_pending')
+            if sched_time is not None or sched_mode is not None or sched_pending is not None:
+                hhmm = _fmt_minutes_hhmm(sched_time)
+                if sched_pending is not None:
+                    mode = 'On' if sched_pending else 'Off'
+                else:
+                    mode = (sched_mode.strip() if isinstance(sched_mode, str) and sched_mode.strip() else '(unknown)')
+                if hhmm:
+                    parts.append(f"Sched {mode} {hhmm}")
+                else:
+                    parts.append(f"Sched {mode}")
+
+            cpd = charge.get('charge_port_door_open')
+            if cpd is not None:
+                parts.append(f"Port {_fmt_bool(cpd, 'Open', 'Closed')}")
+            cable = charge.get('conn_charge_cable')
+            if cable is not None:
+                parts.append(f"Cable {cable}")
+
+            print(f"🔋 {vehicle['display_name']}: " + " | ".join(parts))
+            return
+
         print(f"🔋 {vehicle['display_name']} Battery: {charge['battery_level']}%")
         dist = _fmt_distance(charge.get('battery_range'), metric=(getattr(args, 'metric', False) is True), decimals=0)
         if dist:
@@ -3143,6 +3189,11 @@ def main():
         help="For 'limit': percent (e.g., 80). For 'amps': amps (e.g., 16).",
     )
     charge_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
+    charge_parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="(status only) One-line human output (chat friendly)",
+    )
 
     # Scheduled charging
     sched_parser = subparsers.add_parser("scheduled-charging", help="Get/set scheduled charging (set/off requires --yes)")

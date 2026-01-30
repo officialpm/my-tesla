@@ -133,6 +133,7 @@ python3 {baseDir}/scripts/tesla.py climate temp 22 --celsius
 
 # Charging
 python3 {baseDir}/scripts/tesla.py charge status
+python3 {baseDir}/scripts/tesla.py charge status --compact   # one-line (chat friendly)
 python3 {baseDir}/scripts/tesla.py charge status --no-wake
 python3 {baseDir}/scripts/tesla.py charge start --yes
 python3 {baseDir}/scripts/tesla.py charge stop  --yes

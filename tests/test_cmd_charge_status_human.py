@@ -40,6 +40,7 @@ class CmdChargeStatusHumanTests(unittest.TestCase):
         args.action = "status"
         args.no_wake = True
         args.json = False
+        args.compact = False
         args.metric = False
         args.retries = 0
         args.retry_delay = 0
@@ -67,6 +68,52 @@ class CmdChargeStatusHumanTests(unittest.TestCase):
         self.assertIn("Scheduled charging:", printed)
         self.assertIn("On", printed)
         self.assertIn("07:00", printed)
+
+    def test_charge_status_compact_is_one_line(self):
+        vehicle = DummyVehicle(display_name="My Car")
+
+        args = mock.Mock()
+        args.car = None
+        args.action = "status"
+        args.no_wake = True
+        args.json = False
+        args.compact = True
+        args.metric = False
+        args.retries = 0
+        args.retry_delay = 0
+
+        vehicle_data = {
+            'charge_state': {
+                'battery_level': 55,
+                'battery_range': 123.4,
+                'charging_state': 'Stopped',
+                'charge_limit_soc': 80,
+                'scheduled_charging_start_time': 420,  # 07:00
+                'scheduled_charging_pending': True,
+                'charge_port_door_open': False,
+                'conn_charge_cable': 'SAE',
+            }
+        }
+
+        with mock.patch.object(tesla, "get_tesla"), \
+             mock.patch.object(tesla, "get_vehicle", return_value=vehicle), \
+             mock.patch.object(tesla, "require_email", return_value="test@example.com"), \
+             mock.patch.object(tesla, "_ensure_online_or_exit"), \
+             mock.patch.object(tesla, "fetch_vehicle_data", return_value=vehicle_data), \
+             mock.patch("builtins.print") as p:
+            tesla.cmd_charge(args)
+
+        # Compact output should print once and include key fields.
+        self.assertEqual(len(p.call_args_list), 1)
+        line = str(p.call_args_list[0].args[0])
+        self.assertIn("🔋 My Car:", line)
+        self.assertIn("55%", line)
+        self.assertIn("Range", line)
+        self.assertIn("Stopped", line)
+        self.assertIn("Limit 80%", line)
+        self.assertIn("Sched On 07:00", line)
+        self.assertIn("Port Closed", line)
+        self.assertIn("Cable SAE", line)
 
 
 if __name__ == "__main__":

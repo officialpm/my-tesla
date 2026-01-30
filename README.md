@@ -128,6 +128,13 @@ python3 scripts/tesla.py climate defrost on
 python3 scripts/tesla.py climate defrost off
 python3 scripts/tesla.py climate temp 72      # default: °F
 python3 scripts/tesla.py climate temp 22 --celsius
+
+# Charging (human)
+python3 scripts/tesla.py charge status
+python3 scripts/tesla.py charge status --compact   # one-line (chat friendly)
+python3 scripts/tesla.py charge status --no-wake
+
+# Charging (mutations; safety gated)
 python3 scripts/tesla.py charge limit 80 --yes   # 50–100
 python3 scripts/tesla.py charge amps 16 --yes     # 1–48 (conservative guardrail)
 

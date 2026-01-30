@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.111 — 2026-01-30
+- Better UX: add `charge status --compact` for one-line, chat-friendly charging output.
+
 ## 0.1.110 — 2026-01-30
 - Better UX: invalid user input (ValueError) now exits with code 2 and prints a direct `--help` hint for the relevant command.
 
