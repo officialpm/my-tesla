@@ -31,6 +31,65 @@ class NoWakeTests(unittest.TestCase):
                 tesla._ensure_online_or_exit(v, allow_wake=False)
             self.assertEqual(ctx.exception.code, 3)
 
+    def test_summary_no_wake_offline_prints_minimal_human_output_and_exits_3(self):
+        from types import SimpleNamespace
+        import io
+        from contextlib import redirect_stdout
+
+        v = DummyVehicle(state="asleep", display_name="Test Car")
+
+        args = SimpleNamespace(
+            email="you@email.com",
+            car=None,
+            no_wake=True,
+            json=False,
+            raw_json=False,
+            retries=0,
+            retry_delay=0,
+            metric=False,
+        )
+
+        buf = io.StringIO()
+        with mock.patch.object(tesla, "get_tesla") as _gt, mock.patch.object(tesla, "get_vehicle", return_value=v):
+            with redirect_stdout(buf):
+                with self.assertRaises(SystemExit) as ctx:
+                    tesla.cmd_summary(args)
+
+        self.assertEqual(ctx.exception.code, 3)
+        out = buf.getvalue()
+        self.assertIn("🚗 Test Car", out)
+        self.assertIn("--no-wake", out)
+
+    def test_report_no_wake_offline_prints_minimal_json_and_exits_3(self):
+        from types import SimpleNamespace
+        import io
+        from contextlib import redirect_stdout
+        import json as _json
+
+        v = DummyVehicle(state="offline", display_name="Test Car")
+
+        args = SimpleNamespace(
+            email="you@email.com",
+            car=None,
+            no_wake=True,
+            json=True,
+            raw_json=False,
+            retries=0,
+            retry_delay=0,
+            metric=False,
+        )
+
+        buf = io.StringIO()
+        with mock.patch.object(tesla, "get_tesla") as _gt, mock.patch.object(tesla, "get_vehicle", return_value=v):
+            with redirect_stdout(buf):
+                with self.assertRaises(SystemExit) as ctx:
+                    tesla.cmd_report(args)
+
+        self.assertEqual(ctx.exception.code, 3)
+        payload = _json.loads(buf.getvalue())
+        self.assertEqual(payload.get("online"), False)
+        self.assertEqual(payload.get("vehicle", {}).get("display_name"), "Test Car")
+
 
 if __name__ == "__main__":
     unittest.main()

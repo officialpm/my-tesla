@@ -899,6 +899,28 @@ def _ensure_online_or_exit(vehicle, allow_wake: bool):
     sys.exit(3)
 
 
+def _no_wake_offline_human(vehicle) -> str:
+    """Human-friendly output for --no-wake when the vehicle isn't online."""
+    name = vehicle.get('display_name', 'Vehicle')
+    state = vehicle.get('state')
+    return (
+        f"🚗 {name} • state: {state} (did not wake; --no-wake)\n"
+        f"   Tip: re-run without --no-wake, or run: {_invocation('wake --yes')}"
+    )
+
+
+def _no_wake_offline_json(vehicle) -> dict:
+    """Machine-friendly output for --no-wake when the vehicle isn't online."""
+    return {
+        "vehicle": {
+            "display_name": vehicle.get('display_name'),
+            "state": vehicle.get('state'),
+        },
+        "online": False,
+        "note": "Vehicle is not online; skipped wake because --no-wake was set.",
+    }
+
+
 def fetch_vehicle_data(vehicle, retries: int = 2, retry_delay_s: float = 0.5) -> dict:
     """Fetch vehicle_data with basic retries for transient failures.
 
@@ -946,6 +968,16 @@ def cmd_report(args):
     """One-screen status report."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
+
+    # UX: when --no-wake is set and the car is asleep/offline, still print a
+    # minimal payload (then exit 3) so automations/chat have something useful.
+    if getattr(args, 'no_wake', False) and vehicle.get('state') != 'online':
+        if getattr(args, 'json', False):
+            print(json.dumps(_no_wake_offline_json(vehicle), indent=2))
+        else:
+            print(_no_wake_offline_human(vehicle))
+        sys.exit(3)
+
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
 
@@ -2117,6 +2149,15 @@ def cmd_summary(args):
     """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
+
+    # UX: when --no-wake is set and the car is asleep/offline, still print a
+    # minimal payload (then exit 3) so automations/chat have something useful.
+    if getattr(args, 'no_wake', False) and vehicle.get('state') != 'online':
+        if getattr(args, 'json', False):
+            print(json.dumps(_no_wake_offline_json(vehicle), indent=2))
+        else:
+            print(_no_wake_offline_human(vehicle))
+        sys.exit(3)
 
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))

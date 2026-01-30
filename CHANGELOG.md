@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.87 — 2026-01-30
+- Better UX: when `summary`/`report` are run with `--no-wake` and the car is asleep/offline, print a minimal payload (then exit 3) instead of only an error.
+- Reliability: add unit tests for the new `--no-wake` minimal payload behavior.
+
 ## 0.1.86 — 2026-01-30
 - Better UX: when Tesla omits `charger_power`, derive a best-effort charging kW estimate from voltage/current (shown in `report` and `charge status`).
 - Reliability: add unit tests for the new power-derivation behavior.
