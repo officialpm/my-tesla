@@ -77,6 +77,7 @@ python3 scripts/tesla.py summary --json --raw-json   # raw vehicle_data (may inc
 # When the vehicle reports it, includes scheduled departure / preconditioning / off-peak charging status.
 # When the vehicle reports it, includes software version + last-updated timestamp.
 python3 scripts/tesla.py report
+python3 scripts/tesla.py report --compact    # core lines only
 python3 scripts/tesla.py report --no-wake
 python3 scripts/tesla.py --metric report    # show km instead of miles
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.90 — 2026-01-30
+- Better UX: add `report --compact` to print a shorter one-screen report (core lines only).
+- Reliability: add a unit test to lock in the compact report behavior.
+
 ## 0.1.89 — 2026-01-30
 - Better UX: `scheduled-charging set` now accepts hour-only and 12-hour am/pm times (e.g., `7`, `7:30pm`) in addition to `HH:MM` / `HHMM`.
 - Reliability: add unit tests to lock in the new time parsing behavior.

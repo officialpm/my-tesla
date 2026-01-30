@@ -580,8 +580,12 @@ def _fmt_distance(mi, metric: bool = False, decimals: int = 0):
     return f"{s} mi"
 
 
-def _report(vehicle, data, metric: bool = False):
-    """One-screen status report (safe for chat)."""
+def _report(vehicle, data, metric: bool = False, compact: bool = False):
+    """One-screen status report (safe for chat).
+
+    Args:
+        compact: when True, emit a shorter report with only the core lines.
+    """
     charge = data.get('charge_state', {})
     climate = data.get('climate_state', {})
     vs = data.get('vehicle_state', {})
@@ -598,9 +602,10 @@ def _report(vehicle, data, metric: bool = False):
     if sentry is not None:
         lines.append(f"Sentry: {_fmt_bool(sentry, 'On', 'Off')}")
 
-    openings = _openings_one_line(vs)
-    if openings:
-        lines.append(f"Openings: {openings}")
+    if not compact:
+        openings = _openings_one_line(vs)
+        if openings:
+            lines.append(f"Openings: {openings}")
 
     batt = charge.get('battery_level')
     usable = charge.get('usable_battery_level')
@@ -612,7 +617,7 @@ def _report(vehicle, data, metric: bool = False):
         lines.append(f"Battery: {batt}%")
 
     # Some vehicles report usable battery level separately (helpful for health/degradation).
-    if usable is not None:
+    if not compact and usable is not None:
         try:
             lines.append(f"Usable battery: {int(usable)}%")
         except Exception:
@@ -656,7 +661,7 @@ def _report(vehicle, data, metric: bool = False):
 
         # When actively charging, show power details if available.
         # This is useful to sanity-check a slow/fast charge session at a glance.
-        if charging_state == 'Charging':
+        if charging_state == 'Charging' and not compact:
             p = charge.get('charger_power')
             v = charge.get('charger_voltage')
             a = charge.get('charger_actual_current')
@@ -695,59 +700,60 @@ def _report(vehicle, data, metric: bool = False):
             elif setting is not None:
                 lines.append(f"Charging amps setting: {setting}A")
 
-    # Charge port / cable state
-    cpd = charge.get('charge_port_door_open')
-    if cpd is not None:
-        lines.append(f"Charge port door: {_fmt_bool(cpd, 'Open', 'Closed')}")
-    cable = charge.get('conn_charge_cable')
-    if cable is not None:
-        lines.append(f"Charge cable: {cable}")
+    if not compact:
+        # Charge port / cable state
+        cpd = charge.get('charge_port_door_open')
+        if cpd is not None:
+            lines.append(f"Charge port door: {_fmt_bool(cpd, 'Open', 'Closed')}")
+        cable = charge.get('conn_charge_cable')
+        if cable is not None:
+            lines.append(f"Charge cable: {cable}")
 
-    # Fast charger info (Supercharger/CCS) when present.
-    fast = charge.get('fast_charger_present')
-    ftype = charge.get('fast_charger_type')
-    if fast is not None or ftype is not None:
-        bits = []
-        if fast is not None:
-            bits.append('Yes' if fast else 'No')
-        if isinstance(ftype, str) and ftype.strip():
-            bits.append(ftype.strip())
-        if bits:
-            lines.append(f"Fast charger: {' '.join(bits)}")
+        # Fast charger info (Supercharger/CCS) when present.
+        fast = charge.get('fast_charger_present')
+        ftype = charge.get('fast_charger_type')
+        if fast is not None or ftype is not None:
+            bits = []
+            if fast is not None:
+                bits.append('Yes' if fast else 'No')
+            if isinstance(ftype, str) and ftype.strip():
+                bits.append(ftype.strip())
+            if bits:
+                lines.append(f"Fast charger: {' '.join(bits)}")
 
-    sched_time = charge.get('scheduled_charging_start_time')
-    sched_mode = charge.get('scheduled_charging_mode')
-    sched_pending = charge.get('scheduled_charging_pending')
-    if sched_time is not None or sched_mode is not None or sched_pending is not None:
-        bits = []
-        if isinstance(sched_mode, str) and sched_mode.strip():
-            bits.append(sched_mode.strip())
-        elif sched_pending is not None:
-            bits.append('On' if sched_pending else 'Off')
-        hhmm = _fmt_minutes_hhmm(sched_time)
-        if hhmm:
-            bits.append(hhmm)
-        if bits:
-            lines.append(f"Scheduled charging: {' '.join(bits)}")
+        sched_time = charge.get('scheduled_charging_start_time')
+        sched_mode = charge.get('scheduled_charging_mode')
+        sched_pending = charge.get('scheduled_charging_pending')
+        if sched_time is not None or sched_mode is not None or sched_pending is not None:
+            bits = []
+            if isinstance(sched_mode, str) and sched_mode.strip():
+                bits.append(sched_mode.strip())
+            elif sched_pending is not None:
+                bits.append('On' if sched_pending else 'Off')
+            hhmm = _fmt_minutes_hhmm(sched_time)
+            if hhmm:
+                bits.append(hhmm)
+            if bits:
+                lines.append(f"Scheduled charging: {' '.join(bits)}")
 
-    # Scheduled departure / off-peak charging (read-only)
-    dep_enabled = charge.get('scheduled_departure_enabled')
-    dep_time = charge.get('scheduled_departure_time')
-    precond = charge.get('preconditioning_enabled')
-    off_peak = charge.get('off_peak_charging_enabled')
-    if dep_enabled is not None or dep_time is not None or precond is not None or off_peak is not None:
-        bits = []
-        if dep_enabled is not None:
-            bits.append('On' if dep_enabled else 'Off')
-        hhmm = _fmt_minutes_hhmm(dep_time)
-        if hhmm:
-            bits.append(hhmm)
-        if precond is not None:
-            bits.append(f"precond {'On' if precond else 'Off'}")
-        if off_peak is not None:
-            bits.append(f"off-peak {'On' if off_peak else 'Off'}")
-        if bits:
-            lines.append(f"Scheduled departure: {' '.join(bits)}")
+        # Scheduled departure / off-peak charging (read-only)
+        dep_enabled = charge.get('scheduled_departure_enabled')
+        dep_time = charge.get('scheduled_departure_time')
+        precond = charge.get('preconditioning_enabled')
+        off_peak = charge.get('off_peak_charging_enabled')
+        if dep_enabled is not None or dep_time is not None or precond is not None or off_peak is not None:
+            bits = []
+            if dep_enabled is not None:
+                bits.append('On' if dep_enabled else 'Off')
+            hhmm = _fmt_minutes_hhmm(dep_time)
+            if hhmm:
+                bits.append(hhmm)
+            if precond is not None:
+                bits.append(f"precond {'On' if precond else 'Off'}")
+            if off_peak is not None:
+                bits.append(f"off-peak {'On' if off_peak else 'Off'}")
+            if bits:
+                lines.append(f"Scheduled departure: {' '.join(bits)}")
 
     inside = _fmt_temp_pair(climate.get('inside_temp'))
     outside = _fmt_temp_pair(climate.get('outside_temp'))
@@ -760,34 +766,35 @@ def _report(vehicle, data, metric: bool = False):
     if climate_on is not None:
         lines.append(f"Climate: {_fmt_bool(climate_on, 'On', 'Off')}")
 
-    heaters = _seat_heater_fields(climate)
-    if heaters:
-        lines.append(f"Seat heaters: {_seat_heaters_one_line(heaters)}")
+    if not compact:
+        heaters = _seat_heater_fields(climate)
+        if heaters:
+            lines.append(f"Seat heaters: {_seat_heaters_one_line(heaters)}")
 
-    # Tire pressures (TPMS) if available
-    fl = _fmt_tire_pressure(vs.get('tpms_pressure_fl'))
-    fr = _fmt_tire_pressure(vs.get('tpms_pressure_fr'))
-    rl = _fmt_tire_pressure(vs.get('tpms_pressure_rl'))
-    rr = _fmt_tire_pressure(vs.get('tpms_pressure_rr'))
-    if any([fl, fr, rl, rr]):
-        lines.append(
-            "Tires (TPMS): "
-            f"FL {fl or '(?)'} | FR {fr or '(?)'} | RL {rl or '(?)'} | RR {rr or '(?)'}"
-        )
+        # Tire pressures (TPMS) if available
+        fl = _fmt_tire_pressure(vs.get('tpms_pressure_fl'))
+        fr = _fmt_tire_pressure(vs.get('tpms_pressure_fr'))
+        rl = _fmt_tire_pressure(vs.get('tpms_pressure_rl'))
+        rr = _fmt_tire_pressure(vs.get('tpms_pressure_rr'))
+        if any([fl, fr, rl, rr]):
+            lines.append(
+                "Tires (TPMS): "
+                f"FL {fl or '(?)'} | FR {fr or '(?)'} | RL {rl or '(?)'} | RR {rr or '(?)'}"
+            )
 
-    car_ver = vs.get('car_version')
-    if isinstance(car_ver, str) and car_ver.strip():
-        lines.append(f"Software: {car_ver.strip()}")
+        car_ver = vs.get('car_version')
+        if isinstance(car_ver, str) and car_ver.strip():
+            lines.append(f"Software: {car_ver.strip()}")
 
-    # Confirm how fresh this snapshot is (Tesla provides epoch-ms timestamps).
-    stamp = _fmt_local_timestamp_ms(vs.get('timestamp'))
-    if stamp:
-        lines.append(f"Updated: {stamp}")
+        # Confirm how fresh this snapshot is (Tesla provides epoch-ms timestamps).
+        stamp = _fmt_local_timestamp_ms(vs.get('timestamp'))
+        if stamp:
+            lines.append(f"Updated: {stamp}")
 
-    odo = vs.get('odometer')
-    if odo is not None:
-        dist = _fmt_distance(odo, metric=metric, decimals=0)
-        lines.append(f"Odometer: {dist}")
+        odo = vs.get('odometer')
+        if odo is not None:
+            dist = _fmt_distance(odo, metric=metric, decimals=0)
+            lines.append(f"Odometer: {dist}")
 
     return "\n".join(lines)
 
@@ -991,7 +998,14 @@ def cmd_report(args):
             print(json.dumps(_report_json(vehicle, data), indent=2))
         return
 
-    print(_report(vehicle, data, metric=(getattr(args, 'metric', False) is True)))
+    print(
+        _report(
+            vehicle,
+            data,
+            metric=(getattr(args, 'metric', False) is True),
+            compact=(getattr(args, 'compact', False) is True),
+        )
+    )
 
 
 def cmd_status(args):
@@ -2639,6 +2653,11 @@ def main():
     # Report (one-screen)
     report_parser = subparsers.add_parser("report", help="One-screen status report")
     report_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+    report_parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Compact report (core lines only)",
+    )
 
     # Default car
     default_parser = subparsers.add_parser("default-car", help="Set/show default vehicle name")
