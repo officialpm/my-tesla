@@ -85,7 +85,7 @@ python3 {baseDir}/scripts/tesla.py report --json               # sanitized repor
 python3 {baseDir}/scripts/tesla.py status --json               # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py report --json --raw-json    # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_data (may include location)
-python3 {baseDir}/scripts/tesla.py charge status --json
+python3 {baseDir}/scripts/tesla.py charge status --json   # includes usable battery + (when charging) power details (kW/V/A)
 
 # Lock / unlock
 python3 {baseDir}/scripts/tesla.py lock

@@ -872,6 +872,31 @@ def cmd_climate(args):
 
 
 
+def _charge_status_json(charge: dict) -> dict:
+    """Small, privacy-safe charging status object.
+
+    Intended for piping/parsing via `charge status --json`.
+    """
+    charge = charge or {}
+    return {
+        'battery_level': charge.get('battery_level'),
+        'battery_range': charge.get('battery_range'),
+        'usable_battery_level': charge.get('usable_battery_level'),
+        'charging_state': charge.get('charging_state'),
+        'charge_limit_soc': charge.get('charge_limit_soc'),
+        'time_to_full_charge': charge.get('time_to_full_charge'),
+        'charge_rate': charge.get('charge_rate'),
+        'charger_power': charge.get('charger_power'),
+        'charger_voltage': charge.get('charger_voltage'),
+        'charger_actual_current': charge.get('charger_actual_current'),
+        'scheduled_charging_start_time': charge.get('scheduled_charging_start_time'),
+        'scheduled_charging_mode': charge.get('scheduled_charging_mode'),
+        'scheduled_charging_pending': charge.get('scheduled_charging_pending'),
+        'charge_port_door_open': charge.get('charge_port_door_open'),
+        'conn_charge_cable': charge.get('conn_charge_cable'),
+    }
+
+
 def cmd_charge(args):
     """Control charging."""
     tesla = get_tesla(require_email(args))
@@ -891,28 +916,51 @@ def cmd_charge(args):
         if args.json:
             # Print *only* JSON (no extra human text) so it can be piped/parsed.
             # Keep it focused to avoid leaking unrelated vehicle details.
-            keys = [
-                'battery_level',
-                'battery_range',
-                'charging_state',
-                'charge_limit_soc',
-                'time_to_full_charge',
-                'charge_rate',
-                'scheduled_charging_start_time',
-                'scheduled_charging_mode',
-                'scheduled_charging_pending',
-            ]
-            out = {k: charge.get(k) for k in keys}
+            out = _charge_status_json(charge)
+            # Drop nulls for cleanliness.
+            out = {k: v for k, v in out.items() if v is not None}
             print(json.dumps(out, indent=2))
             return
 
         print(f"🔋 {vehicle['display_name']} Battery: {charge['battery_level']}%")
         print(f"   Range: {charge['battery_range']:.0f} mi")
+
+        usable = charge.get('usable_battery_level')
+        if usable is not None:
+            try:
+                print(f"   Usable: {int(usable)}%")
+            except Exception:
+                print(f"   Usable: {usable}%")
+
         print(f"   State: {charge['charging_state']}")
         print(f"   Limit: {charge['charge_limit_soc']}%")
+
+        cpd = charge.get('charge_port_door_open')
+        if cpd is not None:
+            print(f"   Charge port door: {_fmt_bool(cpd, 'Open', 'Closed')}")
+        cable = charge.get('conn_charge_cable')
+        if cable is not None:
+            print(f"   Charge cable: {cable}")
+
         if charge['charging_state'] == 'Charging':
-            print(f"   Time left: {charge['time_to_full_charge']:.1f} hrs")
-            print(f"   Rate: {charge['charge_rate']} mph")
+            if charge.get('time_to_full_charge') is not None:
+                print(f"   Time left: {charge['time_to_full_charge']:.1f} hrs")
+            if charge.get('charge_rate') is not None:
+                print(f"   Rate: {charge['charge_rate']} mph")
+
+            # Power details when available
+            p = charge.get('charger_power')
+            v = charge.get('charger_voltage')
+            a = charge.get('charger_actual_current')
+            bits = []
+            if p is not None:
+                bits.append(f"{p} kW")
+            if v is not None:
+                bits.append(f"{v}V")
+            if a is not None:
+                bits.append(f"{a}A")
+            if bits:
+                print(f"   Power: {' '.join(bits)}")
         return
 
     if args.action == 'start':

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.64 — 2026-01-29
+- Better UX: `charge status` now shows usable battery + (when charging) power details (kW/V/A) and charge port/cable state.
+- Reliability: add unit tests for charging status JSON helper.
+
 ## 0.1.63 — 2026-01-29
 - Better UX: show "Usable battery" (when available) in `report`, and include `usable_level_percent` in `summary --json`.
 - Reliability: add unit tests for usable battery formatting.
