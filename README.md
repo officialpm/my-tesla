@@ -131,6 +131,10 @@ python3 scripts/tesla.py scheduled-departure status
 python3 scripts/tesla.py scheduled-departure status --no-wake
 python3 scripts/tesla.py --json scheduled-departure status
 
+# Set/disable scheduled departure (requires --yes)
+python3 scripts/tesla.py scheduled-departure set 07:30 --yes
+python3 scripts/tesla.py scheduled-departure off --yes
+
 # Trunk / frunk
 python3 scripts/tesla.py trunk status trunk
 python3 scripts/tesla.py trunk status frunk --no-wake

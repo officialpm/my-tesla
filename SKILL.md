@@ -145,6 +145,10 @@ python3 {baseDir}/scripts/tesla.py scheduled-departure status
 python3 {baseDir}/scripts/tesla.py scheduled-departure status --no-wake
 python3 {baseDir}/scripts/tesla.py --json scheduled-departure status
 
+# Set/disable scheduled departure (requires --yes)
+python3 {baseDir}/scripts/tesla.py scheduled-departure set 07:30 --yes
+python3 {baseDir}/scripts/tesla.py scheduled-departure off --yes
+
 # Location (approx by default; use --yes for precise coordinates)
 python3 {baseDir}/scripts/tesla.py location
 python3 {baseDir}/scripts/tesla.py location --no-wake

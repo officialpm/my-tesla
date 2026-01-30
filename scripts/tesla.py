@@ -1548,36 +1548,67 @@ def _scheduled_departure_status_json(charge: dict) -> dict:
 
 
 def cmd_scheduled_departure(args):
-    """Get scheduled departure / off-peak charging / preconditioning status (read-only)."""
+    """Get/set scheduled departure / off-peak charging / preconditioning.
+
+    Mutations (set/off) require --yes.
+    """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
-    allow_wake = not getattr(args, 'no_wake', False)
+    # Read-only status can optionally skip waking the car.
+    allow_wake = True
+    if args.action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
-    charge = data.get('charge_state', {})
-    out = _scheduled_departure_status_json(charge)
+    if args.action == 'status':
+        data = fetch_vehicle_data(
+            vehicle,
+            retries=getattr(args, 'retries', 2),
+            retry_delay_s=getattr(args, 'retry_delay', 0.5),
+        )
+        charge = data.get('charge_state', {})
+        out = _scheduled_departure_status_json(charge)
 
-    if getattr(args, 'json', False):
-        print(json.dumps(out, indent=2))
+        if getattr(args, 'json', False):
+            print(json.dumps(out, indent=2))
+            return
+
+        print(f"🚗 {vehicle['display_name']}")
+        if out.get('scheduled_departure_enabled') is not None:
+            print(f"Scheduled departure: {_fmt_bool(out.get('scheduled_departure_enabled'), 'On', 'Off')}")
+        else:
+            print("Scheduled departure: (unknown)")
+
+        hhmm = out.get('scheduled_departure_time_hhmm')
+        if hhmm:
+            print(f"Departure time: {hhmm}")
+
+        if out.get('preconditioning_enabled') is not None:
+            print(f"Preconditioning: {_fmt_bool(out.get('preconditioning_enabled'), 'On', 'Off')}")
+
+        if out.get('off_peak_charging_enabled') is not None:
+            print(f"Off-peak charging: {_fmt_bool(out.get('off_peak_charging_enabled'), 'On', 'Off')}")
         return
 
-    print(f"🚗 {vehicle['display_name']}")
-    if out.get('scheduled_departure_enabled') is not None:
-        print(f"Scheduled departure: {_fmt_bool(out.get('scheduled_departure_enabled'), 'On', 'Off')}")
-    else:
-        print("Scheduled departure: (unknown)")
+    # Mutating actions
+    require_yes(args, 'scheduled-departure')
 
-    hhmm = out.get('scheduled_departure_time_hhmm')
-    if hhmm:
-        print(f"Departure time: {hhmm}")
+    if args.action == 'off':
+        vehicle.command('SCHEDULED_DEPARTURE', enable=False, departure_time=0)
+        print(f"⏱️ {vehicle['display_name']} scheduled departure disabled")
+        return
 
-    if out.get('preconditioning_enabled') is not None:
-        print(f"Preconditioning: {_fmt_bool(out.get('preconditioning_enabled'), 'On', 'Off')}")
+    if args.action == 'set':
+        if not getattr(args, 'time', None):
+            raise ValueError("Missing time. Usage: scheduled-departure set <time>")
+        minutes = _parse_hhmm(args.time)
+        vehicle.command('SCHEDULED_DEPARTURE', enable=True, departure_time=minutes)
+        print(f"⏱️ {vehicle['display_name']} scheduled departure set to {_fmt_minutes_hhmm(minutes)}")
+        return
 
-    if out.get('off_peak_charging_enabled') is not None:
-        print(f"Off-peak charging: {_fmt_bool(out.get('off_peak_charging_enabled'), 'On', 'Off')}")
+    raise ValueError(f"Unknown action: {args.action}")
 
 
 def _round_coord(x, digits: int = 2):
@@ -2803,7 +2834,7 @@ def main():
         help=(
             "Safety confirmation for sensitive/disruptive actions "
             "(unlock/charge start|stop|limit|amps/trunk/windows/seats set|all|off/honk/flash/charge-port open|close/"
-            "scheduled-charging set|off/sentry on|off/location precise/wake)"
+            "scheduled-charging set|off/scheduled-departure set|off/sentry on|off/location precise/wake)"
         ),
     )
 
@@ -2927,13 +2958,21 @@ def main():
     )
     sched_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
-    # Scheduled departure (read-only)
+    # Scheduled departure
     dep_parser = subparsers.add_parser(
         "scheduled-departure",
-        help="Scheduled departure / preconditioning / off-peak charging status (read-only)",
+        help="Scheduled departure / preconditioning / off-peak charging (set/off requires --yes)",
     )
-    dep_parser.add_argument("action", choices=["status"], help="status")
-    dep_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+    dep_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
+    dep_parser.add_argument(
+        "time",
+        nargs="?",
+        help=(
+            "Departure time for 'set' as HH:MM (24-hour), HHMM/HMM digits, hour-only (H/HH), or 12-hour with am/pm "
+            "(e.g., 07:30, 730, 7, 7:30am)"
+        ),
+    )
+    dep_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Location
     location_parser = subparsers.add_parser(
