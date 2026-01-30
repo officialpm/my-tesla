@@ -113,6 +113,12 @@ python3 {baseDir}/scripts/tesla.py scheduled-charging status --no-wake
 python3 {baseDir}/scripts/tesla.py scheduled-charging set 23:30 --yes
 python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
 
+# Scheduled departure (read-only)
+# Shows scheduled departure, preconditioning, and off-peak charging flags (when the vehicle reports them).
+python3 {baseDir}/scripts/tesla.py scheduled-departure status
+python3 {baseDir}/scripts/tesla.py scheduled-departure status --no-wake
+python3 {baseDir}/scripts/tesla.py --json scheduled-departure status
+
 # Location (approx by default; use --yes for precise coordinates)
 python3 {baseDir}/scripts/tesla.py location
 python3 {baseDir}/scripts/tesla.py location --no-wake

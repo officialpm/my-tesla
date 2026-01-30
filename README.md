@@ -99,6 +99,11 @@ python3 scripts/tesla.py scheduled-charging status
 python3 scripts/tesla.py scheduled-charging set 23:30 --yes
 python3 scripts/tesla.py scheduled-charging off --yes
 
+# Scheduled departure (read-only)
+python3 scripts/tesla.py scheduled-departure status
+python3 scripts/tesla.py scheduled-departure status --no-wake
+python3 scripts/tesla.py --json scheduled-departure status
+
 # Trunk / frunk (safety gated)
 python3 scripts/tesla.py trunk trunk --yes
 python3 scripts/tesla.py trunk frunk --yes

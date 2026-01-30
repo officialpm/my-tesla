@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.62 — 2026-01-29
+- Better UX: add `scheduled-departure status` (read-only) for scheduled departure / preconditioning / off-peak charging.
+- Reliability: add unit tests for scheduled-departure JSON formatting.
+
 ## 0.1.61 — 2026-01-29
 - Better UX: `mileage export` now supports time-window filtering via `--since-days` or `--since-ts`.
 - Reliability: add unit tests for mileage export filtering helpers.

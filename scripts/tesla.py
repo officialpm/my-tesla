@@ -1012,6 +1012,51 @@ def cmd_scheduled_charging(args):
     raise ValueError(f"Unknown action: {args.action}")
 
 
+def _scheduled_departure_status_json(charge: dict) -> dict:
+    """Small, privacy-safe scheduled departure status object."""
+    charge = charge or {}
+    return {
+        'scheduled_departure_enabled': charge.get('scheduled_departure_enabled'),
+        'scheduled_departure_time': charge.get('scheduled_departure_time'),
+        'scheduled_departure_time_hhmm': _fmt_minutes_hhmm(charge.get('scheduled_departure_time')),
+        'preconditioning_enabled': charge.get('preconditioning_enabled'),
+        'off_peak_charging_enabled': charge.get('off_peak_charging_enabled'),
+    }
+
+
+def cmd_scheduled_departure(args):
+    """Get scheduled departure / off-peak charging / preconditioning status (read-only)."""
+    tesla = get_tesla(require_email(args))
+    vehicle = get_vehicle(tesla, args.car)
+
+    allow_wake = not getattr(args, 'no_wake', False)
+    _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+
+    data = vehicle.get_vehicle_data()
+    charge = data.get('charge_state', {})
+    out = _scheduled_departure_status_json(charge)
+
+    if getattr(args, 'json', False):
+        print(json.dumps(out, indent=2))
+        return
+
+    print(f"🚗 {vehicle['display_name']}")
+    if out.get('scheduled_departure_enabled') is not None:
+        print(f"Scheduled departure: {_fmt_bool(out.get('scheduled_departure_enabled'), 'On', 'Off')}")
+    else:
+        print("Scheduled departure: (unknown)")
+
+    hhmm = out.get('scheduled_departure_time_hhmm')
+    if hhmm:
+        print(f"Departure time: {hhmm}")
+
+    if out.get('preconditioning_enabled') is not None:
+        print(f"Preconditioning: {_fmt_bool(out.get('preconditioning_enabled'), 'On', 'Off')}")
+
+    if out.get('off_peak_charging_enabled') is not None:
+        print(f"Off-peak charging: {_fmt_bool(out.get('off_peak_charging_enabled'), 'On', 'Off')}")
+
+
 def _round_coord(x, digits: int = 2):
     """Round a coordinate for safer display.
 
@@ -2084,6 +2129,14 @@ def main():
     sched_parser.add_argument("time", nargs="?", help="Start time for 'set' as HH:MM (24-hour)")
     sched_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
+    # Scheduled departure (read-only)
+    dep_parser = subparsers.add_parser(
+        "scheduled-departure",
+        help="Scheduled departure / preconditioning / off-peak charging status (read-only)",
+    )
+    dep_parser.add_argument("action", choices=["status"], help="status")
+    dep_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+
     # Location
     location_parser = subparsers.add_parser(
         "location",
@@ -2165,6 +2218,7 @@ def main():
         "climate": cmd_climate,
         "charge": cmd_charge,
         "scheduled-charging": cmd_scheduled_charging,
+        "scheduled-departure": cmd_scheduled_departure,
         "location": cmd_location,
         "tires": cmd_tires,
         "openings": cmd_openings,
