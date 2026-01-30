@@ -27,6 +27,7 @@ class TestChargeStatusJson(unittest.TestCase):
 
         # Sanity checks: key presence and values pass through.
         self.assertEqual(out.get('battery_level'), 55)
+        self.assertAlmostEqual(out.get('battery_range_km'), 123.4 * 1.609344, places=3)
         self.assertEqual(out.get('usable_battery_level'), 52)
         self.assertEqual(out.get('charger_power'), 7)
         self.assertEqual(out.get('charger_voltage'), 240)

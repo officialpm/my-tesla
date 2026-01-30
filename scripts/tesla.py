@@ -415,6 +415,7 @@ def _summary_json(vehicle, data: dict, metric: bool = False) -> dict:
         "battery": {
             "level_percent": charge.get("battery_level"),
             "range_mi": charge.get("battery_range"),
+        "range_km": _mi_to_km(charge.get("battery_range")) if charge.get("battery_range") is not None else None,
             "usable_level_percent": charge.get("usable_battery_level"),
         },
         "charging": {
@@ -826,6 +827,7 @@ def _report_json(vehicle, data: dict) -> dict:
         "battery": {
             "level_percent": charge.get('battery_level'),
             "range_mi": charge.get('battery_range'),
+            "range_km": _mi_to_km(charge.get('battery_range')) if charge.get('battery_range') is not None else None,
             "usable_battery_level_percent": charge.get('usable_battery_level'),
         },
         "charging": {
@@ -875,6 +877,7 @@ def _report_json(vehicle, data: dict) -> dict:
             "pressure_rr": vs.get('tpms_pressure_rr'),
         },
         "odometer_mi": vs.get('odometer'),
+        "odometer_km": _mi_to_km(vs.get('odometer')) if vs.get('odometer') is not None else None,
     }
 
     # Drop empty nested dicts for cleaner output.
@@ -1235,6 +1238,7 @@ def _charge_status_json(charge: dict) -> dict:
     return {
         'battery_level': charge.get('battery_level'),
         'battery_range': charge.get('battery_range'),
+        'battery_range_km': _mi_to_km(charge.get('battery_range')) if charge.get('battery_range') is not None else None,
         'usable_battery_level': charge.get('usable_battery_level'),
         'charging_state': charge.get('charging_state'),
         'charge_limit_soc': charge.get('charge_limit_soc'),

@@ -61,6 +61,8 @@ class ReportJsonTests(unittest.TestCase):
 
         # Expected useful bits
         self.assertEqual(out["battery"]["level_percent"], 80)
+        self.assertAlmostEqual(out["battery"]["range_km"], 250.2 * 1.609344, places=3)
+        self.assertAlmostEqual(out["odometer_km"], 12345.6 * 1.609344, places=3)
         self.assertEqual(out["charging"]["charging_state"], "Charging")
         self.assertEqual(out["charging"]["charge_port_door_open"], True)
         self.assertEqual(out["charging"]["conn_charge_cable"], "SAE")

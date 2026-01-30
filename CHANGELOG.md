@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.94 — 2026-01-30
+- Better UX: add `*_km` fields to sanitized JSON outputs (e.g., `battery.range_km`, `odometer_km`, `battery_range_km`) alongside existing miles.
+
 ## 0.1.93 — 2026-01-30
 - Better UX: `charge status` now shows scheduled charging state/time (when the vehicle reports it).
 - Reliability: add unit test coverage for the new human output.
