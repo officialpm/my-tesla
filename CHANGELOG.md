@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.72 — 2026-01-29
+- Better UX: when actively charging, `report` now shows an estimated finish time ("full at HH:MM") when Tesla provides `minutes_to_full_charge`.
+- Better UX: `report --json` now includes `charging.full_at_local_hhmm` (derived from `minutes_to_full_charge`).
+- Reliability: add unit tests for the new time helper.
+
 ## 0.1.71 — 2026-01-29
 - Docs: document CLI exit codes for easier automation; remove a duplicated `seats status` snippet.
 

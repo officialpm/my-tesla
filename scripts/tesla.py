@@ -448,6 +448,29 @@ def _fmt_minutes_hhmm(minutes):
     return f"{hh:02d}:{mm:02d}"
 
 
+def _fmt_local_hhmm_from_now(minutes_from_now, now=None):
+    """Format a minutes-from-now duration as a local HH:MM clock time.
+
+    Used for UX niceties like "full at 21:10".
+
+    Args:
+        minutes_from_now: int-like minutes into the future (>=0)
+        now: optional datetime for testability
+    """
+    try:
+        m = int(minutes_from_now)
+    except Exception:
+        return None
+    if m < 0:
+        return None
+
+    import datetime as _dt
+
+    base = now or _dt.datetime.now()
+    t = base + _dt.timedelta(minutes=m)
+    return t.strftime('%H:%M')
+
+
 def _report(vehicle, data):
     """One-screen status report (safe for chat)."""
     charge = data.get('charge_state', {})
@@ -492,9 +515,29 @@ def _report(vehicle, data):
         if limit is not None:
             extra.append(f"limit {limit}%")
         if charging_state == 'Charging':
-            ttf = charge.get('time_to_full_charge')
-            if ttf is not None:
-                extra.append(f"{ttf:.1f}h to full")
+            # Prefer minutes_to_full_charge when available; it's more precise and
+            # lets us compute a user-friendly finish time.
+            mins = charge.get('minutes_to_full_charge')
+            if mins is not None:
+                try:
+                    m = int(mins)
+                    if m >= 0:
+                        hh = m // 60
+                        mm = m % 60
+                        if hh > 0:
+                            extra.append(f"{hh}h {mm}m to full")
+                        else:
+                            extra.append(f"{mm}m to full")
+                        full_at = _fmt_local_hhmm_from_now(m)
+                        if full_at:
+                            extra.append(f"full at {full_at}")
+                except Exception:
+                    pass
+            else:
+                ttf = charge.get('time_to_full_charge')
+                if ttf is not None:
+                    extra.append(f"{ttf:.1f}h to full")
+
             rate = charge.get('charge_rate')
             if rate is not None:
                 extra.append(f"{rate} mph")
@@ -627,6 +670,7 @@ def _report_json(vehicle, data: dict) -> dict:
             "charging_state": charge.get('charging_state'),
             "charge_limit_percent": charge.get('charge_limit_soc'),
             "minutes_to_full_charge": charge.get('minutes_to_full_charge'),
+            "full_at_local_hhmm": _fmt_local_hhmm_from_now(charge.get('minutes_to_full_charge')),
             "time_to_full_charge_hours": charge.get('time_to_full_charge'),
             "charge_rate_mph": charge.get('charge_rate'),
             "charger_power_kw": charge.get('charger_power'),

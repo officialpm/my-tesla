@@ -74,6 +74,7 @@ python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_dat
 # Also includes a quick openings summary (doors/trunk/frunk/windows) when available.
 # When available, includes a compact seat heater summary line.
 # When actively charging, also shows charging power details when available (kW / V / A).
+# When Tesla provides it, also shows an estimated finish time ("full at HH:MM").
 # When the vehicle reports it, includes fast-charger info (e.g., Supercharger/CCS).
 # When the vehicle reports it, includes scheduled departure / preconditioning / off-peak charging status.
 python3 {baseDir}/scripts/tesla.py report

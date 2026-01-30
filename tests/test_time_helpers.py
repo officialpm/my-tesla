@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.tesla import _fmt_minutes_hhmm, _parse_hhmm
+from scripts.tesla import _fmt_local_hhmm_from_now, _fmt_minutes_hhmm, _parse_hhmm
 
 
 class TestTimeHelpers(unittest.TestCase):
@@ -45,6 +45,20 @@ class TestTimeHelpers(unittest.TestCase):
         for bad in ["24:00", "00:60", "-1:00", "ab:cd", "123"]:
             with self.assertRaises(Exception):
                 _parse_hhmm(bad)
+
+    def test_fmt_local_hhmm_from_now(self):
+        import datetime as dt
+
+        base = dt.datetime(2026, 1, 1, 20, 0, 0)
+        self.assertEqual(_fmt_local_hhmm_from_now(0, now=base), "20:00")
+        self.assertEqual(_fmt_local_hhmm_from_now(15, now=base), "20:15")
+        self.assertEqual(_fmt_local_hhmm_from_now(60, now=base), "21:00")
+        self.assertEqual(_fmt_local_hhmm_from_now(2 * 60 + 5, now=base), "22:05")
+
+    def test_fmt_local_hhmm_from_now_invalid(self):
+        self.assertIsNone(_fmt_local_hhmm_from_now(-1))
+        self.assertIsNone(_fmt_local_hhmm_from_now(None))
+        self.assertIsNone(_fmt_local_hhmm_from_now(""))
 
 
 if __name__ == "__main__":
