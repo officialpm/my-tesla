@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.92 — 2026-01-30
+- Better UX: `climate status` now shows defrost/preconditioning flags (front/rear defroster, defrost mode, preconditioning) when the vehicle reports them.
+- Reliability: add unit tests for the new climate-status fields.
+
 ## 0.1.91 — 2026-01-30
 - Better UX/privacy: add `status --json --safe-json` to emit a sanitized summary object (no location/drive_state) instead of raw `vehicle_data`.
 - Reliability: add unit test coverage for the new `--safe-json` path.

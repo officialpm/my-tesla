@@ -110,6 +110,7 @@ python3 {baseDir}/scripts/tesla.py unlock --yes
 python3 {baseDir}/scripts/tesla.py unlock --yes --no-wake
 
 # Climate (status is read-only)
+# Output includes defrost/preconditioning flags when the vehicle reports them.
 python3 {baseDir}/scripts/tesla.py climate status
 python3 {baseDir}/scripts/tesla.py climate status --no-wake
 python3 {baseDir}/scripts/tesla.py climate on

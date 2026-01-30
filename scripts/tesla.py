@@ -1139,6 +1139,11 @@ def cmd_climate(args):
             'outside_temp_c': climate.get('outside_temp'),
             'driver_temp_setting_c': climate.get('driver_temp_setting'),
             'passenger_temp_setting_c': climate.get('passenger_temp_setting'),
+            # Defrost / preconditioning-related flags (read-only)
+            'is_preconditioning': climate.get('is_preconditioning'),
+            'defrost_mode': climate.get('defrost_mode'),
+            'is_front_defroster_on': climate.get('is_front_defroster_on'),
+            'is_rear_defroster_on': climate.get('is_rear_defroster_on'),
         }
 
         if args.json:
@@ -1154,6 +1159,24 @@ def cmd_climate(args):
             print(f"Inside: {inside}")
         if outside:
             print(f"Outside: {outside}")
+
+        # Defrost / preconditioning flags (read-only)
+        precond = climate.get('is_preconditioning')
+        front_def = climate.get('is_front_defroster_on')
+        rear_def = climate.get('is_rear_defroster_on')
+        def_mode = climate.get('defrost_mode')
+        if precond is not None or front_def is not None or rear_def is not None or def_mode is not None:
+            bits = []
+            if front_def is not None:
+                bits.append(f"front {_fmt_bool(front_def, 'On', 'Off')}")
+            if rear_def is not None:
+                bits.append(f"rear {_fmt_bool(rear_def, 'On', 'Off')}")
+            if def_mode is not None:
+                bits.append(f"mode {def_mode}")
+            if precond is not None:
+                bits.append(f"preconditioning {_fmt_bool(precond, 'On', 'Off')}")
+            if bits:
+                print(f"Defrost: {' | '.join(bits)}")
 
         driver = _fmt_temp_pair(climate.get('driver_temp_setting'))
         passenger = _fmt_temp_pair(climate.get('passenger_temp_setting'))

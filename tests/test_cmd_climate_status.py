@@ -46,6 +46,10 @@ class CmdClimateStatusTests(unittest.TestCase):
                 "outside_temp": 10,
                 "driver_temp_setting": 21,
                 "passenger_temp_setting": 21,
+                "is_preconditioning": True,
+                "is_front_defroster_on": True,
+                "is_rear_defroster_on": False,
+                "defrost_mode": 2,
             }
         }
         vehicle = DummyVehicle(data=data)
@@ -69,10 +73,14 @@ class CmdClimateStatusTests(unittest.TestCase):
         self.assertIn("Climate: Off", out)
         self.assertIn("Inside:", out)
         self.assertIn("Outside:", out)
+        self.assertIn("Defrost:", out)
+        self.assertIn("front On", out)
+        self.assertIn("rear Off", out)
+        self.assertIn("preconditioning On", out)
         self.assertIn("Setpoint:", out)
 
     def test_climate_status_json_is_json_only(self):
-        data = {"climate_state": {"is_climate_on": True, "inside_temp": 20}}
+        data = {"climate_state": {"is_climate_on": True, "inside_temp": 20, "is_front_defroster_on": True}}
         vehicle = DummyVehicle(data=data)
 
         args = mock.Mock()
@@ -93,6 +101,7 @@ class CmdClimateStatusTests(unittest.TestCase):
         # Should be valid JSON (starts with '{') with no extra human text.
         self.assertTrue(out.startswith("{"))
         self.assertIn('"inside_temp_c"', out)
+        self.assertIn('"is_front_defroster_on"', out)
 
 
 if __name__ == "__main__":
