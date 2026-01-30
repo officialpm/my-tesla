@@ -1156,6 +1156,12 @@ def cmd_report(args):
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
 
+    # UX: allow `report --one-line` as a convenient alias for `summary`.
+    # (Ignored when --json is requested.)
+    if getattr(args, 'one_line', False) and not getattr(args, 'json', False):
+        print(_short_status(vehicle, data, metric=(getattr(args, 'metric', False) is True)))
+        return
+
     if args.json:
         # Default JSON output is a structured, sanitized report object.
         # Use --raw-json if you explicitly want the full vehicle_data payload
@@ -3175,6 +3181,11 @@ def main():
     # Report (one-screen)
     report_parser = subparsers.add_parser("report", help="One-screen status report")
     report_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+    report_parser.add_argument(
+        "--one-line",
+        action="store_true",
+        help="Print a single-line summary (same as `summary`, but keeps the report command)",
+    )
     report_parser.add_argument(
         "--compact",
         action="store_true",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.113 — 2026-01-30
+- Better UX: add `report --one-line` as a convenient alias for the `summary` output.
+- Reliability: add a unit test to lock in the new `report --one-line` behavior.
+
 ## 0.1.112 — 2026-01-30
 - Better UX: `report` now shows how old the snapshot is (e.g., `Updated: 2026-01-30 14:31 (9m ago)`).
 - Reliability: add unit tests for the new timestamp age formatting helper.
