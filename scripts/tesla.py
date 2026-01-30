@@ -2424,6 +2424,11 @@ def main():
     parser.add_argument(
         "--raw-json",
         action="store_true",
+        help="(with --json) Output raw Tesla vehicle_data (may include location). Use with care.",
+    )
+    parser.add_argument(
+        "--raw-json",
+        action="store_true",
         help=(
             "When used with --json on supported commands, output raw vehicle_data (may include location). "
             "Default JSON output is sanitized/summary for safety."

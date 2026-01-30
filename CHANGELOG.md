@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.82 — 2026-01-30
+- Bugfix/UX: wire up the documented `--raw-json` flag so `report --json --raw-json` / `summary --json --raw-json` actually emit the full raw `vehicle_data` payload (may include location).
+
 ## 0.1.81 — 2026-01-30
 - Better UX: add global `--metric` flag to show distances in kilometers for human-readable outputs (summary/report/status/charge status).
 - Reliability: add unit tests for the new metric output formatting.
