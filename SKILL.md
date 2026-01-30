@@ -164,9 +164,14 @@ python3 {baseDir}/scripts/tesla.py openings
 python3 {baseDir}/scripts/tesla.py openings --no-wake
 python3 {baseDir}/scripts/tesla.py openings --json
 
-# Trunk / frunk (safety gated)
-python3 {baseDir}/scripts/tesla.py trunk trunk --yes
-python3 {baseDir}/scripts/tesla.py trunk frunk --yes
+# Trunk / frunk
+python3 {baseDir}/scripts/tesla.py trunk status trunk
+python3 {baseDir}/scripts/tesla.py trunk status frunk --no-wake
+python3 {baseDir}/scripts/tesla.py trunk open trunk  --yes
+python3 {baseDir}/scripts/tesla.py trunk close trunk --yes
+python3 {baseDir}/scripts/tesla.py trunk toggle frunk --yes
+# Note: open/close use a toggle endpoint under the hood; if state can't be determined,
+# the command refuses unless you add --force (to avoid accidental toggles).
 
 # Windows
 python3 {baseDir}/scripts/tesla.py windows status

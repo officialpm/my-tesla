@@ -131,9 +131,12 @@ python3 scripts/tesla.py scheduled-departure status
 python3 scripts/tesla.py scheduled-departure status --no-wake
 python3 scripts/tesla.py --json scheduled-departure status
 
-# Trunk / frunk (safety gated)
-python3 scripts/tesla.py trunk trunk --yes
-python3 scripts/tesla.py trunk frunk --yes
+# Trunk / frunk
+python3 scripts/tesla.py trunk status trunk
+python3 scripts/tesla.py trunk status frunk --no-wake
+python3 scripts/tesla.py trunk open trunk  --yes
+python3 scripts/tesla.py trunk close trunk --yes
+python3 scripts/tesla.py trunk toggle frunk --yes
 
 # Windows
 python3 scripts/tesla.py windows status

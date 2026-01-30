@@ -1811,17 +1811,99 @@ def cmd_openings(args):
     _section('Windows', out.get('windows'))
 
 
+def _is_trunk_open_from_vehicle_state(vs: dict, which: str):
+    """Return True/False if trunk state is known, else None.
+
+    Args:
+        which: "trunk" or "frunk"
+    """
+    if not isinstance(vs, dict):
+        return None
+
+    key = 'rt' if which == 'trunk' else 'ft'
+    raw = vs.get(key)
+    if raw is None:
+        return None
+    return _fmt_open(raw) == 'Open'
+
+
 def cmd_trunk(args):
-    """Toggle frunk/trunk (requires --yes)."""
-    require_yes(args, 'trunk')
+    """Trunk/frunk status + open/close/toggle.
+
+    Mutations require --yes.
+
+    Safety notes:
+    - Tesla's ACTUATE_TRUNK is effectively a toggle.
+    - For open/close, we first check current state. If state is unknown, we
+      refuse unless --force is provided to avoid accidental toggles.
+    """
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
+
+    action = getattr(args, 'action', 'toggle')
+    which_ui = getattr(args, 'which', 'trunk') or 'trunk'
+    if which_ui not in ('trunk', 'frunk'):
+        raise ValueError("Invalid which. Expected 'trunk' or 'frunk'")
+
+    which_api = 'front' if which_ui == 'frunk' else 'rear'
+    label = 'Frunk' if which_api == 'front' else 'Trunk'
+
+    # Read-only status
+    if action == 'status':
+        allow_wake = not getattr(args, 'no_wake', False)
+        _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
+        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        vs = data.get('vehicle_state', {})
+        is_open = _is_trunk_open_from_vehicle_state(vs, which_ui)
+
+        if getattr(args, 'json', False):
+            print(json.dumps({
+                'which': which_ui,
+                'state': None if is_open is None else ('open' if is_open else 'closed'),
+            }, indent=2))
+            return
+
+        print(f"🚗 {vehicle['display_name']}")
+        if is_open is None:
+            print(f"{label}: (unavailable)")
+        else:
+            print(f"{label}: {'Open' if is_open else 'Closed'}")
+        return
+
+    # Mutating actions
+    require_yes(args, 'trunk')
     wake_vehicle(vehicle)
 
-    which = 'front' if args.which == 'frunk' else 'rear'
-    vehicle.command('ACTUATE_TRUNK', which_trunk=which)
-    label = 'Frunk' if which == 'front' else 'Trunk'
-    print(f"🧳 {vehicle['display_name']} {label} toggled")
+    desired = None
+    if action == 'open':
+        desired = True
+    elif action == 'close':
+        desired = False
+    elif action == 'toggle':
+        desired = None
+    else:
+        raise ValueError(f"Unknown action: {action}")
+
+    # For open/close, attempt to avoid accidental toggles.
+    if desired is not None:
+        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        is_open = _is_trunk_open_from_vehicle_state(data.get('vehicle_state', {}), which_ui)
+
+        if is_open is None and not getattr(args, 'force', False):
+            raise ValueError(
+                f"Cannot determine current {which_ui} state. Refusing to '{action}' because Tesla uses a toggle endpoint. "
+                "Re-run with --force if you're sure."
+            )
+
+        if is_open is not None and is_open == desired:
+            print(f"🧳 {vehicle['display_name']} {label} already {'open' if desired else 'closed'}")
+            return
+
+    vehicle.command('ACTUATE_TRUNK', which_trunk=which_api)
+    if action == 'toggle':
+        print(f"🧳 {vehicle['display_name']} {label} toggled")
+    else:
+        print(f"🧳 {vehicle['display_name']} {label} {action} requested")
 
 
 def cmd_windows(args):
@@ -2875,8 +2957,33 @@ def main():
     openings_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
 
     # Trunk / frunk
-    trunk_parser = subparsers.add_parser("trunk", help="Toggle trunk/frunk (requires --yes)")
-    trunk_parser.add_argument("which", choices=["trunk", "frunk"], help="Which to actuate")
+    trunk_parser = subparsers.add_parser(
+        "trunk",
+        help="Trunk/frunk status or open/close/toggle (mutations require --yes)",
+    )
+    trunk_parser.add_argument(
+        "action",
+        choices=["status", "open", "close", "toggle"],
+        help="status|open|close|toggle",
+    )
+    trunk_parser.add_argument(
+        "which",
+        nargs="?",
+        default="trunk",
+        choices=["trunk", "frunk"],
+        help="Which to control (default: trunk)",
+    )
+    trunk_parser.add_argument(
+        "--no-wake",
+        action="store_true",
+        help="(status only) Do not wake the car (fails if asleep)",
+    )
+    trunk_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
+    trunk_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="For open/close: force toggle even if current state can't be determined",
+    )
 
     # Windows
     windows_parser = subparsers.add_parser("windows", help="Windows status (read-only) or vent/close (requires --yes)")

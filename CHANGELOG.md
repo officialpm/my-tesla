@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.99 — 2026-01-30
+- Better UX/safety: expand `trunk` into `trunk status|open|close|toggle` with a state check for open/close; adds `--force` to override when state is unknown.
+- Reliability: add unit tests for the new `trunk` behaviors.
+
 ## 0.1.98 — 2026-01-30
 - Better UX: add `seats all <level> --yes` to set ALL seat heaters to a given level (0–3) in one shot.
 - Reliability: add unit tests for the new `seats all` behavior.
