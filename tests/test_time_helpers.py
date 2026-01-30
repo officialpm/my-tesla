@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.tesla import _fmt_local_hhmm_from_now, _fmt_minutes_hhmm, _parse_hhmm
+from scripts.tesla import _fmt_local_hhmm_from_now, _fmt_local_timestamp_ms, _fmt_minutes_hhmm, _parse_hhmm
 
 
 class TestTimeHelpers(unittest.TestCase):
@@ -64,6 +64,19 @@ class TestTimeHelpers(unittest.TestCase):
         self.assertIsNone(_fmt_local_hhmm_from_now(-1))
         self.assertIsNone(_fmt_local_hhmm_from_now(None))
         self.assertIsNone(_fmt_local_hhmm_from_now(""))
+
+    def test_fmt_local_timestamp_ms_utc(self):
+        import datetime as dt
+
+        # 2026-01-01 00:00:00 UTC
+        ts_ms = int(dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc).timestamp() * 1000)
+        self.assertEqual(_fmt_local_timestamp_ms(ts_ms, tz=dt.timezone.utc), "2026-01-01 00:00")
+
+    def test_fmt_local_timestamp_ms_invalid(self):
+        self.assertIsNone(_fmt_local_timestamp_ms(None))
+        self.assertIsNone(_fmt_local_timestamp_ms(""))
+        self.assertIsNone(_fmt_local_timestamp_ms(-1))
+        self.assertIsNone(_fmt_local_timestamp_ms(0))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.79 — 2026-01-29
+- Reliability: add unit tests for `_fmt_local_timestamp_ms` (used by `report` to show "Updated" time) to prevent regressions.
+
 ## 0.1.78 — 2026-01-29
 - Reliability/privacy: write `~/.my_tesla.json` atomically (prevents partial/corrupt JSON) and keep it private (0600) without a brief world-readable window.
 - Reliability: expand unit tests for defaults file permissions + newline/JSON validity.
