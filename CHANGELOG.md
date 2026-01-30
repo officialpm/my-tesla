@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.83 — 2026-01-30
+- Bugfix: fix a CLI startup error caused by defining `--raw-json` twice (argparse conflict). The flag is now defined once with clear help text.
+
 ## 0.1.82 — 2026-01-30
 - Bugfix/UX: wire up the documented `--raw-json` flag so `report --json --raw-json` / `summary --json --raw-json` actually emit the full raw `vehicle_data` payload (may include location).
 
