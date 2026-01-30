@@ -73,6 +73,8 @@ python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_dat
 # Includes "Usable battery" when the vehicle reports it (helpful for health/degradation).
 # Also includes a quick openings summary (doors/trunk/frunk/windows) when available.
 # When available, includes a compact seat heater summary line.
+# When actively charging, also shows charging power details when available (kW / V / A).
+# When the vehicle reports it, includes fast-charger info (e.g., Supercharger/CCS).
 # When the vehicle reports it, includes scheduled departure / preconditioning / off-peak charging status.
 python3 {baseDir}/scripts/tesla.py report
 python3 {baseDir}/scripts/tesla.py report --no-wake

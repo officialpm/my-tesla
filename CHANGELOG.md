@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.68 — 2026-01-29
+- Better UX: `report` now includes fast-charger info (e.g., Supercharger/CCS) when the vehicle reports it.
+- Reliability: add unit test coverage for the new sanitized report JSON fields.
+
 ## 0.1.67 — 2026-01-29
 - Docs: add explicit usage examples for `honk` and `flash` (both safety gated).
 

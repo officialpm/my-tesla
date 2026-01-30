@@ -525,6 +525,18 @@ def _report(vehicle, data):
     if cable is not None:
         lines.append(f"Charge cable: {cable}")
 
+    # Fast charger info (Supercharger/CCS) when present.
+    fast = charge.get('fast_charger_present')
+    ftype = charge.get('fast_charger_type')
+    if fast is not None or ftype is not None:
+        bits = []
+        if fast is not None:
+            bits.append('Yes' if fast else 'No')
+        if isinstance(ftype, str) and ftype.strip():
+            bits.append(ftype.strip())
+        if bits:
+            lines.append(f"Fast charger: {' '.join(bits)}")
+
     sched_time = charge.get('scheduled_charging_start_time')
     sched_mode = charge.get('scheduled_charging_mode')
     sched_pending = charge.get('scheduled_charging_pending')
@@ -625,6 +637,8 @@ def _report_json(vehicle, data: dict) -> dict:
             "charging_amps": charge.get('charging_amps'),
             "charge_port_door_open": charge.get('charge_port_door_open'),
             "conn_charge_cable": charge.get('conn_charge_cable'),
+            "fast_charger_present": charge.get('fast_charger_present'),
+            "fast_charger_type": charge.get('fast_charger_type'),
         },
         "scheduled_charging": {
             "mode": charge.get('scheduled_charging_mode'),
