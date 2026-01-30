@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.91 — 2026-01-30
+- Better UX/privacy: add `status --json --safe-json` to emit a sanitized summary object (no location/drive_state) instead of raw `vehicle_data`.
+- Reliability: add unit test coverage for the new `--safe-json` path.
+
 ## 0.1.90 — 2026-01-30
 - Better UX: add `report --compact` to print a shorter one-screen report (core lines only).
 - Reliability: add a unit test to lock in the compact report behavior.

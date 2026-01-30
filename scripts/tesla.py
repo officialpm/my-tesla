@@ -1028,7 +1028,13 @@ def cmd_status(args):
     # When --json is requested, print *only* JSON (no extra human text), so it can
     # be reliably piped/parsed.
     if args.json:
-        print(json.dumps(data, indent=2))
+        # `status --json` historically emitted the raw `vehicle_data` payload.
+        # That's still available, but `--safe-json` provides a privacy-safe option
+        # that avoids location/drive_state surprises.
+        if getattr(args, 'safe_json', False):
+            print(json.dumps(_summary_json(vehicle, data, metric=(getattr(args, 'metric', False) is True)), indent=2))
+        else:
+            print(json.dumps(data, indent=2))
         return
 
     charge = data.get('charge_state', {})
@@ -2645,6 +2651,11 @@ def main():
     status_parser = subparsers.add_parser("status", help="Get vehicle status")
     status_parser.add_argument("--summary", action="store_true", help="Also print a one-line summary")
     status_parser.add_argument("--no-wake", action="store_true", help="Do not wake the car (fails if asleep)")
+    status_parser.add_argument(
+        "--safe-json",
+        action="store_true",
+        help="When used with --json, emit a sanitized summary object (no location) instead of raw vehicle_data",
+    )
 
     # Summary (alias)
     summary_parser = subparsers.add_parser("summary", help="One-line status summary")
