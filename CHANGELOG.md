@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.97 — 2026-01-30
+- Reliability: add unit tests to lock in `--metric` distance formatting (km vs mi) in summary/report helpers.
+
 ## 0.1.96 — 2026-01-30
 - Better UX: `report --json --compact` now emits a smaller sanitized JSON payload (using the existing `--compact` flag).
 
