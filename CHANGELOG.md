@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.67 — 2026-01-29
+- Docs: add explicit usage examples for `honk` and `flash` (both safety gated).
+
 ## 0.1.66 — 2026-01-29
 - Reliability: add `fetch_vehicle_data` retry/backoff to reduce transient API errors on read-only commands.
 - UX: new global flags `--retries` and `--retry-delay` to tune/disable retries.

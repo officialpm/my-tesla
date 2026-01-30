@@ -150,6 +150,10 @@ python3 scripts/tesla.py sentry status --no-wake
 python3 scripts/tesla.py sentry on  --yes
 python3 scripts/tesla.py sentry off --yes
 
+# Honk / flash (safety gated)
+python3 scripts/tesla.py honk  --yes
+python3 scripts/tesla.py flash --yes
+
 # Location (approx by default; use --yes for precise coordinates)
 python3 scripts/tesla.py location
 python3 scripts/tesla.py location --no-wake
