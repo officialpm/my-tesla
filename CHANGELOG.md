@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.70 — 2026-01-29
+- Reliability: add versioning guardrail unit tests to ensure `VERSION`/`VERSION.txt` match and the changelog includes the current version heading.
+
 ## 0.1.69 — 2026-01-29
 - New capability: add `seats off --yes` to turn off all seat heaters in one command (best-effort for heater ids 0–6).
 - Reliability: add unit test coverage for the new `seats off` behavior.
