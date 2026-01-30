@@ -1291,6 +1291,21 @@ def cmd_charge(args):
         print(f"   State: {charge['charging_state']}")
         print(f"   Limit: {charge['charge_limit_soc']}%")
 
+        # Scheduled charging (best-effort; fields vary by vehicle/firmware)
+        sched_time = charge.get('scheduled_charging_start_time')
+        sched_mode = charge.get('scheduled_charging_mode')
+        sched_pending = charge.get('scheduled_charging_pending')
+        if sched_time is not None or sched_mode is not None or sched_pending is not None:
+            hhmm = _fmt_minutes_hhmm(sched_time)
+            if sched_pending is not None:
+                mode = 'On' if sched_pending else 'Off'
+            else:
+                mode = (sched_mode.strip() if isinstance(sched_mode, str) and sched_mode.strip() else '(unknown)')
+            if hhmm:
+                print(f"   Scheduled charging: {mode} ({hhmm})")
+            else:
+                print(f"   Scheduled charging: {mode}")
+
         cpd = charge.get('charge_port_door_open')
         if cpd is not None:
             print(f"   Charge port door: {_fmt_bool(cpd, 'Open', 'Closed')}")

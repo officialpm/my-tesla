@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.93 — 2026-01-30
+- Better UX: `charge status` now shows scheduled charging state/time (when the vehicle reports it).
+- Reliability: add unit test coverage for the new human output.
+
 ## 0.1.92 — 2026-01-30
 - Better UX: `climate status` now shows defrost/preconditioning flags (front/rear defroster, defrost mode, preconditioning) when the vehicle reports them.
 - Reliability: add unit tests for the new climate-status fields.

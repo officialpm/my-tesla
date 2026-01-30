@@ -96,7 +96,7 @@ python3 scripts/tesla.py status --json               # raw vehicle_data (may inc
 python3 scripts/tesla.py status --json --safe-json    # sanitized summary object (no location)
 python3 scripts/tesla.py report --json --raw-json     # raw vehicle_data (may include location)
 python3 scripts/tesla.py summary --json --raw-json    # raw vehicle_data (may include location)
-python3 scripts/tesla.py charge status --json   # includes usable battery + (when charging) power details (kW/V/A)
+python3 scripts/tesla.py charge status --json   # includes usable battery + scheduled charging + (when charging) power details (kW/V/A)
 
 python3 scripts/tesla.py --car "My Model 3" lock
 python3 scripts/tesla.py lock --no-wake      # refuse waking (exits 3 if asleep/offline)
