@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.84 — 2026-01-30
+- Bugfix/UX: add the missing `--json` flag to `charge-port status` (it was documented and implemented, but not wired in argparse).
+
 ## 0.1.83 — 2026-01-30
 - Bugfix: fix a CLI startup error caused by defining `--raw-json` twice (argparse conflict). The flag is now defined once with clear help text.
 

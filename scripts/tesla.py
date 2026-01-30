@@ -2643,6 +2643,7 @@ def main():
     )
     charge_port_parser.add_argument("action", choices=["status", "open", "close"], help="status|open|close")
     charge_port_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
+    charge_port_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
 
     # Wake
     subparsers.add_parser("wake", help="Wake up the vehicle")
