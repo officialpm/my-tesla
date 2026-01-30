@@ -371,6 +371,7 @@ def _summary_json(vehicle, data: dict) -> dict:
         "battery": {
             "level_percent": charge.get("battery_level"),
             "range_mi": charge.get("battery_range"),
+            "usable_level_percent": charge.get("usable_battery_level"),
         },
         "charging": {
             "charging_state": charge.get("charging_state"),
@@ -470,11 +471,19 @@ def _report(vehicle, data):
         lines.append(f"Openings: {openings}")
 
     batt = charge.get('battery_level')
+    usable = charge.get('usable_battery_level')
     rng = charge.get('battery_range')
     if batt is not None and rng is not None:
         lines.append(f"Battery: {batt}% ({rng:.0f} mi)")
     elif batt is not None:
         lines.append(f"Battery: {batt}%")
+
+    # Some vehicles report usable battery level separately (helpful for health/degradation).
+    if usable is not None:
+        try:
+            lines.append(f"Usable battery: {int(usable)}%")
+        except Exception:
+            lines.append(f"Usable battery: {usable}%")
 
     charging_state = charge.get('charging_state')
     if charging_state is not None:

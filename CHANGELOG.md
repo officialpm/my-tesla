@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.63 — 2026-01-29
+- Better UX: show "Usable battery" (when available) in `report`, and include `usable_level_percent` in `summary --json`.
+- Reliability: add unit tests for usable battery formatting.
+
 ## 0.1.62 — 2026-01-29
 - Better UX: add `scheduled-departure status` (read-only) for scheduled departure / preconditioning / off-peak charging.
 - Reliability: add unit tests for scheduled-departure JSON formatting.

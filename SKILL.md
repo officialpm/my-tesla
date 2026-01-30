@@ -58,11 +58,13 @@ python3 {baseDir}/scripts/tesla.py summary --no-wake   # don't wake a sleeping c
 
 # Summary as JSON (privacy-safe)
 # Unlike `status --json`, this emits a small sanitized object (no location).
+# Includes `usable_level_percent` when the vehicle reports it.
 python3 {baseDir}/scripts/tesla.py summary --json
 python3 {baseDir}/scripts/tesla.py summary --json --raw-json   # raw vehicle_data (may include location)
 
 # One-screen report (chat friendly, more detail)
 # Includes battery/charging/climate + (when available) TPMS tire pressures.
+# Includes "Usable battery" when the vehicle reports it (helpful for health/degradation).
 # Also includes a quick openings summary (doors/trunk/frunk/windows) when available.
 # When available, includes a compact seat heater summary line.
 # When the vehicle reports it, includes scheduled departure / preconditioning / off-peak charging status.
