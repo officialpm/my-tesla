@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.105 — 2026-01-30
+- Better UX: show a friendly install hint if `teslapy` is missing, and document the dependency in README/SKILL.
+
 ## 0.1.104 — 2026-01-30
 - Docs: clarify trunk/frunk `--force` safety note (toggle endpoint) and remove duplicated seat-heaters examples in SKILL.md.
 

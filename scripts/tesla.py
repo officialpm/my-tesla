@@ -84,16 +84,25 @@ def require_email(args) -> str:
 
 def get_tesla(email: str):
     """Get authenticated Tesla instance."""
-    import teslapy
-    
+    try:
+        import teslapy
+    except ImportError:
+        print(
+            "❌ Missing dependency: teslapy\n"
+            "   Install with: python3 -m pip install teslapy\n"
+            "   (Tip: ensure you're installing into the same Python you run this script with.)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     def custom_auth(url):
         print(f"\n🔐 Open this URL in your browser:\n{url}\n")
         print("Log in to Tesla, then paste the final URL here")
         print("(it will start with https://auth.tesla.com/void/callback?...)")
         return input("\nCallback URL: ").strip()
-    
+
     tesla = teslapy.Tesla(email, authenticator=custom_auth, cache_file=str(CACHE_FILE))
-    
+
     if not tesla.authorized:
         tesla.fetch_token()
         print("✅ Authenticated successfully!")

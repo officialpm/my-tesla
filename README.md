@@ -12,6 +12,12 @@ Author: Parth Maniar — [@officialpm](https://github.com/officialpm)
 
 ## Install / auth
 
+Install dependencies:
+
+```bash
+python3 -m pip install teslapy
+```
+
 Set `TESLA_EMAIL` and run:
 
 ```bash
