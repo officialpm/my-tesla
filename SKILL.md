@@ -123,6 +123,7 @@ python3 {baseDir}/scripts/tesla.py charge amps 16 --yes    # 1–48 (conservativ
 python3 {baseDir}/scripts/tesla.py scheduled-charging status
 python3 {baseDir}/scripts/tesla.py scheduled-charging status --no-wake
 python3 {baseDir}/scripts/tesla.py scheduled-charging set 23:30 --yes
+python3 {baseDir}/scripts/tesla.py scheduled-charging set 2330  --yes   # compact HHMM
 python3 {baseDir}/scripts/tesla.py scheduled-charging off --yes
 
 # Scheduled departure (read-only)

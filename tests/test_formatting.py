@@ -62,8 +62,8 @@ class FormattingTests(unittest.TestCase):
             tesla._parse_hhmm("24:00")
         with self.assertRaises(ValueError):
             tesla._parse_hhmm("12:60")
-        with self.assertRaises(ValueError):
-            tesla._parse_hhmm("1230")
+        # Compact HHMM is allowed (e.g., for scheduled charging)
+        self.assertEqual(tesla._parse_hhmm("1230"), 12 * 60 + 30)
 
     def test_report_is_one_screen(self):
         vehicle = {"display_name": "Test Car", "state": "online"}

@@ -25,6 +25,11 @@ class TestTimeHelpers(unittest.TestCase):
         self.assertEqual(_parse_hhmm("01:05"), 65)
         self.assertEqual(_parse_hhmm("23:59"), 23 * 60 + 59)
 
+    def test_parse_hhmm_compact_digits(self):
+        self.assertEqual(_parse_hhmm("2330"), 23 * 60 + 30)
+        self.assertEqual(_parse_hhmm("0730"), 7 * 60 + 30)
+        self.assertEqual(_parse_hhmm("730"), 7 * 60 + 30)
+
     def test_parse_hhmm_strips(self):
         self.assertEqual(_parse_hhmm(" 07:30 "), 7 * 60 + 30)
 
@@ -42,7 +47,7 @@ class TestTimeHelpers(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     _parse_hhmm(bad)
 
-        for bad in ["24:00", "00:60", "-1:00", "ab:cd", "123"]:
+        for bad in ["24:00", "00:60", "-1:00", "ab:cd", "12", "12345"]:
             with self.assertRaises(Exception):
                 _parse_hhmm(bad)
 

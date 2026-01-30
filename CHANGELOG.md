@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.76 — 2026-01-29
+- Better UX: `scheduled-charging set` now accepts compact time formats like `2330` / `730` (in addition to `HH:MM`).
+- Reliability: add unit tests for the new time parsing behavior.
+
 ## 0.1.75 — 2026-01-29
 - Better UX: `report` now includes vehicle software version (`car_version`) and an "Updated" timestamp when Tesla provides it.
 - Reliability: add unit tests covering the new report fields.

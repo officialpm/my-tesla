@@ -1137,17 +1137,37 @@ def cmd_charge(args):
 
 
 def _parse_hhmm(value: str):
-    """Parse HH:MM into minutes after midnight."""
+    """Parse a time into minutes after midnight.
+
+    Accepts:
+    - "HH:MM" (e.g., "23:30")
+    - "HHMM" or "HMM" digits (e.g., "2330", "730")
+
+    This is used for scheduled charging.
+    """
     if not isinstance(value, str) or not value.strip():
-        raise ValueError("Missing time. Expected HH:MM (e.g., 23:30)")
+        raise ValueError("Missing time. Expected HH:MM or HHMM (e.g., 23:30 or 2330)")
+
     s = value.strip()
-    if ":" not in s:
-        raise ValueError("Invalid time. Expected HH:MM (e.g., 23:30)")
-    hh_s, mm_s = s.split(":", 1)
-    hh = int(hh_s)
-    mm = int(mm_s)
+
+    if ":" in s:
+        hh_s, mm_s = s.split(":", 1)
+    else:
+        # Allow compact numeric inputs like 2330 or 730.
+        if s.isdigit() and len(s) in (3, 4):
+            hh_s, mm_s = s[:-2], s[-2:]
+        else:
+            raise ValueError("Invalid time. Expected HH:MM or HHMM (e.g., 23:30 or 2330)")
+
+    try:
+        hh = int(hh_s)
+        mm = int(mm_s)
+    except Exception:
+        raise ValueError("Invalid time. Expected numeric hour/minute (e.g., 23:30)")
+
     if hh < 0 or hh > 23 or mm < 0 or mm > 59:
-        raise ValueError("Invalid time. Expected HH:MM using 24-hour time")
+        raise ValueError("Invalid time. Expected 24-hour time (00:00–23:59)")
+
     return hh * 60 + mm
 
 
@@ -2433,7 +2453,11 @@ def main():
     # Scheduled charging
     sched_parser = subparsers.add_parser("scheduled-charging", help="Get/set scheduled charging (set/off requires --yes)")
     sched_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
-    sched_parser.add_argument("time", nargs="?", help="Start time for 'set' as HH:MM (24-hour)")
+    sched_parser.add_argument(
+        "time",
+        nargs="?",
+        help="Start time for 'set' as HH:MM (24-hour) or HHMM digits (e.g., 23:30 or 2330)",
+    )
     sched_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
 
     # Scheduled departure (read-only)
