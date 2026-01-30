@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.103 — 2026-01-30
+- DevX/repo hygiene: add a repo `.gitignore` to prevent accidental commits of bytecode (`__pycache__`, `*.pyc`) and local cache/defaults files.
+
 ## 0.1.102 — 2026-01-30
 - Better UX: `default-car` now validates the provided name/index against your Tesla account (and stores the canonical display name). Add `default-car --force` to skip validation.
 - Docs: update README/SKILL with new `default-car` examples and `--force`.

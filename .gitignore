@@ -1,28 +1,12 @@
-# Python bytecode / caches
+# Bytecode / caches
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtualenvs
-.venv/
-venv/
-
-# Test / tooling caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Local auth / defaults (should live in ~/, but ignore just in case)
+# Local auth/defaults (never commit)
 .tesla_cache.json
 .my_tesla.json
 
-# SQLite / local data (skill stores these under ~/.my_tesla, but don't commit)
-*.sqlite
-*.db
-
-# OS / editor
+# Local scratch
+.tmp/
 .DS_Store
-.idea/
-.vscode/
