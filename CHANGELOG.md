@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.95 — 2026-01-30
+- DevX/reliability: add a repo `.gitignore` to prevent accidental commits of bytecode (`__pycache__`, `*.pyc`) and local cache/data files.
+
 ## 0.1.94 — 2026-01-30
 - Better UX: add `*_km` fields to sanitized JSON outputs (e.g., `battery.range_km`, `odometer_km`, `battery_range_km`) alongside existing miles.
 

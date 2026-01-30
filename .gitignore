@@ -1,28 +1,28 @@
-.DS_Store
-
-# Local tokens / caches
-*.token
-
-# Do not commit any json outputs, but allow ClawdHub metadata
-*.json
-!.clawdhub/**
-
-# Local defaults file for selecting a default car (created in your home dir)
-# ~/.my_tesla.json
-
-# Python
+# Python bytecode / caches
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Virtualenvs
+.venv/
+venv/
+
+# Test / tooling caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-# Node
-node_modules/
-package-lock.json
+# Local auth / defaults (should live in ~/, but ignore just in case)
+.tesla_cache.json
+.my_tesla.json
 
-# Local output artifacts
-*.log
-*.png
+# SQLite / local data (skill stores these under ~/.my_tesla, but don't commit)
+*.sqlite
+*.db
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
