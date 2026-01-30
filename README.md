@@ -282,4 +282,4 @@ Useful if you’re running this via cron/launchd and want to distinguish “expe
 - `0` — success
 - `2` — bad/missing arguments (e.g., missing `TESLA_EMAIL`)
 - `3` — car is asleep/offline and `--no-wake` was set (so the command refused to wake it)
-  - For UX, `summary --no-wake` and `report --no-wake` still print a minimal payload before exiting 3.
+  - For UX, `summary --no-wake`, `report --no-wake`, and `status --no-wake` still print a minimal payload before exiting 3.

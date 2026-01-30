@@ -999,6 +999,15 @@ def cmd_status(args):
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
+    # UX: when --no-wake is set and the car is asleep/offline, still print a
+    # minimal payload (then exit 3) so automations/chat have something useful.
+    if getattr(args, 'no_wake', False) and vehicle.get('state') != 'online':
+        if getattr(args, 'json', False):
+            print(json.dumps(_no_wake_offline_json(vehicle), indent=2))
+        else:
+            print(_no_wake_offline_human(vehicle))
+        sys.exit(3)
+
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
     data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
 

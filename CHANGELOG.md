@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.88 — 2026-01-30
+- Better UX: when `status` is run with `--no-wake` and the car is asleep/offline, print a minimal payload (then exit 3) instead of only an error.
+- Reliability/docs: add unit tests + update docs to reflect the behavior.
+
 ## 0.1.87 — 2026-01-30
 - Better UX: when `summary`/`report` are run with `--no-wake` and the car is asleep/offline, print a minimal payload (then exit 3) instead of only an error.
 - Reliability: add unit tests for the new `--no-wake` minimal payload behavior.
