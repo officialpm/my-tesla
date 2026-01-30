@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.108 — 2026-01-30
+- Better UX: add `status --json --safe-json --compact` for single-line, privacy-safe JSON (chat/log friendly).
+- Reliability: add unit test for the compact safe-json output.
+- Docs: document the new `--compact` flag for `status --safe-json`.
+
 ## 0.1.107 — 2026-01-30
 - Better UX: `report --json --compact` now prints single-line compact JSON (stable key order) for easier chat/log parsing.
 - Reliability: add unit test to lock in the compact JSON behavior.

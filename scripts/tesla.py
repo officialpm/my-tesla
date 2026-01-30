@@ -1144,7 +1144,12 @@ def cmd_status(args):
         # That's still available, but `--safe-json` provides a privacy-safe option
         # that avoids location/drive_state surprises.
         if getattr(args, 'safe_json', False):
-            print(json.dumps(_summary_json(vehicle, data, metric=(getattr(args, 'metric', False) is True)), indent=2))
+            payload = _summary_json(vehicle, data, metric=(getattr(args, 'metric', False) is True))
+            # UX: when --compact is set, emit single-line JSON (useful for chat/logs).
+            if getattr(args, 'compact', False):
+                print(json.dumps(payload, separators=(',', ':'), sort_keys=True))
+            else:
+                print(json.dumps(payload, indent=2))
         else:
             print(json.dumps(data, indent=2))
         return
@@ -3042,6 +3047,11 @@ def main():
         "--safe-json",
         action="store_true",
         help="When used with --json, emit a sanitized summary object (no location) instead of raw vehicle_data",
+    )
+    status_parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="When used with --json --safe-json, emit single-line JSON (useful for chat/logs)",
     )
 
     # Summary (alias)

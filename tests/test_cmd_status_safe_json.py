@@ -55,6 +55,7 @@ class CmdStatusSafeJsonTests(unittest.TestCase):
         args.json = True
         args.safe_json = True
         args.metric = False
+        args.compact = False
 
         with mock.patch.object(tesla, "get_tesla"), \
              mock.patch.object(tesla, "get_vehicle", return_value=vehicle), \
@@ -75,6 +76,38 @@ class CmdStatusSafeJsonTests(unittest.TestCase):
         self.assertNotIn("drive_state", obj)
         self.assertNotIn("latitude", out)
         self.assertNotIn("longitude", out)
+
+    def test_status_safe_json_compact_is_single_line_json(self):
+        data = {
+            "drive_state": {"latitude": 37.123, "longitude": -122.456},
+            "charge_state": {"battery_level": 55, "battery_range": 123.4, "charging_state": "Stopped"},
+            "climate_state": {"inside_temp": 20, "is_climate_on": False},
+            "vehicle_state": {"locked": True},
+        }
+        vehicle = DummyVehicle(data=data)
+
+        args = mock.Mock()
+        args.car = None
+        args.no_wake = False
+        args.summary = False
+        args.json = True
+        args.safe_json = True
+        args.metric = False
+        args.compact = True
+
+        with mock.patch.object(tesla, "get_tesla"), \
+             mock.patch.object(tesla, "get_vehicle", return_value=vehicle), \
+             mock.patch.object(tesla, "require_email", return_value="test@example.com"), \
+             mock.patch.object(tesla, "_ensure_online_or_exit"):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                tesla.cmd_status(args)
+
+        out = buf.getvalue().strip()
+        self.assertNotIn("\n", out)
+        # Still valid JSON.
+        obj = json.loads(out)
+        self.assertIn("summary", obj)
 
 
 if __name__ == "__main__":
