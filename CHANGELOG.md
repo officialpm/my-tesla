@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.101 — 2026-01-30
+- Better UX: `--metric` now also converts charging rate to km/h (previously always showed mph) in `report` and `charge status`.
+- Reliability: add unit tests for metric speed formatting.
+
 ## 0.1.100 — 2026-01-30
 - New capability (safety gated): `scheduled-departure set <time>` and `scheduled-departure off` (requires `--yes`).
 

@@ -581,6 +581,29 @@ def _fmt_distance(mi, metric: bool = False, decimals: int = 0):
     return f"{s} mi"
 
 
+def _mph_to_kmh(mph: float) -> float:
+    """Convert miles/hour to kilometers/hour."""
+    return float(mph) * 1.609344
+
+
+def _fmt_speed(mph, metric: bool = False, decimals: int = 0):
+    """Format a speed (provided in mph) as mph or km/h."""
+    if mph is None:
+        return None
+    try:
+        v = float(mph)
+    except Exception:
+        return None
+
+    if metric:
+        kmh = _mph_to_kmh(v)
+        s = f"{kmh:.{decimals}f}"
+        return f"{s} km/h"
+
+    s = f"{v:.{decimals}f}"
+    return f"{s} mph"
+
+
 def _report(vehicle, data, metric: bool = False, compact: bool = False):
     """One-screen status report (safe for chat).
 
@@ -656,7 +679,9 @@ def _report(vehicle, data, metric: bool = False, compact: bool = False):
 
             rate = charge.get('charge_rate')
             if rate is not None:
-                extra.append(f"{rate} mph")
+                spd = _fmt_speed(rate, metric=metric, decimals=0)
+                if spd:
+                    extra.append(spd)
         suffix = f" ({', '.join(extra)})" if extra else ""
         lines.append(f"Charging: {charging_state}{suffix}")
 
@@ -870,6 +895,7 @@ def _report_json(vehicle, data: dict, compact: bool = False) -> dict:
                 "full_at_local_hhmm": _fmt_local_hhmm_from_now(charge.get('minutes_to_full_charge')),
                 "time_to_full_charge_hours": charge.get('time_to_full_charge'),
                 "charge_rate_mph": charge.get('charge_rate'),
+                "charge_rate_kmh": _mph_to_kmh(charge.get('charge_rate')) if charge.get('charge_rate') is not None else None,
                 "charger_power_kw": charger_power_kw,
                 "charger_voltage_v": charge.get('charger_voltage'),
                 "charger_actual_current_a": charge.get('charger_actual_current'),
@@ -1276,7 +1302,9 @@ def _charge_status_json(charge: dict) -> dict:
         'charging_state': charge.get('charging_state'),
         'charge_limit_soc': charge.get('charge_limit_soc'),
         'time_to_full_charge': charge.get('time_to_full_charge'),
+        # Tesla reports charge_rate in mph.
         'charge_rate': charge.get('charge_rate'),
+        'charge_rate_kmh': _mph_to_kmh(charge.get('charge_rate')) if charge.get('charge_rate') is not None else None,
         'charger_power': charger_power,
         'charger_voltage': charge.get('charger_voltage'),
         'charger_actual_current': charge.get('charger_actual_current'),
@@ -1354,7 +1382,9 @@ def cmd_charge(args):
             if charge.get('time_to_full_charge') is not None:
                 print(f"   Time left: {charge['time_to_full_charge']:.1f} hrs")
             if charge.get('charge_rate') is not None:
-                print(f"   Rate: {charge['charge_rate']} mph")
+                spd = _fmt_speed(charge.get('charge_rate'), metric=(getattr(args, 'metric', False) is True), decimals=0)
+                if spd:
+                    print(f"   Rate: {spd}")
 
             # Power details when available
             p = charge.get('charger_power')

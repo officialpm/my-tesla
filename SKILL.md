@@ -84,7 +84,7 @@ python3 {baseDir}/scripts/tesla.py report
 python3 {baseDir}/scripts/tesla.py report --compact    # core lines only (also makes `--json` output compact)
 python3 {baseDir}/scripts/tesla.py report --json --compact   # small sanitized JSON payload
 python3 {baseDir}/scripts/tesla.py report --no-wake
-python3 {baseDir}/scripts/tesla.py --metric report    # show km instead of miles
+python3 {baseDir}/scripts/tesla.py --metric report    # show km instead of miles (and km/h instead of mph where applicable)
 
 # Detailed status
 python3 {baseDir}/scripts/tesla.py status
