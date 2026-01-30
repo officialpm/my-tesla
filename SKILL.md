@@ -191,6 +191,9 @@ python3 {baseDir}/scripts/tesla.py seats status --no-wake
 # level: 0–3 (0=off)
 python3 {baseDir}/scripts/tesla.py seats set driver 3 --yes
 
+# Set ALL seat heaters to a level (safety gated)
+python3 {baseDir}/scripts/tesla.py seats all 1 --yes
+
 # Turn ALL seat heaters off (safety gated)
 python3 {baseDir}/scripts/tesla.py seats off --yes
 
@@ -235,7 +238,7 @@ python3 {baseDir}/scripts/tesla.py flash  --yes
 ## Safety defaults
 
 Some actions require an explicit confirmation flag:
-- `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `seats set|off`, `sentry on|off`, `valet on|off|reset-pin`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
+- `unlock`, `charge start|stop|limit|amps`, `trunk`, `windows`, `seats set|all|off`, `sentry on|off`, `valet on|off|reset-pin`, `honk`, `flash`, `charge-port open|close`, and `scheduled-charging set|off` require `--yes`
 - `location` is *approximate* by default; add `--yes` for precise coordinates (or `--digits N` to control rounding)
 
 ## Privacy

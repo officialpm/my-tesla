@@ -154,6 +154,9 @@ python3 scripts/tesla.py seats status --json
 # level: 0–3 (0=off)
 python3 scripts/tesla.py seats set driver 3 --yes
 
+# Set ALL seat heaters to a level (safety gated)
+python3 scripts/tesla.py seats all 1 --yes
+
 # Turn ALL seat heaters off (safety gated)
 python3 scripts/tesla.py seats off --yes
 

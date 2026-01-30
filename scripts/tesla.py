@@ -1984,7 +1984,7 @@ def _parse_seat_heater(seat: str) -> int:
 
 
 def cmd_seats(args):
-    """Seat heaters: status (read-only), set level, or turn all off (requires --yes)."""
+    """Seat heaters: status (read-only), set one, set all, or turn all off (mutations require --yes)."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
@@ -2022,6 +2022,38 @@ def cmd_seats(args):
 
         vehicle.command("REMOTE_SEAT_HEATER_REQUEST", heater=heater, level=level)
         print(f"🔥 {vehicle['display_name']} seat heater {heater} set to {level}")
+        return
+
+    if args.action == "all":
+        # `seats all <level>` uses the first positional arg for the level.
+        require_yes(args, "seats all")
+        wake_vehicle(vehicle)
+
+        raw_level = getattr(args, "seat", None)
+        if raw_level is None:
+            raw_level = getattr(args, "level", None)
+        if raw_level is None:
+            raise ValueError("Missing level. Example: seats all 2 --yes")
+
+        level = int(raw_level)
+        if level < 0 or level > 3:
+            raise ValueError("Invalid level. Expected 0–3")
+
+        failures = []
+        for heater in range(7):
+            try:
+                vehicle.command("REMOTE_SEAT_HEATER_REQUEST", heater=heater, level=level)
+            except Exception as e:
+                failures.append((heater, str(e)))
+
+        if failures:
+            print(
+                f"🔥 {vehicle['display_name']} seat heaters: attempted set ALL to {level}; {len(failures)} failed"
+            )
+            for heater, msg in failures:
+                print(f"   - heater {heater}: {msg}")
+        else:
+            print(f"🔥 {vehicle['display_name']} seat heaters set to {level} (all)")
         return
 
     if args.action == "off":
@@ -2688,7 +2720,7 @@ def main():
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
-            "(unlock/charge start|stop|limit|amps/trunk/windows/seats set/honk/flash/charge-port open|close/"
+            "(unlock/charge start|stop|limit|amps/trunk/windows/seats set|all|off/honk/flash/charge-port open|close/"
             "scheduled-charging set|off/sentry on|off/location precise/wake)"
         ),
     )
@@ -2855,15 +2887,18 @@ def main():
     # Seat heaters
     seats_parser = subparsers.add_parser(
         "seats",
-        help="Seat heater status (read-only) or set/off (requires --yes)",
+        help="Seat heater status (read-only) or set/all/off (mutations require --yes)",
     )
-    seats_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
+    seats_parser.add_argument("action", choices=["status", "set", "all", "off"], help="status|set|all|off")
     seats_parser.add_argument(
         "seat",
         nargs="?",
-        help="For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)",
+        help=(
+            "For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6). "
+            "For 'all': level 0–3."
+        ),
     )
-    seats_parser.add_argument("level", nargs="?", help="For 'set': 0–3 (0=off)")
+    seats_parser.add_argument("level", nargs="?", help="For 'set': level 0–3 (0=off)")
     seats_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
     seats_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
 

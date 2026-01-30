@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.98 — 2026-01-30
+- Better UX: add `seats all <level> --yes` to set ALL seat heaters to a given level (0–3) in one shot.
+- Reliability: add unit tests for the new `seats all` behavior.
+
 ## 0.1.97 — 2026-01-30
 - Reliability: add unit tests to lock in `--metric` distance formatting (km vs mi) in summary/report helpers.
 
