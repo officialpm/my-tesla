@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.115 — 2026-01-30
+- Better UX: `charge status --json --compact` now emits single-line JSON (chat/log friendly).
+- Reliability: add a unit test to lock in the compact JSON output for charge status.
+
+## 0.1.114 — 2026-01-30
+- Better UX: `report` now shows Valet mode state when available.
+- Reliability: add a unit test to lock in the Valet line in `report`.
+
 ## 0.1.113 — 2026-01-30
 - Better UX: add `report --one-line` as a convenient alias for the `summary` output.
 - Reliability: add a unit test to lock in the new `report --one-line` behavior.

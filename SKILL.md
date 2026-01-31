@@ -113,6 +113,7 @@ python3 {baseDir}/scripts/tesla.py status --json --safe-json --compact     # sin
 python3 {baseDir}/scripts/tesla.py report --json --raw-json     # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py summary --json --raw-json    # raw vehicle_data (may include location)
 python3 {baseDir}/scripts/tesla.py charge status --json   # includes usable battery + scheduled charging + (when charging) power details (kW/V/A)
+python3 {baseDir}/scripts/tesla.py charge status --json --compact   # single-line JSON (nice for chat/logs)
 # Sanitized JSON outputs include both miles + kilometers (e.g., range_mi + range_km).
 
 # Lock / unlock

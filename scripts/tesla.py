@@ -723,6 +723,10 @@ def _report(vehicle, data, metric: bool = False, compact: bool = False):
     if sentry is not None:
         lines.append(f"Sentry: {_fmt_bool(sentry, 'On', 'Off')}")
 
+    valet = vs.get('valet_mode')
+    if valet is not None:
+        lines.append(f"Valet: {_fmt_bool(valet, 'On', 'Off')}")
+
     if not compact:
         openings = _openings_one_line(vs)
         if openings:
@@ -1028,6 +1032,7 @@ def _report_json(vehicle, data: dict, compact: bool = False) -> dict:
             "security": {
                 "locked": vs.get('locked'),
                 "sentry_mode": vs.get('sentry_mode'),
+                "valet_mode": vs.get('valet_mode'),
             },
             "openings": _openings_json(vs),
             "tpms": {
@@ -1467,7 +1472,15 @@ def cmd_charge(args):
             out = _charge_status_json(charge)
             # Drop nulls for cleanliness.
             out = {k: v for k, v in out.items() if v is not None}
-            print(json.dumps(out, indent=2))
+
+            # UX: allow `charge status --json --compact` to emit single-line JSON
+            # (useful for chat/logs).
+            dumps_kwargs = (
+                {"separators": (',', ':'), "sort_keys": True}
+                if getattr(args, 'compact', False)
+                else {"indent": 2}
+            )
+            print(json.dumps(out, **dumps_kwargs))
             return
 
         # Compact one-line human output (useful for chat)
@@ -3261,7 +3274,7 @@ def main():
     charge_parser.add_argument(
         "--compact",
         action="store_true",
-        help="(status only) One-line human output (chat friendly)",
+        help="(status only) One-line human output; when used with --json, emits single-line JSON (chat/log friendly)",
     )
 
     # Scheduled charging
